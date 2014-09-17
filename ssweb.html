@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <title>Solar sail on the web
+    </title>
+    <script src='js/three.min.js'></script>
+    <script src='js/jquery-1.11.1.min.js'></script>
+    <script type='text/javascript'>function mapcar(fun) {
+    var arrs = [];
+    for (var i1895 = 0; i1895 < arguments.length - 1; i1895 += 1) {
+        arrs[i1895] = arguments[i1895 + 1];
+    };
+    var resultArray = new Array();
+    if (1 === arrs.length) {
+        for (var element = null, _js_arrvar1897 = arrs[0], _js_idx1896 = 0; _js_idx1896 < _js_arrvar1897.length; _js_idx1896 += 1) {
+            element = _js_arrvar1897[_js_idx1896];
+            resultArray.push(fun(element));
+        };
+    } else {
+        for (var i = 0; i < arrs[0].length; i += 1) {
+            with ({ i : i }) {
+                var argsArray = mapcar(function (a) {
+                    return a[i];
+                }, arrs);
+                resultArray.push(fun.apply(fun, argsArray));
+            };
+        };
+    };
+    return resultArray;
+};
+/** Call FN on each element in ARR, replace element with the return value. */
+function mapInto(fn, arr) {
+    var idx = 0;
+    for (var el = null, _js_idx1898 = 0; _js_idx1898 < arr.length; _js_idx1898 += 1) {
+        el = arr[_js_idx1898];
+        arr[idx] = fn(el);
+        idx += 1;
+    };
+    return arr;
+};
+/** Call FN on each element in ARR and return the returned values in a new array. */
+function map(fn, arr) {
+    var idx = 0;
+    var result = [];
+    for (var el = null, _js_idx1899 = 0; _js_idx1899 < arr.length; _js_idx1899 += 1) {
+        el = arr[_js_idx1899];
+        result[idx] = fn(el);
+        idx += 1;
+    };
+    return result;
+};
+/** Check if ITEM is a member of ARR. */
+function member(item, arr) {
+    for (var el = null, _js_idx1900 = 0; _js_idx1900 < arr.length; _js_idx1900 += 1) {
+        el = arr[_js_idx1900];
+        if (el === item) {
+            return true;
+        };
+    };
+    return false;
+};
+/** Return a new array with only those elements in ARR that are not in ARR-TO-SUB. */
+function setDifference(arr, arrToSub) {
+    var idx = 0;
+    var result = [];
+    for (var el = null, _js_idx1901 = 0; _js_idx1901 < arr.length; _js_idx1901 += 1) {
+        el = arr[_js_idx1901];
+        if (!member(el, arrToSub)) {
+            result[idx] = el;
+            idx += 1;
+        };
+    };
+    return result;
+};
+function reduce(func, list, init) {
+    var acc = null;
+    for (var i = init ? -1 : 0, acc = init ? init : list[0]; i < list.length - 1; i += 1, acc = func(acc, list[i])) {
+    };
+    return acc;
+};
+function nconc(arr) {
+    var arrs = [];
+    for (var i1902 = 0; i1902 < arguments.length - 1; i1902 += 1) {
+        arrs[i1902] = arguments[i1902 + 1];
+    };
+    if (arr && arr.length > 0) {
+        var _js1904 = arrs.length;
+        for (var _js1903 = 0; _js1903 < _js1904; _js1903 += 1) {
+            var other = arrs[_js1903];
+            if (other && other.length > 0) {
+                arr['splice']['apply'](arr, [arr.length, other.length].concat(other));
+            };
+        };
+    };
+    return arr;
+};;
+    </script>
+  </head>
+  <body>
+    <h1>Navigate a solar sail
+    </h1>
+    <form id='ControlsForm' method='post' action=''>
+      <h2>Sail performance
+      </h2>
+      <table>
+        <tr>
+          <td>Solar force : gravity
+          </td>
+          <td>
+            <input type='number' min='0' max='2' step='0.05' value='0.1' name='lightness'>
+          </td>
+        </tr>
+      </table>
+      <h2>Controls
+      </h2>
+      <div id='controls'>
+        <div>
+          <table>
+            <tr>
+              <td>Angle
+              </td>
+              <td>
+                <input type='number' min='-90' max='90' step='5' value='0' name='angles[]'>
+              </td>
+              <td>Duration
+              </td>
+              <td>
+                <input type='number' min='0' max='10' step='0.1' value='1' name='durations[]'>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </form>
+    <p>
+      <div id='addcontrol'>
+        <b>Add new control
+        </b>
+      </div>
+    </p>
+    <p>
+      <div id='trajectory'></div>
+    </p>
+    <p>
+      <div id='update'>
+        <b>Update trajectory
+        </b>
+      </div>
+    </p>
+    <script src='ssweb.js'></script>
+  </body>
+</html>
