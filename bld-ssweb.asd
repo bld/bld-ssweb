@@ -9,4 +9,5 @@
   ((:file "package")
    (:file "prop")
    (:file "ajax")
+   (:file "ssweb-js")
    (:file "ssweb")))
