@@ -38,8 +38,11 @@
 	      scene (new (3fn *scene))
 	      traj3d nil
 	      trajseg nil
+	      traj-final nil
 	      geometry nil
 	      material nil
+	      geometry-final nil
+	      material-final nil
 	      node nil
 	      nodes nil
 	      planets
@@ -111,8 +114,9 @@
 					    angles angles
 					    durations durations)
 	 (lambda (trajectory)
-	   (with-slots (traj3d scene nodes geometry material fov camera renderer) plot
+	   (with-slots (traj3d traj-final scene nodes geometry material fov camera renderer) plot
 	   (when traj3d ((@ scene remove) traj3d))
+	   (when traj-final ((@ scene remove) traj-final))
 	   (when nodes
 	     (dolist (node nodes)
 	       (dolist (o node)
@@ -120,19 +124,30 @@
 	   (setf nodes (list))
 	   (setf geometry (new (3fn *geometry)))
 	   (setf material (new (3fn *line-basic-material (create color 0x00ff00))))
+	   (setf geometry-final (new (3fn *geometry)))
 	   (setf (@ geometry vertices)
 		 (loop with rmax = 0
+		    with n = (length trajectory)
+		    for i = 1 then (incf i)
 		    for segment in trajectory
-		    append
+		    for vertices =
 		      (loop for (tm x y) in segment
 			 for v = (new (3fn *vector3 x y 0))
 			 collect v
 			 do (setq rmax (max rmax ((@ v length)))))
+		    if (< i n) 
+		    append vertices
+		    else do (setf (@ geometry-final vertices) vertices)
 		    finally
 		      ;; Scale camera position to fit trajectory
 		      (let ((rcam 
 			     (* 1.1 (/ rmax (tan (/ (* fov (/ pi 180)) 2))))))
-			((@ camera position set) 0 0 rcam))
+			((@ camera position set) 0 0 rcam)
+			(setf material-final
+			      (new (3fn *line-dashed-material
+					(create color 0x333333
+						gap-size (/ rcam 50)
+						dash-size (/ rcam 50))))))
 		      ;; Draw sails at control nodes
 		      (loop for segment in trajectory
 			 for angle in angles
@@ -144,8 +159,11 @@
 			      (setf (@ o rotation z) (+ angle theta))
 			      ((@ scene add) o))
 			   ((@ nodes push) node))))
+	   ((@ geometry-final compute-line-distances))
 	   (setq traj3d (new (3fn *line geometry material)))
+	   (setq traj-final (new (3fn *line geometry-final material-final)))
 	   ((@ scene add) traj3d)
+	   ((@ scene add) traj-final)
 	   ((@ renderer render) scene camera))))))
     
     (defvar control-count
