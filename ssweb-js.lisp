@@ -30,7 +30,8 @@
 	      near 1
 	      far 4000
 	      origin (new (3fn *vector3 0 0 0))
-	      renderer (if (webgl-available)
+	      renderer (if (@ window *web-g-l-rendering-context)
+			   ;;(if (webgl-available)
 			   (new (3fn *web-g-l-renderer))
 			   (new (3fn *canvas-renderer)))
 	      traj-div ((@ document get-element-by-id) "trajectory")
