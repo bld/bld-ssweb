@@ -10,4 +10,5 @@
    (:file "prop")
    (:file "ajax")
    (:file "ssweb-js")
-   (:file "ssweb")))
+   (:file "ssweb")
+   (:file "mirror")))
