@@ -101,15 +101,14 @@
 	 (new (3fn *mesh ((@ g clone)) mb)))))
     
     (defun update-trajectory (plot document)
-      (let ((lightness (@ (aref ((@ document get-elements-by-name) "lightness") 0)
-			  value-as-number))
+      (let ((lightness (parse-float (@ (aref ((@ document get-elements-by-name) "lightness") 0) value)))
 	    (angles
 	     (mapcar #'(lambda (anglestring)
-			 (* (@ anglestring value-as-number) (lisp *deg*)))
+			 (* (parse-float (@ anglestring value)) (lisp *deg*)))
 		     ((@ document get-elements-by-name) "angles[]")))
 	    (durations
 	     (mapcar #'(lambda (durationstring)
-			 (* (@ durationstring value-as-number) (lisp *years*)))
+			 (* (parse-float (@ durationstring value)) (lisp *years*)))
 		     ((@ document get-elements-by-name) "durations[]"))))
 	((@ $ get-j-s-o-n) "ssprop" (create lightness lightness
 					    angles angles
