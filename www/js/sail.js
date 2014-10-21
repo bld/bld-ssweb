@@ -19,7 +19,7 @@
 	"materials" : [	{
 		"DbgColor" : 15658734,
 		"DbgIndex" : 0,
-		"DbgName" : "Material",
+		"DbgName" : "MaterialBoom",
 		"blending" : "NormalBlending",
 		"colorAmbient" : [0.5013289526302955, 0.5013289526302955, 0.5013289526302955],
 		"colorDiffuse" : [0.5013289526302955, 0.5013289526302955, 0.5013289526302955],
@@ -37,7 +37,7 @@
 	{
 		"DbgColor" : 15597568,
 		"DbgIndex" : 1,
-		"DbgName" : "Material.001",
+		"DbgName" : "MaterialSail",
 		"blending" : "NormalBlending",
 		"colorAmbient" : [0.15272727240215644, 0.15272727240215644, 0.15272727240215644],
 		"colorDiffuse" : [0.15272727240215644, 0.15272727240215644, 0.15272727240215644],
@@ -55,7 +55,7 @@
 	{
 		"DbgColor" : 15597568,
 		"DbgIndex" : 1,
-		"DbgName" : "Material.001",
+		"DbgName" : "MaterialSail",
 		"blending" : "NormalBlending",
 		"colorAmbient" : [0.15272727240215644, 0.15272727240215644, 0.15272727240215644],
 		"colorDiffuse" : [0.15272727240215644, 0.15272727240215644, 0.15272727240215644],
