@@ -128,32 +128,27 @@
        #'(lambda (e)
 	   (case (@ e which)
 	     ;; Left
-	     (37 (console.log "left arrow key pressed")
-		 (rotate-global-y mirror (/ pi 36))
+	     (37 (rotate-global-y mirror (/ pi 36))
 		 (update))
 	     ;; Up
-	     (38 (console.log "up arrow key pressed")
-		 ((@ mirror rotate-z) (/ pi 36))
+	     (38 ((@ mirror rotate-z) (/ pi 36))
 		 (update))
 	     ;; Right
-	     (39 (console.log "right arrow key pressed")
-		 (rotate-global-y mirror (/ pi -36))
+	     (39 (rotate-global-y mirror (/ pi -36))
 		 (update))
 	     ;; Down
-	     (40 (console.log "down arrow key pressed")
-		 ((@ mirror rotate-z) (/ pi -36))
+	     (40 ((@ mirror rotate-z) (/ pi -36))
 		 (update)))))
 
-
       (init)
-      (render)
-      )))
+      (render))))
 
 (define-easy-handler (mirror1 :uri "/mirror1") ((cone :init-form "0"))
   (with-html-output-to-string (s nil :indent t)
     (:html
      (:head
-      :title "Mirror hit by sunlight"
+      :title "Light striking an object"
+      (:link :href "mirror1.css" :rel "stylesheet")
       (:script :src "js/three.min.js")
       (:script :src "js/jquery-1.11.1.min.js")
       (:script :src "js/OrbitControls.js")
@@ -166,6 +161,11 @@
 		    (lisp (* (/ pi 180)
 			     (read-from-string cone nil 0))))))))
      (:body
+      (:div :id "info"
+	    (:h1 "Light striking an object")
+	    (:p "This shows what portion of the light coming from below hits a solar sail as you rotate and tilt it.")
+	    (:p "Left and right arrow keys to rotate")
+	    (:p "Up and down arrow keys to tilt")
+	    (:p "Hold left mouse button to rotate view, middle mouse wheel to zoom"))
       (:div :id "plot")
       (:script :src "mirror1.js")))))
-
