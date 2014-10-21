@@ -19,23 +19,24 @@
 		   ((@ canvas get-context) "experimental-webgl")))))
        (:catch (e) false)))
 
-    (let (scene mirror renderer camera origin projection controls)
+    (let (scene mirror renderer camera origin projection controls loader light sail)
       
       (defun *mirror ()
-	(let* ((w 10)
+	(let* ((w 8)
 	       (w2 (/ w 2))
 	       (m (new (3fn *mesh-basic-material
 			    (create 
 			     color 0x444444
-			     side (@ *three* *double-side)))))
+			     side (@ *three* *double-side)
+			     wireframe t))))
 	       (s (new (3fn *geometry))))
 	  (with-slots (vertices faces) s
 	    ((@ vertices push)
 	     (new (3fn *vector3 0 0 0))
-	     (new (3fn *vector3 w2 0 w2))
-	     (new (3fn *vector3 w2 0 (- w2)))
-	     (new (3fn *vector3 (- w2) 0 (- w2)))
-	     (new (3fn *vector3 (- w2) 0 w2)))
+	     (new (3fn *vector3 w2 0 0))
+	     (new (3fn *vector3 0 0 w2))
+	     (new (3fn *vector3 (- w2) 0 0))
+	     (new (3fn *vector3 0 0 (- w2))))
 	    ((@ faces push)
 	     (new (3fn *face3 0 1 2))
 	     (new (3fn *face3 0 2 3))
@@ -67,11 +68,11 @@
 		 (new (3fn *vector3 (@ mv4 x) ymin (@ mv4 z))))
 		((@ pf push)
 		 ;; Top
-		 (new (3fn *face3 0 1 2))
-		 (new (3fn *face3 2 3 0))
+		 ;;(new (3fn *face3 0 1 2))
+		 ;;(new (3fn *face3 2 3 0))
 		 ;; Bottom
-		 (new (3fn *face3 6 5 4))
-		 (new (3fn *face3 4 7 6))
+		 ;;(new (3fn *face3 6 5 4))
+		 ;;(new (3fn *face3 4 7 6))
 		 ;; 1st face
 		 (new (3fn *face3 0 4 1))
 		 (new (3fn *face3 1 4 5))
@@ -95,19 +96,31 @@
 	(setq camera (new (3fn *perspective-camera 75 (/ window.inner-width window.inner-height) 0.1 1000)))
 	(setq scene (new (3fn *scene)))
 	(setq mirror (new *mirror))
+	(setq light (new (3fn *ambient-light 0xf0f0f0)))
 	((@ mirror rotate-z) *cone)
 	((@ mirror update-matrix-world))
 	(setq projection (new (*projection mirror)))
 	((@ renderer set-size) window.inner-width window.inner-height)
 	((@ plot-div append-child) (@ renderer dom-element))
-	((@ camera position set) 20 -1 10)
+	((@ camera position set) 10 -1 5)
 	((@ camera look-at) origin)
 	(setq controls (new (3fn *orbit-controls camera)))
 	(setf (@ controls no-pan) true)
 	((@ controls add-event-listener) "change" #'render)
+	((@ scene add) light)
 	((@ scene add) camera)
-	((@ scene add) mirror)
-	((@ scene add) projection))
+	;;((@ scene add) mirror)
+	((@ scene add) projection)
+	(setq loader (new (3fn -j-s-o-n-loader t)))
+	((@ loader load)
+	 "js/sail.js"
+	 #'(lambda (geometry materials)
+	     (let ((mats (new (3fn *mesh-face-material materials))))
+	       (setf (@ mats materials 1 side) (@ *t-h-r-e-e *double-side))
+	       (setf (@ mats materials 2 side) (@ *t-h-r-e-e *double-side))
+	       (setq sail (new (3fn *mesh geometry mats)))
+	       ((@ scene add) sail)
+	       (render)))))
 
       (defun rotate-global-y (object rad)
 	(let* ((gy (new (3fn *vector3 0 1 0)))
@@ -129,15 +142,19 @@
 	   (case (@ e which)
 	     ;; Left
 	     (37 (rotate-global-y mirror (/ pi 36))
+		 (rotate-global-y sail (/ pi 36))
 		 (update))
 	     ;; Up
 	     (38 ((@ mirror rotate-z) (/ pi 36))
+		 ((@ sail rotate-z) (/ pi 36))
 		 (update))
 	     ;; Right
 	     (39 (rotate-global-y mirror (/ pi -36))
+		 (rotate-global-y sail (/ pi -36))
 		 (update))
 	     ;; Down
 	     (40 ((@ mirror rotate-z) (/ pi -36))
+		 ((@ sail rotate-z) (/ pi -36))
 		 (update)))))
 
       (init)
