@@ -47,75 +47,64 @@
 	  (new (3fn *mesh s m))))
 
       (defun *projection (m)
-	(let ((mat (new (3fn *mesh-basic-material
-			     (create
-			      color 0xffff00
-			      wireframe true))))
+	(let ((mat (new (3fn *line-basic-material (create color 0xffff00))))
 	      (pg (new (3fn *geometry)))
-	      (ymin -100))
+	      (ymin -10))
 	  (with-slots ((pv vertices) (pf faces)) pg
 	    (with-slots ((mv vertices)) (@ m geometry)
 	      (let ((mv1 ((@ m local-to-world) ((@ mv 1 clone))))
 		    (mv2 ((@ m local-to-world) ((@ mv 2 clone))))
 		    (mv3 ((@ m local-to-world) ((@ mv 3 clone))))
 		    (mv4 ((@ m local-to-world) ((@ mv 4 clone)))))
-		((@ pv push)
-		 mv1 mv2 mv3 mv4 ; Corners of sail
-		 ;; Corners of sail at Y=-10
-		 (new (3fn *vector3 (@ mv1 x) ymin (@ mv1 z)))
-		 (new (3fn *vector3 (@ mv2 x) ymin (@ mv2 z)))
-		 (new (3fn *vector3 (@ mv3 x) ymin (@ mv3 z)))
-		 (new (3fn *vector3 (@ mv4 x) ymin (@ mv4 z))))
-		((@ pf push)
-		 ;; Top
-		 ;;(new (3fn *face3 0 1 2))
-		 ;;(new (3fn *face3 2 3 0))
-		 ;; Bottom
-		 ;;(new (3fn *face3 6 5 4))
-		 ;;(new (3fn *face3 4 7 6))
-		 ;; 1st face
-		 (new (3fn *face3 0 4 1))
-		 (new (3fn *face3 1 4 5))
-		 ;; 2nd face
-		 (new (3fn *face3 1 5 2))
-		 (new (3fn *face3 2 5 6))
-		 ;; 3rd face
-		 (new (3fn *face3 2 6 3))
-		 (new (3fn *face3 3 6 7))
-		 ;; 4th face
-		 (new (3fn *face3 3 7 0))
-		 (new (3fn *face3 0 7 4))))))
-	  (new (3fn *mesh pg mat))))
+		(let ((mv1b (new (3fn *vector3 (@ mv1 x) ymin (@ mv1 z))))
+		      (mv2b (new (3fn *vector3 (@ mv2 x) ymin (@ mv2 z))))
+		      (mv3b (new (3fn *vector3 (@ mv3 x) ymin (@ mv3 z))))
+		      (mv4b (new (3fn *vector3 (@ mv4 x) ymin (@ mv4 z)))))
+		  ((@ pv push)
+		   mv1 mv2 mv3 mv4 mv1
+		   mv1b mv2b mv3b mv4b mv1b
+		   mv1 mv2 mv2b mv3b mv3 mv4 mv4b)
+		  (new (3fn *line pg mat))))))))
 
       (defun init ()
+	;; DOM element to plot in
+	(setq plot-div ((@ document get-element-by-id) "plot"))
+	;; Origin of coordinates
 	(setq origin (new (3fn *vector3 0 0 0)))
+	;; Renderer
 	(setq renderer (if (webgl-available)
 			   (new (3fn *web-g-l-renderer))
 			   (new (3fn *canvas-renderer))))
-	(setq plot-div ((@ document get-element-by-id) "plot"))
-	(setq camera (new (3fn *perspective-camera 75 (/ window.inner-width window.inner-height) 0.1 1000)))
-	(setq scene (new (3fn *scene)))
-	(setq mirror (new *mirror))
-	(setq light (new (3fn *ambient-light 0xf0f0f0)))
-	((@ mirror rotate-z) *cone)
-	((@ mirror update-matrix-world))
-	(setq projection (new (*projection mirror)))
 	((@ renderer set-size) window.inner-width window.inner-height)
 	((@ plot-div append-child) (@ renderer dom-element))
+	;; Camera
+	(setq camera (new (3fn *perspective-camera 75 (/ window.inner-width window.inner-height) 0.1 1000)))
 	((@ camera position set) 10 -1 5)
 	((@ camera look-at) origin)
+	;; Scene
+	(setq scene (new (3fn *scene)))
+	;; Invisible mesh at points of sail
+	(setq mirror (new *mirror))
+	;; Light
+	(setq light (new (3fn *directional-light 0xffffff 2)))
+	((@ light position set) 0 -1 0)
+	;; Projection of light onto sail
+	(setq projection (new (*projection mirror)))
+	;; Orbit controls
 	(setq controls (new (3fn *orbit-controls camera)))
 	(setf (@ controls no-pan) true)
 	((@ controls add-event-listener) "change" #'render)
+	;; Add light, camera, & projection
 	((@ scene add) light)
 	((@ scene add) camera)
-	;;((@ scene add) mirror)
 	((@ scene add) projection)
+	;; Load sail JSON file & add to scene
 	(setq loader (new (3fn -j-s-o-n-loader t)))
 	((@ loader load)
 	 "js/sail.js"
 	 #'(lambda (geometry materials)
 	     (let ((mats (new (3fn *mesh-face-material materials))))
+	       ;; Make sail & vane materials double-sided
 	       (setf (@ mats materials 1 side) (@ *t-h-r-e-e *double-side))
 	       (setf (@ mats materials 2 side) (@ *t-h-r-e-e *double-side))
 	       (setq sail (new (3fn *mesh geometry mats)))
@@ -160,26 +149,20 @@
       (init)
       (render))))
 
-(define-easy-handler (mirror1 :uri "/mirror1") ((cone :init-form "0"))
+(define-easy-handler (mirror1 :uri "/mirror1") ()
   (with-html-output-to-string (s nil :indent t)
     (:html
      (:head
-      :title "Light striking an object"
+      :title "Light striking a solar sail"
       (:link :href "mirror1.css" :rel "stylesheet")
       (:script :src "js/three.min.js")
       (:script :src "js/jquery-1.11.1.min.js")
       (:script :src "js/OrbitControls.js")
       (:script :type "text/javascript"
-	       (str (ps (lisp *ps-lisp-library*))))
-      (:script :type "text/javascript"
-	       (str
-		(ps
-		  (defvar *cone
-		    (lisp (* (/ pi 180)
-			     (read-from-string cone nil 0))))))))
+	       (str (ps (lisp *ps-lisp-library*)))))
      (:body
       (:div :id "info"
-	    (:h1 "Light striking an object")
+	    (:h1 "Light striking a solar sail")
 	    (:p "This shows what portion of the light coming from below hits a solar sail as you rotate and tilt it.")
 	    (:p "Left and right arrow keys to rotate")
 	    (:p "Up and down arrow keys to tilt")
