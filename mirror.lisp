@@ -19,8 +19,8 @@
 		   ((@ canvas get-context) "experimental-webgl")))))
        (:catch (e) false)))
 
-    (let (scene mirror renderer camera origin projection controls loader light sail)
-      
+    (let (scene mirror renderer camera origin projection controls loader light sail normal reflect incident reflection corners)
+
       (defun *mirror ()
 	(let* ((w 8)
 	       (w2 (/ w 2))
@@ -50,7 +50,7 @@
 	(let ((mat (new (3fn *line-basic-material (create color 0xffff00))))
 	      (pg (new (3fn *geometry)))
 	      (ymin -10))
-	  (with-slots ((pv vertices) (pf faces)) pg
+	  (with-slots ((pv vertices)) pg
 	    (with-slots ((mv vertices)) (@ m geometry)
 	      (let ((mv1 ((@ m local-to-world) ((@ mv 1 clone))))
 		    (mv2 ((@ m local-to-world) ((@ mv 2 clone))))
@@ -66,6 +66,31 @@
 		   mv1 mv2 mv2b mv3b mv3 mv4 mv4b)
 		  (new (3fn *line pg mat))))))))
 
+      (defun *normal (m)
+	((@ m local-to-world) (new (3fn *vector3 0 1 0))))
+
+      (defun *reflect (incident normal)
+	(let ((v (new (3fn *vector3))))
+	  ((@ v copy) normal)
+	  ((@ v multiply-scalar)
+	   (* -2 ((@ incident dot) normal)))
+	  ((@ v add) incident)))
+
+      (defun *reflection (corners)
+	(list
+	 (new (3fn *arrow-helper reflect ((@ corners 0 clone)) 20 0xffff00))
+	 (new (3fn *arrow-helper reflect ((@ corners 1 clone)) 20 0xffff00))
+	 (new (3fn *arrow-helper reflect ((@ corners 2 clone)) 20 0xffff00))
+	 (new (3fn *arrow-helper reflect ((@ corners 3 clone)) 20 0xffff00))))
+
+      (defun *corners (m)
+	(with-slots ((mv vertices)) (@ m geometry)
+	  (list
+	   ((@ m local-to-world) ((@ mv 1 clone)))
+	   ((@ m local-to-world) ((@ mv 2 clone)))
+	   ((@ m local-to-world) ((@ mv 3 clone)))
+	   ((@ m local-to-world) ((@ mv 4 clone))))))
+      
       (defun init ()
 	;; DOM element to plot in
 	(setq plot-div ((@ document get-element-by-id) "plot"))
@@ -85,6 +110,14 @@
 	(setq scene (new (3fn *scene)))
 	;; Invisible mesh at points of sail
 	(setq mirror (new *mirror))
+	(setq corners (new (*corners mirror)))
+	;; Incident vector
+	(setq incident (new (3fn *vector3 0 1 0)))
+	;; Normal vector
+	(setq normal (new (*normal mirror)))
+	;; Reflect vector
+	(setq reflect (new (*reflect incident normal)))
+	(setq reflection (new (*reflection corners)))
 	;; Light
 	(setq light (new (3fn *directional-light 0xffffff 2)))
 	((@ light position set) 0 -1 0)
@@ -98,6 +131,7 @@
 	((@ scene add) light)
 	((@ scene add) camera)
 	((@ scene add) projection)
+	(mapcar #'(lambda (r) ((@ scene add) r)) reflection)
 	;; Load sail JSON file & add to scene
 	(setq loader (new (3fn -j-s-o-n-loader t)))
 	((@ loader load)
@@ -109,6 +143,7 @@
 	       (setf (@ mats materials 2 side) (@ *t-h-r-e-e *double-side))
 	       (setq sail (new (3fn *mesh geometry mats)))
 	       ((@ scene add) sail)
+	       ;; Update normal vector
 	       (render)))))
 
       (defun rotate-global-y (object rad)
@@ -121,8 +156,14 @@
 
       (defun update ()
 	((@ mirror update-matrix-world))
+	(setq corners (new (*corners mirror)))
 	((@ scene remove) projection)
 	(setq projection (new (*projection mirror)))
+	(setq normal (new (*normal mirror)))
+	(setq reflect (new (*reflect incident normal)))
+	(mapcar #'(lambda (r) ((@ scene remove) r)) reflection)
+	(setq reflection (new (*reflection corners)))
+	(mapcar #'(lambda (r) ((@ scene add) r)) reflection)
 	((@ scene add) projection)
 	(render))
 
@@ -164,6 +205,27 @@
       (:div :id "info"
 	    (:h1 "Light striking a solar sail")
 	    (:p "This shows what portion of the light coming from below hits a solar sail as you rotate and tilt it.")
+	    (:p "Left and right arrow keys to rotate")
+	    (:p "Up and down arrow keys to tilt")
+	    (:p "Hold left mouse button to rotate view, middle mouse wheel to zoom"))
+      (:div :id "plot")
+      (:script :src "mirror1.js")))))
+
+(define-easy-handler (mirror2 :uri "/mirror2") ()
+  (with-html-output-to-string (s nil :indent t)
+    (:html
+     (:head
+      :title "Light striking a solar sail"
+      (:link :href "mirror1.css" :rel "stylesheet")
+      (:script :src "js/three.min.js")
+      (:script :src "js/jquery-1.11.1.min.js")
+      (:script :src "js/OrbitControls.js")
+      (:script :type "text/javascript"
+	       (str (ps (lisp *ps-lisp-library*)))))
+     (:body
+      (:div :id "info"
+	    (:h1 "Light reflecting off of a solar sail")
+	    (:p "This shows what portion of the light coming from below hits a solar sail and reflects off of it as you rotate and tilt the sail.")
 	    (:p "Left and right arrow keys to rotate")
 	    (:p "Up and down arrow keys to tilt")
 	    (:p "Hold left mouse button to rotate view, middle mouse wheel to zoom"))
