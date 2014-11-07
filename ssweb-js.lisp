@@ -174,10 +174,11 @@
 	    (template
 	     (who-ps-html
 	      (:table
+	       (:tr (:td "Angles (deg)" (:td "Duration (years)")))
 	       (:tr
-		(:td "Angle")
+		;;(:td "Angle (deg)")
 		(:td (:input :type "number" :min "-90" :max "90" :step "5" :value 0 :name "angles[]"))
-		(:td "Duration")
+		;;(:td "Duration (years)")
 		(:td (:input :type "number" :min "0" :max "10" :step "0.1" :value "1" :name "durations[]"))
 		(:td (:div :class "delete" (:b "Delete"))))))))
 	(setf (@ div1 id) control-count)
