@@ -104,7 +104,7 @@
 	((@ plot-div append-child) (@ renderer dom-element))
 	;; Camera
 	(setq camera (new (3fn *perspective-camera 75 (/ window.inner-width window.inner-height) 0.1 1000)))
-	((@ camera position set) 10 -1 5)
+	((@ camera position set) 15 -1 7)
 	((@ camera look-at) origin)
 	;; Scene
 	(setq scene (new (3fn *scene)))
