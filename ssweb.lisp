@@ -37,10 +37,11 @@
 			  (htm
 			   (:div :id countstr
 				 (:table
+				  (:tr (:td "Angle (deg)") (:td "Duration (years)"))
 				  (:tr
-				   (:td "Angle")
+				   ;;(:td "Angle (deg)")
 				   (:td (:input :type "number" :min "-90" :max "90" :step "5" :value angle :name "angles[]"))
-				   (:td "Duration")
+				   ;;(:td "Duration (years)")
 				   (:td (:input :type "number" :min "0" :max "10" :step "0.1" :value duration :name "durations[]"))
 				   (when (> count 1)
 				     (htm 
