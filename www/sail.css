@@ -1,7 +1,7 @@
 body {
     background-color: #000;
     color: #fff;
-    margin: 0px;
+    // margin: 0px;
     overflow: hidden;
 }
 
@@ -9,21 +9,25 @@ body {
     #info {
 	text-align: left;
 	padding: 1em;
-	width: 30em;
+	width: 33%;
 	position: absolute;
 	left: 0;
     }
     #help {
 	text-align: right;
 	padding: 1em;
-	width: 30em;
+	width: 33%;
 	position: absolute;
 	right: 0;
+    }
+    #helpText {
+	text-align: left;
     }
 }
 
 @media screen and (orientation: portrait) {
     #info {
+	color: #ccc;
 	text-align: left;
 	padding: 1em;
 	position: absolute;
@@ -34,6 +38,7 @@ body {
 	padding: 1em;
 	position: absolute;
 	bottom: 0;
+	width: 50%;
     }
 }
 
@@ -44,4 +49,10 @@ body {
 
 a { color: #e4741f }
 
-    
+#nav {
+    text-align: right;
+    padding: 1em;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+}

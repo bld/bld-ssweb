@@ -19,7 +19,23 @@
 		   ((@ canvas get-context) "experimental-webgl")))))
        (:catch (e) false)))
 
-    (let (scene mirror renderer camera origin projection controls loader light sail normal reflect incident reflection corners)
+    (defvar scene)
+    (defvar mirror)
+    (defvar renderer)
+    (defvar camera)
+    (defvar origin)
+    (defvar origin)
+    (defvar projection)
+    (defvar controls)
+    (defvar loader)
+    (defvar light)
+    (defvar light)
+    (defvar sail)
+    (defvar normal)
+    (defvar reflect)
+    (defvar incident)
+    (defvar reflection)
+    (defvar corners)
 
       (defun *mirror ()
 	(let* ((w 8)
@@ -49,7 +65,7 @@
       (defun *projection (m)
 	(let ((mat (new (3fn *line-basic-material (create color 0xffff00))))
 	      (pg (new (3fn *geometry)))
-	      (ymin -10))
+	      (ymin -100))
 	  (with-slots ((pv vertices)) pg
 	    (with-slots ((mv vertices)) (@ m geometry)
 	      (let ((mv1 ((@ m local-to-world) ((@ mv 1 clone))))
@@ -139,6 +155,12 @@
 	 #'(lambda (geometry materials)
 	     (let ((mats (new (3fn *mesh-face-material materials))))
 	       ;; Make sail & vane materials double-sided
+	       (setf (@ mats materials 1) (new (3fn *mesh-phong-material
+						    (create
+						     color 0x222222))))
+	       (setf (@ mats materials 2) (new (3fn *mesh-phong-material
+						    (create
+						     color 0x222222))))
 	       (setf (@ mats materials 1 side) (@ *t-h-r-e-e *double-side))
 	       (setf (@ mats materials 2 side) (@ *t-h-r-e-e *double-side))
 	       (setq sail (new (3fn *mesh geometry mats)))
@@ -188,7 +210,7 @@
 		 (update)))))
 
       (init)
-      (render))))
+      (render)))
 
 (define-easy-handler (mirror1 :uri "/mirror1") ()
   (with-html-output-to-string (s nil :indent t)

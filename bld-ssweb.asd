@@ -11,4 +11,6 @@
    (:file "ajax")
    (:file "ssweb-js")
    (:file "ssweb")
-   (:file "mirror")))
+   (:file "mirror")
+   (:file "lib")
+   (:file "parts")))
