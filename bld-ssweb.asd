@@ -13,4 +13,7 @@
    (:file "ssweb")
    (:file "mirror")
    (:file "lib")
-   (:file "parts")))
+   (:file "parts")
+   (:file "index")
+   (:file "what")
+   (:file "absorb")))

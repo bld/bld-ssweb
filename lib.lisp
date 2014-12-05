@@ -30,6 +30,7 @@
     (defvar target-list)
     (defvar mouse)
     (defvar part-name)
+    (defvar sail)
 
     (defun *stars ()
       (let ((g (new (3fn *geometry)))
@@ -60,7 +61,7 @@
 	(setf (@ sbox name) name)
 	sbox))
 
-    (defun *sails (scene target-list)
+    (defun *sails (scene target-list parent)
       (with-slots (loader file loadfn obj load mcam) this
 	;; Mirror camera
 	(let ((mirror-camera (new (3fn *cube-camera 1 5000 512))))
@@ -80,13 +81,14 @@
 			   (obj (new (3fn *mesh geometry mat))))
 		      (setf (@ obj name) "sails")
 		      (setf (@ sails obj) obj)
-		      ((@ scene add) obj)
+		      ((@ parent add) obj)
+		      ;;((@ scene add) obj)
 		      ((@ target-list push) obj)
 		      (render)))
 		load #'(lambda () ((@ loader load) file loadfn)))))
       this)
 
-    (defun *vane (scene yrot x z target-list)
+    (defun *vane (scene yrot x z target-list parent)
       (with-slots (loader file loadfn obj load mcam select-obj) this
 	;; Selection objects
 	(setf select-obj (new (*selection-box "vanes" .5 1 1)))
@@ -116,20 +118,21 @@
 		      (setf (@ obj name) "vanes")
 		      (setf (@ vane obj) obj)
 		      ((@ obj rotate-y) yrot)
-		      ((@ scene add) obj)
+		      ((@ parent add) obj)
+		      ;;((@ scene add) obj)
 		      ((@ target-list push) obj)
 		      (render)))
 		load #'(lambda () ((@ loader load) file loadfn))))
 	this))
 
-    (defun *vanes (scene target-list)
+    (defun *vanes (scene target-list parent)
       (loop for (x z) in '((1 0)(0 1)(-1 0)(0 -1))
 	 for i = 0 then (incf i)
 	 for yrot = (* i (/ pi 2))
-	 for vane = (new (*vane scene yrot x z target-list))
+	 for vane = (new (*vane scene yrot x z target-list parent))
 	 collect vane))
 
-    (defun *booms (scene target-list)
+    (defun *booms (scene target-list parent)
       (with-slots (loader file loadfn obj load select-obj1 select-obj2) this
 	;; Selection objects
 	;; 1st set of booms
@@ -150,12 +153,13 @@
 		  (let* ((mats (new (3fn *mesh-face-material materials)))
 			 (obj (new (3fn *mesh geometry mats))))
 		    (setf (@ booms obj) obj)
-		    ((@ scene add) obj)
+		    ((@ parent add) obj)
+		    ;;((@ scene add) obj)
 		    (render)))
 	      load #'(lambda () ((@ loader load) file loadfn)))
 	this))
 
-    (defun *bus (scene target-list)
+    (defun *bus (scene target-list parent)
       (with-slots (loader file loadfn obj load select-obj) this
 	;; Selection object
 	(setf select-obj (new (*selection-box "bus" 1 1 1)))
@@ -171,23 +175,16 @@
 		  (let* ((mats (new (3fn *mesh-face-material materials)))
 			 (obj (new (3fn *mesh geometry mats))))
 		    (setf (@ bus obj) obj)
-		    ((@ scene add) obj)
+		    ((@ parent add) obj)
+		    ;;((@ scene add) obj)
 		    (render)))
 	      load #'(lambda () ((@ loader load) file loadfn)))
 	this))
 
-    (defun *sail (scene target-list)
-      (let ((o (new (3fn *object3-d))))
-	((@ o add) (@ (new (*sails scene target-list)) obj))
-	((@ o add) (@ (new (*bus scene target-list)) obj))
-	((@ o add) (@ (new (*vanes scene target-list)) obj))
-	((@ o add) (@ (new (*booms scene target-list)) obj))
-	o))
-
     (defun on-window-resize ()
-      (setf (@ camera aspect) (/ window.inner-width window.inner-height))
+      (setf (@ camera aspect) (/ (@ window inner-width) (@ window inner-height)))
       ((@ camera update-projection-matrix))
-      ((@ renderer set-size) window.inner-width window.inner-height)
+      ((@ renderer set-size) (@ window inner-width) (@ window inner-height))
       ((@ camera look-at) origin)
       (when controls ((@ controls handle-resize)))
       (render))
@@ -216,7 +213,7 @@
       (request-animation-frame animate)
       ((@ controls update)))
 
-    (defun init-orbit-controls ()
+    (defun init-orbit-controls (&optional (rfun #'render))
       ;; Orbit controls
       (setq controls (new (3fn *trackball-controls camera)))
       (setf 
@@ -229,22 +226,25 @@
        ;;(@ controls dynamic-damping-factor) 0.3
        ;;(@ controls keys) (list 65 83 68)
        )
-      ((@ controls add-event-listener) "change" #'render))
+      ((@ controls add-event-listener) "change" rfun))
 
     (defun init-sail-parts ()
       ;; Parts of the sail
+      (setq sail (new (3fn *object3-d)))
       ;; Booms
-      (setq booms (new (*booms scene target-list)))
+      (setq booms (new (*booms scene target-list sail)))
       ((@ booms load))
       ;; Bus
-      (setq bus (new (*bus scene target-list)))
+      (setq bus (new (*bus scene target-list sail)))
       ((@ bus load))
       ;; Sail
-      (setq sails (new (*sails scene target-list)))
+      (setq sails (new (*sails scene target-list sail)))
       ((@ sails load))
       ;; Vanes
-      (setq vanes (new (*vanes scene target-list)))
-      (dolist (vane vanes) ((@ vane load))))
+      (setq vanes (new (*vanes scene target-list sail)))
+      (dolist (vane vanes) ((@ vane load)))
+      ;; Add sail to scene
+      ((@ scene add) sail))
 
     (defun init (document window)
       ;; Scene
