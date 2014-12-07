@@ -56,3 +56,8 @@ a { color: #e4741f }
     bottom: 0;
     right: 0;
 }
+
+#incidence, #rotation, #absorbed {
+    text-align: right;
+    width: 3em;
+}

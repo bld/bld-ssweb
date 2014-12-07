@@ -17,9 +17,15 @@
      (:body
       (:div :id "info"
 	    (:h1 "Sunlight Absorbed by a Sail")
+	    (:table
+	     :id "tilt-controls"
+	     (:tr (:td (:b "Sun incidence")) (:td :id "incidence" "0") (:td "deg"))
+	     (:tr (:td (:b "Rotation about sun")) (:td :id "rotation" "0") (:td "deg"))
+	     (:tr (:td (:b "Absorbed")) (:td :id "absorbed" "100") (:td "%")))
 	    (:ul
-	     (:li "The sunlight hitting a sail is highest when the sail faces the sun.")
-	     (:li "As the sail tilts, the sunlight absorbed is reduced.")))
+	     (:li "The yellow box shows the sunlight that is absorbed by the sail.")
+	     (:li "See how the volume of the box changes as the sail tilts (sun incidence), and the amount of sunlight absorbed changes.")
+	     (:li "Compare the amount absorbed to the " (:em "cosine") " of the sun incidence angle.")))
       (:div :id "help"
 	    (:h2 (:a :href "#" :onclick "toggleDiv(\"helpText\"); return false;" "Help"))
 	    (:div :id "helpText"
@@ -46,5 +52,11 @@
 	  (init document window)
 	  (init-orbit-controls)
 	  (init-sail-parts)
+	  (setq mirror (new (*mirror)))
+	  ((@ sail add) mirror)
+	  (setq corners (new (*corners mirror)))
+	  (setq projection (new (*projection mirror)))
+	  ((@ scene add) projection)
+	  (init-tilt-controls)
 	  (animate))))))))
     

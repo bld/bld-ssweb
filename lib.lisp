@@ -12,6 +12,9 @@
     (defmacro 3xfn (fn &rest args)
       `((@ *t-h-r-e-ex ,fn) ,@args))
 
+    (defun toggle-div (div-id)
+      ((@ ($ (+ "#" div-id)) toggle)))
+    
     (defvar scene)
     (defvar renderer)
     (defvar camera)
@@ -31,6 +34,13 @@
     (defvar mouse)
     (defvar part-name)
     (defvar sail)
+    ;; Used for absorption and reflection
+    (defvar mirror)
+    (defvar corners)
+    (defvar projection)
+    (defvar incidence)
+    (defvar rotation)
+    (defvar absorbed)
 
     (defun *stars ()
       (let ((g (new (3fn *geometry)))
@@ -196,6 +206,7 @@
       (if (@ bus obj) (setf (@ bus obj visible) false))
       (dolist (vane vanes)
 	(if (@ vane obj) (setf (@ vane obj visible) false)))
+      (if projection (setf (@ projection visible) false))
       ;; Update cube cameras
       ((@ sails mcam update-cube-map) renderer scene)
       (dolist (vane vanes)
@@ -206,6 +217,7 @@
       (if (@ bus obj) (setf (@ bus obj visible) true))
       (dolist (vane vanes)
 	(if (@ vane obj) (setf (@ vane obj visible) true)))
+      (if projection (setf (@ projection visible) true))
       ;; Render scene
       ((@ renderer render) scene camera))
 
@@ -245,7 +257,7 @@
       (dolist (vane vanes) ((@ vane load)))
       ;; Add sail to scene
       ((@ scene add) sail))
-
+    
     (defun init (document window)
       ;; Scene
       (setq scene (new (3fn *scene)))
@@ -286,7 +298,108 @@
       ;; Automatically resize window
       ((@ window add-event-listener) "resize" on-window-resize false))
 
-    (defun toggle-div (div-id)
-      ((@ ($ (+ "#" div-id)) toggle)))
+    (defun *mirror ()
+      (let* ((w 8)
+	     (w2 (/ w 2))
+	     (m (new (3fn *mesh-basic-material
+			  (create 
+			   color 0x444444
+			   side (@ *three* *double-side)
+			   wireframe t))))
+	     (s (new (3fn *geometry))))
+	(with-slots (vertices faces) s
+	  ((@ vertices push)
+	   (new (3fn *vector3 0 0 0))
+	   (new (3fn *vector3 w2 0 0))
+	   (new (3fn *vector3 0 0 w2))
+	   (new (3fn *vector3 (- w2) 0 0))
+	   (new (3fn *vector3 0 0 (- w2))))
+	  ((@ faces push)
+	   (new (3fn *face3 0 1 2))
+	   (new (3fn *face3 0 2 3))
+	   (new (3fn *face3 0 3 4))
+	   (new (3fn *face3 0 4 1))))
+	((@ s compute-face-normals))
+	((@ s compute-bounding-sphere))
+	(let ((o (new (3fn *mesh s m))))
+	  (setf (@ o visible) false)
+	  o)))
+    
+    (defun *projection (m)
+      (let ((mat (new (3fn *line-basic-material (create color 0xffff00))))
+	    (pg (new (3fn *geometry)))
+	    (ymin -500))
+	(with-slots ((pv vertices)) pg
+	  (with-slots ((mv vertices)) (@ m geometry)
+	    (let ((mv1 ((@ m local-to-world) ((@ mv 1 clone))))
+		  (mv2 ((@ m local-to-world) ((@ mv 2 clone))))
+		  (mv3 ((@ m local-to-world) ((@ mv 3 clone))))
+		  (mv4 ((@ m local-to-world) ((@ mv 4 clone)))))
+	      (let ((mv1b (new (3fn *vector3 (@ mv1 x) ymin (@ mv1 z))))
+		    (mv2b (new (3fn *vector3 (@ mv2 x) ymin (@ mv2 z))))
+		    (mv3b (new (3fn *vector3 (@ mv3 x) ymin (@ mv3 z))))
+		    (mv4b (new (3fn *vector3 (@ mv4 x) ymin (@ mv4 z)))))
+		((@ pv push)
+		 mv1 mv2 mv3 mv4 mv1
+		 mv1b mv2b mv3b mv4b mv1b
+		 mv1 mv2 mv2b mv3b mv3 mv4 mv4b)
+		(new (3fn *line pg mat))))))))
+
+    (defun *corners (m)
+      (with-slots ((mv vertices)) (@ m geometry)
+	(list
+	 ((@ m local-to-world) ((@ mv 1 clone)))
+	 ((@ m local-to-world) ((@ mv 2 clone)))
+	 ((@ m local-to-world) ((@ mv 3 clone)))
+	 ((@ m local-to-world) ((@ mv 4 clone))))))
+
+    (defun rotate-global-y (object rad)
+      (let* ((gy (new (3fn *vector3 0 1 0)))
+	     (ly ((@ object world-to-local) gy)))
+	((@ object rotate-on-axis) ly rad)))
+
+    (defun update-tilt ()
+      ;; Update rotation matrix of sail
+      ((@ sail update-matrix-world))
+      ;; Update corners of sail positions
+      (setq corners (new (*corners mirror)))
+      ;; Update projection object
+      ((@ scene remove) projection)
+      (setq projection (new (*projection mirror)))
+      ((@ scene add) projection)
+      ;; Update angle fields
+      (setf (@ ($ "#incidence") 0 inner-h-t-m-l) ((@ incidence to-string)))
+      (setf (@ ($ "#rotation") 0 inner-h-t-m-l) ((@ rotation to-string)))
+      (setf (@ ($ "#absorbed") 0 inner-h-t-m-l) ((@ absorbed to-string)))
+      ;; Re-render
+      (render))
+    
+    (defun init-tilt-controls ()
+      ;; Initialize values
+      (setq incidence 0
+	    rotation 0
+	    absorbed 100)
+      ;; Arrow key events
+      ((@ ($ (@ document body)) on) "keydown"
+       #'(lambda (e)
+	   (case (@ e which)
+	     ;; Left
+	     (37 (rotate-global-y sail (/ pi 36))
+		 (decf rotation 5)
+		 (update-tilt))
+	     ;; Up
+	     (38 ((@ sail rotate-z) (/ pi 36))
+		 (incf incidence 5)
+		 (setq absorbed (round (* 100 (cos (* incidence (/ pi 180))))))
+		 (update-tilt))
+	     ;; Right
+	     (39 (rotate-global-y sail (/ pi -36))
+		 (incf rotation 5)
+		 (update-tilt))
+	     ;; Down
+	     (40 ((@ sail rotate-z) (/ pi -36))
+		 (decf incidence 5)
+		 (setq absorbed (round (* 100 (cos (* incidence (/ pi 180))))))
+		 (update-tilt))))))
 
     ))
