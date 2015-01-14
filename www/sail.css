@@ -61,3 +61,33 @@ a { color: #e4741f }
     text-align: right;
     width: 3em;
 }
+
+#up {
+    position: absolute;
+    left: 50%;
+    width: 50px;
+    margin-left: -25px;
+}
+
+#down {
+    position: absolute;
+    width: 50px;
+    left: 50%;
+    margin-left: -25px;
+    bottom: 0;
+}
+
+#left {
+    position: absolute;
+    height: 50px;
+    top: 50%;
+    margin-top: -25px;
+}
+
+#right {
+    position: absolute;
+    height: 50px;
+    right: 0;
+    top: 50%;
+    margin-top: -25px;
+}
