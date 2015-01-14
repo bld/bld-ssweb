@@ -41,6 +41,7 @@
     (defvar incidence)
     (defvar rotation)
     (defvar absorbed)
+    ;;(defvar tcontrols)
 
     (defun *stars ()
       (let ((g (new (3fn *geometry)))
@@ -298,6 +299,8 @@
       ;; Automatically resize window
       ((@ window add-event-listener) "resize" on-window-resize false))
 
+    ;; Absorption and reflection controls
+    
     (defun *mirror ()
       (let* ((w 8)
 	     (w2 (/ w 2))
@@ -305,7 +308,7 @@
 			  (create 
 			   color 0x444444
 			   side (@ *three* *double-side)
-			   wireframe t))))
+			   wireframe false))))
 	     (s (new (3fn *geometry))))
 	(with-slots (vertices faces) s
 	  ((@ vertices push)
@@ -373,7 +376,7 @@
       (setf (@ ($ "#absorbed") 0 inner-h-t-m-l) ((@ absorbed to-string)))
       ;; Re-render
       (render))
-    
+
     (defun init-tilt-controls ()
       ;; Initialize values
       (setq incidence 0
@@ -400,6 +403,28 @@
 	     (40 ((@ sail rotate-z) (/ pi -36))
 		 (decf incidence 5)
 		 (setq absorbed (round (* 100 (cos (* incidence (/ pi 180))))))
-		 (update-tilt))))))
-
+		 (update-tilt)))))
+      ;; Clicking on arrow images
+      ((@ ($ "#up") click)
+       #'(lambda (e)
+	   ((@ sail rotate-z) (/ pi 36))
+	   (incf incidence 5)
+	   (setq absorbed (round (* 100 (cos (* incidence (/ pi 180))))))
+	   (update-tilt)))
+      ((@ ($ "#down") click)
+       #'(lambda (e)
+	   ((@ sail rotate-z) (/ pi -36))
+	   (decf incidence 5)
+	   (setq absorbed (round (* 100 (cos (* incidence (/ pi 180))))))
+	   (update-tilt)))
+      ((@ ($ "#left") click)
+       #'(lambda (e)
+	   (rotate-global-y sail (/ pi 36))
+	   (decf rotation 5)
+	   (update-tilt)))
+      ((@ ($ "#right") click)
+       #'(lambda (e)
+	   (rotate-global-y sail (/ pi -36))
+	   (incf rotation 5)
+	   (update-tilt))))
     ))
