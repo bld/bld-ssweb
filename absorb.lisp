@@ -11,7 +11,6 @@
      (:script :src "js/three.min.js")
      (:script :src "js/jquery-1.11.1.min.js")
      (:script :src "js/TrackballControls.js")
-     (:script :src "js/TransformControls.js")
      (:script :type "text/javascript"
 	      (str (ps (lisp *ps-lisp-library*))))
      (:script :src "js/lib.js")
