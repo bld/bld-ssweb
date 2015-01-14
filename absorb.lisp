@@ -11,21 +11,22 @@
      (:script :src "js/three.min.js")
      (:script :src "js/jquery-1.11.1.min.js")
      (:script :src "js/TrackballControls.js")
+     (:script :src "js/TransformControls.js")
      (:script :type "text/javascript"
 	      (str (ps (lisp *ps-lisp-library*))))
      (:script :src "js/lib.js")
      (:body
       (:div :id "info"
 	    (:h1 "Sunlight Absorbed by a Sail")
+	    (:ul
+	     (:li "The yellow box shows the sunlight that is absorbed by the sail.")
+	     (:li "See how the volume of the box changes as the sail tilts (sun incidence), and the amount of sunlight absorbed changes.")
+	     (:li "Compare the amount absorbed to the " (:em "cosine") " of the sun incidence angle."))
 	    (:table
 	     :id "tilt-controls"
 	     (:tr (:td (:b "Sun incidence")) (:td :id "incidence" "0") (:td "deg"))
 	     (:tr (:td (:b "Rotation about sun")) (:td :id "rotation" "0") (:td "deg"))
-	     (:tr (:td (:b "Absorbed")) (:td :id "absorbed" "100") (:td "%")))
-	    (:ul
-	     (:li "The yellow box shows the sunlight that is absorbed by the sail.")
-	     (:li "See how the volume of the box changes as the sail tilts (sun incidence), and the amount of sunlight absorbed changes.")
-	     (:li "Compare the amount absorbed to the " (:em "cosine") " of the sun incidence angle.")))
+	     (:tr (:td (:b "Absorbed")) (:td :id "absorbed" "100") (:td "%"))))
       (:div :id "help"
 	    (:h2 (:a :href "#" :onclick "toggleDiv(\"helpText\"); return false;" "Help"))
 	    (:div :id "helpText"
@@ -43,6 +44,10 @@
 	    (:h2 (:a :href "http://www.patreon.com/bld" "Next: Help build it at Patreon"))
 	    (:h2 (:a :href "/parts.html" "Previous: Parts of a Solar Sail"))
 	    (:h2 (:a :href "/index.html" "Home")))
+      (:img :id "up" :src "img/arrow_up.svg")
+      (:img :id "down" :src "img/arrow_down.svg")
+      (:img :id "left" :src "img/arrow_left.svg")
+      (:img :id "right" :src "img/arrow_right.svg")
       (:div :id "plot")
       (:script
        :type "text/javascript"
