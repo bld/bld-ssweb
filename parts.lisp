@@ -93,7 +93,7 @@
 			 (:li "Hold the middle mouse button and move up and down")
 			 (:li "Pinch and spread two fingers on a touch screen"))))))
       (:div :id "nav" 
-	    (:h2 (:a :href "http://www.patreon.com/bld" "Next: Help build it at Patreon"))
+	    (:h2 (:a :href "/absorb.html" "Next: Sunlight Absorbed by a Sail"))
 	    (:h2 (:a :href "/what.html" "Previous: What is a Solar Sail?"))
 	    (:h2 (:a :href "/index.html" "Home")))
       (:div :id "plot")
