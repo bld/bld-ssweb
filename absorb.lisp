@@ -61,6 +61,7 @@
 	  (setq corners (new (*corners mirror)))
 	  (setq projection (new (*projection mirror)))
 	  ((@ scene add) projection)
+	  (setq tilt-update-fn #'update-tilt-absorb)
 	  (init-tilt-controls)
 	  (animate))))))))
     
