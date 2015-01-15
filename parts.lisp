@@ -49,7 +49,7 @@
      (:body
       (:div :id "info"
 	    (:h1 "Parts of a Solar Sail")
-	    (:ul (:li (:b "Challenge:") "Click on the 4 major part of the sail."))
+	    (:ul (:li (:b "Challenge:") "Click on and read about the 4 major parts of the sail."))
 	    (:div :id "sails" :class "hidden"
 		  (:h2 "Sails")
 		  (:ul
