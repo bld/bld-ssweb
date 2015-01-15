@@ -6,6 +6,9 @@
   (with-html-output-to-string (s nil :indent t :prologue t)
     (:html
      (:meta :charset "utf-8")
+     (:meta :property "og:image" :content "http://flightschool.solarsails.info/img/absorb_image.png")
+     (:meta :property "og:description" :content "Lesson 3: Learn how light strikes a solar sail.")
+     (:meta :property "og:site_name" :content "Solar Sail Flight School")
      (:title "Sunlight Absorbed by a Sail")
      (:link :href "sail.css" :rel "stylesheet")
      (:script :src "js/three.min.js")

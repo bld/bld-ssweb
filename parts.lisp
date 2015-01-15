@@ -37,6 +37,9 @@
   (with-html-output-to-string (s nil :indent t :prologue t)
     (:html
      (:meta :charset "utf-8")
+     (:meta :property "og:image" :content "http://flightschool.solarsails.info/img/solar_sail_flight_school.png")
+     (:meta :property "og:description" :content "Lesson 2: Learn about the parts of a solar sail spacecraft.")
+     (:meta :property "og:site_name" :content "Solar Sail Flight School")
      (:title "Parts of a Solar Sail")
      (:link :href "sail.css" :rel "stylesheet")
      (:script :src "js/three.min.js")
