@@ -29,7 +29,8 @@
 	    (:ol
 	     (:li (:h3 (:a :href "/what.html" "What is a solar sail?")))
 	     (:li (:h3 (:a :href "/parts.html" "Parts of a solar sail")))
-	     (:li (:h3 (:a :href "/absorb.html" "Sunlight absorbed by a sail"))))
+	     (:li (:h3 (:a :href "/absorb.html" "Sunlight absorbed by a sail")))
+	     (:li (:h3 (:a :href "/reflect.html" "Sunlight reflected by a sail"))))
 
 	    (:br)
 	    
