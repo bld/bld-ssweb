@@ -41,7 +41,8 @@
     (defvar incidence)
     (defvar rotation)
     (defvar absorbed)
-    ;;(defvar tcontrols)
+    (defvar reflection)
+    (defvar tilt-update-fn)
 
     (defun *stars ()
       (let ((g (new (3fn *geometry)))
@@ -208,6 +209,9 @@
       (dolist (vane vanes)
 	(if (@ vane obj) (setf (@ vane obj visible) false)))
       (if projection (setf (@ projection visible) false))
+      (if reflection
+	  (dolist (r (@ reflection children))
+	    (setf (@ r visible) false)))
       ;; Update cube cameras
       ((@ sails mcam update-cube-map) renderer scene)
       (dolist (vane vanes)
@@ -219,6 +223,9 @@
       (dolist (vane vanes)
 	(if (@ vane obj) (setf (@ vane obj visible) true)))
       (if projection (setf (@ projection visible) true))
+      (if reflection
+	  (dolist (r (@ reflection children))
+	    (setf (@ r visible) true)))
       ;; Render scene
       ((@ renderer render) scene camera))
 
@@ -361,7 +368,7 @@
 	     (ly ((@ object world-to-local) gy)))
 	((@ object rotate-on-axis) ly rad)))
 
-    (defun update-tilt ()
+    (defun update-tilt-absorb ()
       ;; Update rotation matrix of sail
       ((@ sail update-matrix-world))
       ;; Update corners of sail positions
@@ -377,6 +384,43 @@
       ;; Re-render
       (render))
 
+    (defun calc-absorbed (incidence)
+      (abs (round (* 100 (cos (* incidence (/ pi 180)))))))
+
+    (defun up ()
+      "Increment incidence"
+      ((@ sail rotate-z) (/ pi 36))
+      (incf incidence 5)
+      (when (> incidence 180)
+	(setq incidence (- incidence 360)))
+      (setq absorbed (calc-absorbed incidence))
+      (funcall tilt-update-fn))
+
+    (defun down ()
+      "Decrement incidence"
+      ((@ sail rotate-z) (/ pi -36))
+      (decf incidence 5)
+      (when (< incidence -180)
+	(setq incidence (+ 360 incidence)))
+      (setq absorbed (calc-absorbed incidence))
+      (funcall tilt-update-fn))
+
+    (defun left ()
+      "Decrement rotation"
+      (rotate-global-y sail (/ pi 36))
+      (decf rotation 5)
+      (when (< rotation -180)
+	(setq rotation (+ 360 rotation)))
+      (funcall tilt-update-fn))
+
+    (defun right ()
+      "Increment rotation"
+      (rotate-global-y sail (/ pi -36))
+      (incf rotation 5)
+      (when (> rotation 180)
+	(setq rotation (- rotation 360)))
+      (funcall tilt-update-fn))
+    
     (defun init-tilt-controls ()
       ;; Initialize values
       (setq incidence 0
@@ -386,61 +430,63 @@
       ((@ ($ (@ document body)) on) "keydown"
        #'(lambda (e)
 	   (case (@ e which)
-	     ;; Left
-	     (37 (rotate-global-y sail (/ pi 36))
-		 (decf rotation 5)
-		 (when (< rotation -180)
-		   (setq rotation (+ 360 rotation)))
-		 (update-tilt))
-	     ;; Up
-	     (38 ((@ sail rotate-z) (/ pi 36))
-		 (incf incidence 5)
-		 (when (> incidence 180)
-		   (setq incidence (- incidence 360)))
-		 (setq absorbed (abs (round (* 100 (cos (* incidence (/ pi 180)))))))
-		 (update-tilt))
-	     ;; Right
-	     (39 (rotate-global-y sail (/ pi -36))
-		 (incf rotation 5)
-		 (when (> rotation 180)
-		   (setq rotation (- rotation 360)))
-		 (update-tilt))
-	     ;; Down
-	     (40 ((@ sail rotate-z) (/ pi -36))
-		 (decf incidence 5)
-		 (when (< incidence -180)
-		   (setq incidence (+ 360 incidence)))
-		 (setq absorbed (abs (round (* 100 (cos (* incidence (/ pi 180)))))))
-		 (update-tilt)))))
+	     (37 (left))
+	     (38 (up))
+	     (39 (right))
+	     (40 (down)))))
       ;; Clicking on arrow images
-      ((@ ($ "#up") click)
-       #'(lambda (e)
-	   ((@ sail rotate-z) (/ pi 36))
-	   (incf incidence 5)
-	   (when (> incidence 180)
-	     (setq incidence (- incidence 360)))
-	   (setq absorbed (abs (round (* 100 (cos (* incidence (/ pi 180)))))))
-	   (update-tilt)))
-      ((@ ($ "#down") click)
-       #'(lambda (e)
-	   ((@ sail rotate-z) (/ pi -36))
-	   (decf incidence 5)
-	   (when (< incidence -180)
-	     (setq incidence (+ 360 incidence)))
-	   (setq absorbed (abs (round (* 100 (cos (* incidence (/ pi 180)))))))
-	   (update-tilt)))
-      ((@ ($ "#left") click)
-       #'(lambda (e)
-	   (rotate-global-y sail (/ pi 36))
-	   (decf rotation 5)
-	   (when (< rotation -180)
-	     (setq rotation (+ 360 rotation)))
-	   (update-tilt)))
-      ((@ ($ "#right") click)
-       #'(lambda (e)
-	   (rotate-global-y sail (/ pi -36))
-	   (incf rotation 5)
-	   (when (> rotation 180)
-	     (setq rotation (- rotation 360)))
-	   (update-tilt))))
+      ((@ ($ "#up") click) #'(lambda (e) (up)))
+      ((@ ($ "#down") click) #'(lambda (e) (down)))
+      ((@ ($ "#left") click) #'(lambda (e) (left)))
+      ((@ ($ "#right") click) #'(lambda (e) (right))))
+
+    ;; Reflection
+
+    (defun *normal (m)
+      "Normal of mirror"
+      ((@ m local-to-world) (new (3fn *vector3 0 1 0))))
+
+    (defun *incident ()
+      "Solar incidence vector"
+      (new (3fn *vector3 0 1 0)))
+    
+    (defun *reflect (incident normal)
+      "Reflection vector from incident and normal vectors"
+      (let ((v (new (3fn *vector3))))
+	((@ v copy) normal)
+	((@ v multiply-scalar)
+	 (* -2 ((@ incident dot) normal)))
+	((@ v add) incident)))
+
+    (defun *reflection (corners)
+      "Reflection object given list of corner vectors"
+      (let ((refl (new (3fn *object3-d))))
+	((@ refl add) (new (3fn *arrow-helper reflect ((@ corners 0 clone)) 500 0xffff00)))
+	((@ refl add) (new (3fn *arrow-helper reflect ((@ corners 1 clone)) 500 0xffff00)))
+	((@ refl add) (new (3fn *arrow-helper reflect ((@ corners 2 clone)) 500 0xffff00)))
+	((@ refl add) (new (3fn *arrow-helper reflect ((@ corners 3 clone)) 500 0xffff00))))
+      refl)
+
+    (defun update-tilt-reflect ()
+      ;; Update rotation matrix of sail
+      ((@ sail update-matrix-world))
+      ;; Update corners of sail positions
+      (setq corners (new (*corners mirror)))
+      ;; Update projection object
+      ((@ scene remove) projection)
+      (setq projection (new (*projection mirror)))
+      ((@ scene add) projection)
+      ;; Update reflection objects
+      (setq normal (new (*normal mirror)))
+      (setq reflect (new (*reflect incident normal)))
+      ((@ scene remove) reflection)
+      (setq reflection (new (*reflection corners)))
+      ((@ scene add) reflection)
+      ;; Update angle fields
+      (setf (@ ($ "#incidence") 0 inner-h-t-m-l) ((@ incidence to-string)))
+      (setf (@ ($ "#rotation") 0 inner-h-t-m-l) ((@ rotation to-string)))
+      (setf (@ ($ "#absorbed") 0 inner-h-t-m-l) ((@ absorbed to-string)))
+      ;; Re-render
+      (render))
+
     ))
