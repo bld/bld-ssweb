@@ -21,7 +21,8 @@
 	     (:li "Light reflects off of the mirrored sail at the same angle that it hit it.")
 	     (:li "The yellow boxes show the light absorbed and reflected by the sail.")
 	     (:li "Point the reflected light by tilting and rotating the sail.")
-	     (:li "See how the width of the boxes changes when tilting the sail."))
+	     (:li "See how the width of the boxes changes when tilting the sail.")
+	     (:li (:b "Challenge:") "Find the red target and reflect the light to hit it. Reload to change the target location."))
 	    (:table
 	     :id "tilt-controls"
 	     (:tr (:td (:b "Sun incidence")) (:td :id "incidence" "0") (:td "deg"))
@@ -66,8 +67,13 @@
 	  (setq normal (new (*normal mirror)))
 	  (setq reflect (new (*reflect incident normal)))
 	  (setq reflection (new (*reflection corners)))
+	  (let ((tinc (* 5 (random (/ 360 5)) (/ pi 180)))
+		(trot (* 5 (random (/ 360 5)) (/ pi 180)))
+		(tdist (+ 20 (random 180))))
+	    (setq target (new (*target tinc trot tdist 5))))
 	  ((@ scene add) projection)
 	  ((@ scene add) reflection)
+	  ((@ scene add) target)
 	  (setq tilt-update-fn #'update-tilt-reflect)
 	  (init-tilt-controls)
 	  (animate))))))))

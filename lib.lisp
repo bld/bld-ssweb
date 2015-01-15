@@ -43,6 +43,7 @@
     (defvar absorbed)
     (defvar reflection)
     (defvar tilt-update-fn)
+    (defvar target)
 
     (defun *stars ()
       (let ((g (new (3fn *geometry)))
@@ -490,5 +491,17 @@
       (setf (@ ($ "#absorbed") 0 inner-h-t-m-l) ((@ absorbed to-string)))
       ;; Re-render
       (render))
+    
+    (defun *target (inc rot dist rad)
+      "Target to point reflection at given incidence, rotation, distance, and radius"
+      (let* ((targ (new (3fn *mesh
+			     (new (3fn *sphere-geometry rad 32 32))
+			     (new (3fn *mesh-basic-material (create color 0xff0000))))))
+	    (inc2 (* 2 inc)))
+	((@ targ position set)
+	 (* dist (sin inc2) (cos rot))
+	 (- (* dist (cos inc2)))
+	 (* dist (sin inc2) (sin rot)))
+	targ))
 
     ))
