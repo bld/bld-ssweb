@@ -6,6 +6,8 @@
   (with-html-output-to-string (s nil :indent t :prologue t)
     (:html
      (:meta :charset "utf-8")
+     (:meta :property "og:url" :content "http://flightschool.solarsails.info/")
+     (:meta :property "og:title" :content "Solar Sail Flight School")
      (:meta :property "og:image" :content "http://flightschool.solarsails.info/img/solar_sail_flight_school.png")
      (:meta :property "og:description" :content "Learn to fly a solar sail through space on the pressure of sunlight.")
      (:meta :property "og:site_name" :content "Solar Sail Flight School")
