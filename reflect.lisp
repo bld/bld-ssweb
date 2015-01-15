@@ -55,6 +55,7 @@
 	(ps
 	  (toggle-div "helpText")
 	  (init document window)
+	  ((@ camera position multiply-scalar) 2)
 	  (init-orbit-controls)
 	  (init-sail-parts)
 	  (setq mirror (new (*mirror)))
