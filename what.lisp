@@ -20,7 +20,8 @@
 		  (:h1 "What is a Solar Sail?")
 		  (:ul
 		   (:li "Solar sails are large, lightweight mirrors that are pushed by the pressure of reflected sunlight to propel a spacecraft throughout the solar system and beyond.")
-		   (:li "The following simulations let you practice the skills needed to steer and navigate a solar sail spacecraft.")))
+		   (:li "The following simulations let you practice the skills needed to steer and navigate a solar sail spacecraft.")
+		   (:li (:b "Challenge:") "Zoom in on the center, look at the backside, and find the sun.")))
 	    (:div :id "help"
 		  (:h2 (:a :href "#" :onclick "toggleDiv(\"helpText\"); return false;" "Help"))
 		  (:div :id "helpText"

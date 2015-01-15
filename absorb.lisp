@@ -19,8 +19,9 @@
 	    (:h1 "Sunlight Absorbed by a Sail")
 	    (:ul
 	     (:li "The yellow box shows the sunlight that is absorbed by the sail.")
-	     (:li "See how the volume of the box changes as the sail tilts (sun incidence), and the amount of sunlight absorbed changes.")
-	     (:li "Compare the amount absorbed to the " (:em "cosine") " of the sun incidence angle."))
+	     (:li "See how the volume of the box changes as the sail tilts " (:em "(sun incidence),") " and the amount of sunlight absorbed changes.")
+	     (:li (:b "Challenge:") "Find the sun incidence angles where the sunlight absorbed is 100%, 50%, and 0%.")
+	     (:li (:b "Extra credit:") "Calculate the " (:em "cosine") " of the sun incidence angle and compare to the absorbed %."))
 	    (:table
 	     :id "tilt-controls"
 	     (:tr (:td (:b "Sun incidence")) (:td :id "incidence" "0") (:td "deg"))
