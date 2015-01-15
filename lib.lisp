@@ -460,12 +460,14 @@
 
     (defun *reflection (corners)
       "Reflection object given list of corner vectors"
-      (let ((refl (new (3fn *object3-d))))
-	((@ refl add) (new (3fn *arrow-helper reflect ((@ corners 0 clone)) 500 0xffff00)))
-	((@ refl add) (new (3fn *arrow-helper reflect ((@ corners 1 clone)) 500 0xffff00)))
-	((@ refl add) (new (3fn *arrow-helper reflect ((@ corners 2 clone)) 500 0xffff00)))
-	((@ refl add) (new (3fn *arrow-helper reflect ((@ corners 3 clone)) 500 0xffff00))))
-      refl)
+      (let ((refl (new (3fn *object3-d)))
+	    (l 500)
+	    (c 0xffff00)
+	    (hl 20)
+	    (hw 5))
+	(dotimes (i 4)
+	  ((@ refl add) (new (3fn *arrow-helper reflect ((@ (aref corners i) clone)) l c hl hw))))
+	refl))
 
     (defun update-tilt-reflect ()
       ;; Update rotation matrix of sail
