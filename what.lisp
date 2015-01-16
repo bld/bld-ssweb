@@ -49,4 +49,5 @@
 	  (init document window)
 	  (init-orbit-controls)
 	  (init-sail-parts)
-	  (animate))))))))
+	  (animate))))
+      (:script :src "js/googleanalytics.js")))))

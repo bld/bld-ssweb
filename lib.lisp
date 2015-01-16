@@ -445,7 +445,11 @@
 
     (defun *normal (m)
       "Normal of mirror"
-      ((@ m local-to-world) (new (3fn *vector3 0 1 0))))
+      (let ((n ((@ m local-to-world) (new (3fn *vector3 0 1 0)))))
+	;; Test for pointing toward sun
+	(when (< (@ n y) 0)
+	  ((@ n negate)))
+	n))
 
     (defun *incident ()
       "Solar incidence vector"
@@ -504,4 +508,59 @@
 	 (* dist (sin inc2) (sin rot)))
 	targ))
 
+    ;; Direction vectors
+    (defun *normal-arrow (origin normal)
+      (new (3fn *arrow-helper normal origin 10 0x888888)))
+    
+    (defun *incident-arrow (origin incident)
+      (new (3fn *arrow-helper incident origin 10 0xff0000)))
+
+    (defun *tangential (incident normal)
+      (let ((nxi (new (3fn *vector3)))
+	    (tn (new (3fn *vector3))))
+	((@ nxi cross-vectors) normal incident)
+	(when (> ((@ nxi length)) 1d-6)
+	  ((@ tn cross-vectors) incident nxi))
+	tn))
+
+    (defun *tangential-arrow (origin tangential)
+      (let ((c 0x0000ff)
+	    (l 10))
+	(if (= 0 ((@ tangential length)))
+	    (new (3fn *mesh))
+	    (new (3fn *arrow-helper tangential origin l c)))))
+
+    (defun update-tilt-direction ()
+      ;; Update rotation matrix of sail
+      ((@ sail update-matrix-world))
+      ;; Update corners of sail positions
+      (setq corners (new (*corners mirror)))
+      ;; Update projection object
+      ((@ scene remove) projection)
+      (setq projection (new (*projection mirror)))
+      ((@ scene add) projection)
+      ;; Update reflection objects
+      (setq normal (new (*normal mirror)))
+      (setq reflect (new (*reflect incident normal)))
+      ((@ scene remove) reflection)
+      (setq reflection (new (*reflection corners)))
+      ((@ scene add) reflection)
+      ;; Update angle fields
+      (setf (@ ($ "#incidence") 0 inner-h-t-m-l) ((@ incidence to-string)))
+      (setf (@ ($ "#rotation") 0 inner-h-t-m-l) ((@ rotation to-string)))
+      (setf (@ ($ "#absorbed") 0 inner-h-t-m-l) ((@ absorbed to-string)))
+      ;; Update arrows
+      (setq tangential (new (*tangential incident normal)))
+      ((@ scene remove) normal-arrow)
+      ((@ scene remove) tangential-arrow)
+      ((@ scene remove) reflection-arrow)
+      (setq normal-arrow (new (*normal-arrow origin normal)))
+      (setq tangential-arrow (new (*tangential-arrow origin tangential)))
+      (setq reflection-arrow (new (3fn *arrow-helper reflect origin 10 0xffff00)))
+      ((@ scene add) normal-arrow)
+      ((@ scene add) tangential-arrow)
+      ((@ scene add) reflection-arrow)
+      ;; Re-render
+      (render))    
+    
     ))

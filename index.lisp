@@ -1,4 +1,4 @@
-;;; What is a solar sail? Intro screen
+;;; Solar Sail Flight School start screen
 
 (in-package :bld-ssweb)
 
@@ -53,5 +53,6 @@
        (str
 	(ps
 	  (init document window)
-	  ;;(init-orbit-controls)
-	  (init-sail-parts))))))))
+	  (init-sail-parts))))
+      (:script :src "js/googleanalytics.js")))))
+

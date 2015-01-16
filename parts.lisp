@@ -109,4 +109,5 @@
 	(ps
 	  (toggle-div "helpText")
 	  (init-parts document window)
-	  (animate))))))))
+	  (animate))))
+      (:script :src "js/googleanalytics.js")))))

@@ -69,5 +69,6 @@
 	  ((@ scene add) projection)
 	  (setq tilt-update-fn #'update-tilt-absorb)
 	  (init-tilt-controls)
-	  (animate))))))))
+	  (animate))))
+      (:script :src "js/googleanalytics.js")))))
     
