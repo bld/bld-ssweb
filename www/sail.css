@@ -91,3 +91,19 @@ a { color: #e4741f }
     top: 50%;
     margin-top: -25px;
 }
+
+#normalcolor {
+    color: #888;
+}
+
+#incidentcolor {
+    color: #f00;
+}
+
+#tangentialcolor {
+    color: #00f;
+}
+
+#reflectedcolor {
+    color: #ff0;
+}

@@ -44,6 +44,12 @@
     (defvar reflection)
     (defvar tilt-update-fn)
     (defvar target)
+    ;; Direction arrows & variables
+    (defvar normal-arrow)
+    (defvar incident-arrow)
+    (defvar tangential)
+    (defvar tangential-arrow)
+    (defvar reflection-arrow)
 
     (defun *stars ()
       (let ((g (new (3fn *geometry)))
@@ -202,31 +208,31 @@
       (when controls ((@ controls handle-resize)))
       (render))
 
+    (defun sail-parts-visible (bool)
+      "Change visibility of sail parts"
+      (dolist (p (@ sail children))
+	(if (@ p obj) (setf (@ p obj visible) bool))))
+
     (defun render ()
       ;; Make sail parts invisible
-      (if (@ sails obj) (setf (@ sails obj visible) false))
-      (if (@ booms obj) (setf (@ booms obj visible) false))
-      (if (@ bus obj) (setf (@ bus obj visible) false))
-      (dolist (vane vanes)
-	(if (@ vane obj) (setf (@ vane obj visible) false)))
+      (sail-parts-visible false)
+      ;; Make projection/reflection parts invisible
       (if projection (setf (@ projection visible) false))
       (if reflection
 	  (dolist (r (@ reflection children))
 	    (setf (@ r visible) false)))
+      (arrows-visible false)
       ;; Update cube cameras
       ((@ sails mcam update-cube-map) renderer scene)
       (dolist (vane vanes)
 	((@ vane mcam update-cube-map) renderer scene))
       ;; Reset visibility
-      (if (@ sails obj) (setf (@ sails obj visible) true))
-      (if (@ booms obj) (setf (@ booms obj visible) true))
-      (if (@ bus obj) (setf (@ bus obj visible) true))
-      (dolist (vane vanes)
-	(if (@ vane obj) (setf (@ vane obj visible) true)))
+      (sail-parts-visible true)
       (if projection (setf (@ projection visible) true))
       (if reflection
 	  (dolist (r (@ reflection children))
 	    (setf (@ r visible) true)))
+      (arrows-visible true)
       ;; Render scene
       ((@ renderer render) scene camera))
 
@@ -278,7 +284,7 @@
       (setq renderer (if (@ window *web-g-l-rendering-context)
 			 (new (3fn *web-g-l-renderer (create antialias true)))
 			 (new (3fn *canvas-renderer))))
-      ((@ renderer set-size) window.inner-width window.inner-height)
+      ((@ renderer set-size) (@ window inner-width) (@ window inner-height))
       ((@ plot-div append-child) (@ renderer dom-element))
       ;; Scene camera
       (setq camera (new (3fn *perspective-camera 75 (/ window.inner-width window.inner-height) 0.1 1000)))
@@ -369,6 +375,10 @@
 	     (ly ((@ object world-to-local) gy)))
 	((@ object rotate-on-axis) ly rad)))
 
+    (defun update-tilt ()
+      (funcall tilt-update-fn)
+      (render))
+    
     (defun update-tilt-absorb ()
       ;; Update rotation matrix of sail
       ((@ sail update-matrix-world))
@@ -381,9 +391,7 @@
       ;; Update angle fields
       (setf (@ ($ "#incidence") 0 inner-h-t-m-l) ((@ incidence to-string)))
       (setf (@ ($ "#rotation") 0 inner-h-t-m-l) ((@ rotation to-string)))
-      (setf (@ ($ "#absorbed") 0 inner-h-t-m-l) ((@ absorbed to-string)))
-      ;; Re-render
-      (render))
+      (setf (@ ($ "#absorbed") 0 inner-h-t-m-l) ((@ absorbed to-string))))
 
     (defun calc-absorbed (incidence)
       (abs (round (* 100 (cos (* incidence (/ pi 180)))))))
@@ -395,7 +403,7 @@
       (when (> incidence 180)
 	(setq incidence (- incidence 360)))
       (setq absorbed (calc-absorbed incidence))
-      (funcall tilt-update-fn))
+      (update-tilt))
 
     (defun down ()
       "Decrement incidence"
@@ -404,7 +412,7 @@
       (when (< incidence -180)
 	(setq incidence (+ 360 incidence)))
       (setq absorbed (calc-absorbed incidence))
-      (funcall tilt-update-fn))
+      (update-tilt))
 
     (defun left ()
       "Decrement rotation"
@@ -412,7 +420,7 @@
       (decf rotation 5)
       (when (< rotation -180)
 	(setq rotation (+ 360 rotation)))
-      (funcall tilt-update-fn))
+      (update-tilt))
 
     (defun right ()
       "Increment rotation"
@@ -420,7 +428,7 @@
       (incf rotation 5)
       (when (> rotation 180)
 	(setq rotation (- rotation 360)))
-      (funcall tilt-update-fn))
+      (update-tilt))
     
     (defun init-tilt-controls ()
       ;; Initialize values
@@ -449,6 +457,7 @@
 	;; Test for pointing toward sun
 	(when (< (@ n y) 0)
 	  ((@ n negate)))
+	((@ n normalize))
 	n))
 
     (defun *incident ()
@@ -475,26 +484,13 @@
 	refl))
 
     (defun update-tilt-reflect ()
-      ;; Update rotation matrix of sail
-      ((@ sail update-matrix-world))
-      ;; Update corners of sail positions
-      (setq corners (new (*corners mirror)))
-      ;; Update projection object
-      ((@ scene remove) projection)
-      (setq projection (new (*projection mirror)))
-      ((@ scene add) projection)
+      (update-tilt-absorb)
       ;; Update reflection objects
       (setq normal (new (*normal mirror)))
       (setq reflect (new (*reflect incident normal)))
       ((@ scene remove) reflection)
       (setq reflection (new (*reflection corners)))
-      ((@ scene add) reflection)
-      ;; Update angle fields
-      (setf (@ ($ "#incidence") 0 inner-h-t-m-l) ((@ incidence to-string)))
-      (setf (@ ($ "#rotation") 0 inner-h-t-m-l) ((@ rotation to-string)))
-      (setf (@ ($ "#absorbed") 0 inner-h-t-m-l) ((@ absorbed to-string)))
-      ;; Re-render
-      (render))
+      ((@ scene add) reflection))
     
     (defun *target (inc rot dist rad)
       "Target to point reflection at given incidence, rotation, distance, and radius"
@@ -509,58 +505,70 @@
 	targ))
 
     ;; Direction vectors
-    (defun *normal-arrow (origin normal)
-      (new (3fn *arrow-helper normal origin 10 0x888888)))
-    
-    (defun *incident-arrow (origin incident)
-      (new (3fn *arrow-helper incident origin 10 0xff0000)))
+    (defun *normal-arrow (origin normal &optional (mag 1))
+      "Draw arrow of a normal vector"
+      (new (3fn *arrow-helper normal origin (* 10 mag) 0x888888)))
 
-    (defun *tangential (incident normal)
+    (defun *incident-arrow (origin incident &optional (mag 1))
+      "Draw arrow of an incident vector"
+      (new (3fn *arrow-helper incident origin (* 10 mag) 0xff0000)))
+
+    (defun *tangential (incident normal &optional (mag 1))
+      "Generate tangent vector from incident and normal vectors"
       (let ((nxi (new (3fn *vector3)))
 	    (tn (new (3fn *vector3))))
 	((@ nxi cross-vectors) normal incident)
 	(when (> ((@ nxi length)) 1d-6)
 	  ((@ tn cross-vectors) incident nxi))
+	((@ tn normalize))
 	tn))
 
-    (defun *tangential-arrow (origin tangential)
+    (defun *tangential-arrow (origin tangential &optional (mag 1))
+      "Draw arrow of tangential vector"
       (let ((c 0x0000ff)
 	    (l 10))
-	(if (= 0 ((@ tangential length)))
-	    (new (3fn *mesh))
-	    (new (3fn *arrow-helper tangential origin l c)))))
+	(new (3fn *arrow-helper tangential origin (* l mag) c))))
 
-    (defun update-tilt-direction ()
-      ;; Update rotation matrix of sail
-      ((@ sail update-matrix-world))
-      ;; Update corners of sail positions
-      (setq corners (new (*corners mirror)))
-      ;; Update projection object
-      ((@ scene remove) projection)
-      (setq projection (new (*projection mirror)))
-      ((@ scene add) projection)
-      ;; Update reflection objects
-      (setq normal (new (*normal mirror)))
-      (setq reflect (new (*reflect incident normal)))
-      ((@ scene remove) reflection)
-      (setq reflection (new (*reflection corners)))
-      ((@ scene add) reflection)
-      ;; Update angle fields
-      (setf (@ ($ "#incidence") 0 inner-h-t-m-l) ((@ incidence to-string)))
-      (setf (@ ($ "#rotation") 0 inner-h-t-m-l) ((@ rotation to-string)))
-      (setf (@ ($ "#absorbed") 0 inner-h-t-m-l) ((@ absorbed to-string)))
-      ;; Update arrows
-      (setq tangential (new (*tangential incident normal)))
-      ((@ scene remove) normal-arrow)
-      ((@ scene remove) tangential-arrow)
-      ((@ scene remove) reflection-arrow)
+    (defun init-arrows ()
       (setq normal-arrow (new (*normal-arrow origin normal)))
-      (setq tangential-arrow (new (*tangential-arrow origin tangential)))
+      (setq incident-arrow (new (*incident-arrow origin normal)))
+      (setq tangential (new (*tangential incident normal)))
+      (setq tangential-arrow (new (*tangential-arrow origin tangential 0)))
       (setq reflection-arrow (new (3fn *arrow-helper reflect origin 10 0xffff00)))
       ((@ scene add) normal-arrow)
+      ((@ scene add) incident-arrow)
       ((@ scene add) tangential-arrow)
-      ((@ scene add) reflection-arrow)
-      ;; Re-render
-      (render))    
+      ((@ scene add) reflection-arrow))
+
+    (defun arrow-visible (arrow bool)
+      (when arrow
+	(setf (@ arrow visible) bool)))
     
+    (defun arrows-visible (bool)
+      (dolist (a (list normal-arrow incident-arrow tangential-arrow reflection-arrow))
+	(arrow-visible a bool)))
+    
+    (defun update-tilt-direction ()
+      (update-tilt-reflect)
+      ;; Update arrows
+      (setq tangential (new (*tangential incident normal)))
+      ((@ normal-arrow set-direction) normal)
+      ((@ tangential-arrow set-direction) tangential)
+      ((@ reflection-arrow set-direction) reflect)
+      ((@ tangential-arrow set-length)
+       (if (> ((@ tangential length)) 0) 10 0)))
+    
+    ;; Magnitudes
+    (defun update-tilt-magnitudes ()
+      "Update the arrows with the magnitide of light going in each direction"
+      (update-tilt-direction)
+      ;; Update arrow magnitudes
+      (let* ((absmag ((@ incident dot) normal))
+	     (mag (* absmag absmag))
+	     (tmag (* mag ((@ tangential dot) normal)))
+	     (incmag (* mag absmag)))
+	((@ normal-arrow set-length) (* 10 mag))
+	((@ tangential-arrow set-length) (* 10 tmag))
+	((@ incident-arrow set-length) (* 10 incmag))
+	((@ reflection-arrow set-length) (* 10 absmag))))
     ))

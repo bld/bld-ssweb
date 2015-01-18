@@ -17,4 +17,5 @@
    (:file "index")
    (:file "what")
    (:file "absorb")
-   (:file "reflect")))
+   (:file "reflect")
+   (:file "directions")))

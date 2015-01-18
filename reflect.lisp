@@ -48,7 +48,7 @@
 			(:li "Up and down arrows to tilt")
 			(:li "Right and left arrows to rotate")))))
       (:div :id "nav"
-	    (:h2 (:a :href "http://www.patreon.com/bld" "Next: Help build it at Patreon"))
+	    (:h2 (:a :href "/directions.html" "Next: Directions of the Sunlight"))
 	    (:h2 (:a :href "/absorb.html" "Previous: Sunlight Absorbed by a Sail"))
 	    (:h2 (:a :href "/index.html" "Home")))
       (:img :id "up" :src "img/arrow_up.svg")
