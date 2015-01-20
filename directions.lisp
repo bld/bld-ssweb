@@ -49,7 +49,7 @@
 			(:li "Up and down arrows to tilt")
 			(:li "Right and left arrows to rotate")))))
       (:div :id "nav"
-	    (:h2 (:a :href "/magnitudes.html" "Next: Magnitude of Sunlight in each Direction"))
+	    (:h2 (:a :href "http://www.patreon.com/bld" "Next: Help create it by becoming a patron"))
 	    (:h2 (:a :href "/reflect.html" "Previous: Sunlight Absorbed by a Sail"))
 	    (:h2 (:a :href "/index.html" "Home")))
       (:img :id "up" :src "img/arrow_up.svg")
