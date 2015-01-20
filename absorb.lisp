@@ -24,7 +24,8 @@
 	    (:h1 "Sunlight Absorbed by a Sail")
 	    (:ul
 	     (:li "The yellow box shows the sunlight that is absorbed by the sail.")
-	     (:li "See how the volume of the box changes as the sail tilts " (:em "(sun incidence),") " and the amount of sunlight absorbed changes.")
+	     (:li "The arrow shows the direction of the sunlight, and its length shows how much hits the sail.")
+	     (:li "Observe how the volume of the box, length of the arrow, and absorbed % change as the sail tilts " (:em "(sun incidence)."))
 	     (:li (:b "Challenge:") "Find the sun incidence angles where the sunlight absorbed is 100%, 50%, and 0%.")
 	     (:li (:b "Extra credit:") "Calculate the " (:em "cosine") " of the sun incidence angle and compare to the absorbed %."))
 	    (:table
@@ -62,12 +63,7 @@
 	  (init document window)
 	  (init-orbit-controls)
 	  (init-sail-parts)
-	  (setq mirror (new (*mirror)))
-	  ((@ sail add) mirror)
-	  (setq corners (new (*corners mirror)))
-	  (setq projection (new (*projection mirror)))
-	  ((@ scene add) projection)
-	  (setq tilt-update-fn #'update-tilt-absorb)
+	  (init-absorb)
 	  (init-tilt-controls)
 	  (animate))))
       (:script :src "js/googleanalytics.js")))))

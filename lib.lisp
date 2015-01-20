@@ -41,15 +41,18 @@
     (defvar incidence)
     (defvar rotation)
     (defvar absorbed)
+    (defvar reflect)
+    (defvar incident)
     (defvar reflection)
     (defvar tilt-update-fn)
     (defvar target)
+    (defvar absorb-arrow)
+    (defvar reflection-arrow)
     ;; Direction arrows & variables
     (defvar normal-arrow)
     (defvar incident-arrow)
     (defvar tangential)
     (defvar tangential-arrow)
-    (defvar reflection-arrow)
 
     (defun *stars ()
       (let ((g (new (3fn *geometry)))
@@ -316,6 +319,7 @@
     ;; Absorption and reflection controls
     
     (defun *mirror ()
+      "Invisible object representing the corners of the sail"
       (let* ((w 8)
 	     (w2 (/ w 2))
 	     (m (new (3fn *mesh-basic-material
@@ -343,6 +347,7 @@
 	  o)))
     
     (defun *projection (m)
+      "Projection of that portion of the sunlight that hits the sail"
       (let ((mat (new (3fn *line-basic-material (create color 0xffff00))))
 	    (pg (new (3fn *geometry)))
 	    (ymin -500))
@@ -363,6 +368,7 @@
 		(new (3fn *line pg mat))))))))
 
     (defun *corners (m)
+      "List of corner points of a mirror object in world coordinates"
       (with-slots ((mv vertices)) (@ m geometry)
 	(list
 	 ((@ m local-to-world) ((@ mv 1 clone)))
@@ -371,15 +377,31 @@
 	 ((@ m local-to-world) ((@ mv 4 clone))))))
 
     (defun rotate-global-y (object rad)
+      "Rotate an object around the global Y axis by the given number of radians"
       (let* ((gy (new (3fn *vector3 0 1 0)))
 	     (ly ((@ object world-to-local) gy)))
 	((@ object rotate-on-axis) ly rad)))
 
+    (defun init-absorb ()
+      "Initialize absorb lesson specific objects"
+      ((@ camera position set) -4 -6 6)
+      (setq mirror (new (*mirror)))
+      ((@ sail add) mirror)
+      (setq corners (new (*corners mirror)))
+      (setq projection (new (*projection mirror)))
+      ((@ scene add) projection)
+      (setq tilt-update-fn #'update-tilt-absorb)
+      (setq incident (new (*incident)))
+      (setq absorb-arrow (new (3fn *arrow-helper incident origin 10 0xffff00)))
+      ((@ scene add) absorb-arrow))
+    
     (defun update-tilt ()
+      "When the sail is tilted, call tilt-update-fn and re-render the scene"
       (funcall tilt-update-fn)
       (render))
     
     (defun update-tilt-absorb ()
+      "Update the absorb lesson in response to tilting the sail"
       ;; Update rotation matrix of sail
       ((@ sail update-matrix-world))
       ;; Update corners of sail positions
@@ -391,9 +413,12 @@
       ;; Update angle fields
       (setf (@ ($ "#incidence") 0 inner-h-t-m-l) ((@ incidence to-string)))
       (setf (@ ($ "#rotation") 0 inner-h-t-m-l) ((@ rotation to-string)))
-      (setf (@ ($ "#absorbed") 0 inner-h-t-m-l) ((@ absorbed to-string))))
+      (setf (@ ($ "#absorbed") 0 inner-h-t-m-l) ((@ absorbed to-string)))
+      ;; Update absorbed arrow
+      ((@ absorb-arrow set-length) (* 10 (/ absorbed 100))))
 
     (defun calc-absorbed (incidence)
+      "Calculate the absorbed percentage from the incidence angle"
       (abs (round (* 100 (cos (* incidence (/ pi 180)))))))
 
     (defun up ()
@@ -431,6 +456,7 @@
       (update-tilt))
     
     (defun init-tilt-controls ()
+      "Initialize tilt controls for tilting/rotating the sail"
       ;; Initialize values
       (setq incidence 0
 	    rotation 0
@@ -483,14 +509,36 @@
 	  ((@ refl add) (new (3fn *arrow-helper reflect ((@ (aref corners i) clone)) l c hl hw))))
 	refl))
 
+    (defun init-reflect ()
+      "Initialize reflect lesson objects"
+      (init-absorb)
+      (setq normal (new (*normal mirror)))
+      (setq reflect (new (*reflect incident normal)))
+      (setq reflection (new (*reflection corners)))
+      (let ((tinc (* 5 (random (/ 360 5)) (/ pi 180)))
+	    (trot (* 5 (random (/ 360 5)) (/ pi 180)))
+	    (tdist (+ 20 (random 180))))
+	(setq target (new (*target tinc trot tdist 5))))
+      ((@ scene add) reflection)
+      ((@ scene add) target)
+      ;; Reflection arrow
+      (setq reflect-arrow (new (3fn *arrow-helper reflect origin 9 0xffff00)))
+      ((@ scene add) reflect-arrow)
+      ;; Tilt update function
+      (setq tilt-update-fn #'update-tilt-reflect))
+    
     (defun update-tilt-reflect ()
+      "Update the reflect lesson objects in response to tilting the sail"
       (update-tilt-absorb)
       ;; Update reflection objects
       (setq normal (new (*normal mirror)))
       (setq reflect (new (*reflect incident normal)))
       ((@ scene remove) reflection)
       (setq reflection (new (*reflection corners)))
-      ((@ scene add) reflection))
+      ((@ scene add) reflection)
+      ;; Update reflection arrow
+      ((@ reflect-arrow set-direction) reflect)
+      ((@ reflect-arrow set-length) (* 9 (/ absorbed 100))))
     
     (defun *target (inc rot dist rad)
       "Target to point reflection at given incidence, rotation, distance, and radius"
@@ -558,17 +606,4 @@
       ((@ tangential-arrow set-length)
        (if (> ((@ tangential length)) 0) 10 0)))
     
-    ;; Magnitudes
-    (defun update-tilt-magnitudes ()
-      "Update the arrows with the magnitide of light going in each direction"
-      (update-tilt-direction)
-      ;; Update arrow magnitudes
-      (let* ((absmag ((@ incident dot) normal))
-	     (mag (* absmag absmag))
-	     (tmag (* mag ((@ tangential dot) normal)))
-	     (incmag (* mag absmag)))
-	((@ normal-arrow set-length) (* 10 mag))
-	((@ tangential-arrow set-length) (* 10 tmag))
-	((@ incident-arrow set-length) (* 10 incmag))
-	((@ reflection-arrow set-length) (* 10 absmag))))
     ))
