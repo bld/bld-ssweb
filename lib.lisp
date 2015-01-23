@@ -213,8 +213,9 @@
 
     (defun sail-parts-visible (bool)
       "Change visibility of sail parts"
-      (dolist (p (@ sail children))
-	(if (@ p obj) (setf (@ p obj visible) bool))))
+      (when sail
+	(dolist (p (@ sail children))
+	  (if (@ p obj) (setf (@ p obj visible) bool)))))
 
     (defun render ()
       ;; Make sail parts invisible
@@ -226,9 +227,11 @@
 	    (setf (@ r visible) false)))
       (arrows-visible false)
       ;; Update cube cameras
-      ((@ sails mcam update-cube-map) renderer scene)
-      (dolist (vane vanes)
-	((@ vane mcam update-cube-map) renderer scene))
+      (when sails
+	((@ sails mcam update-cube-map) renderer scene))
+      (when vanes
+	(dolist (vane vanes)
+	  ((@ vane mcam update-cube-map) renderer scene)))
       ;; Reset visibility
       (sail-parts-visible true)
       (if projection (setf (@ projection visible) true))
@@ -605,5 +608,5 @@
       ((@ reflection-arrow set-direction) reflect)
       ((@ tangential-arrow set-length)
        (if (> ((@ tangential length)) 0) 10 0)))
-    
+
     ))
