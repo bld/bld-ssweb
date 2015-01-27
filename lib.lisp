@@ -53,6 +53,8 @@
     (defvar incident-arrow)
     (defvar tangential)
     (defvar tangential-arrow)
+    ;; Acceleration
+    (defvar time)
 
     (defun *stars ()
       (let ((g (new (3fn *geometry)))
@@ -293,7 +295,7 @@
       ((@ renderer set-size) (@ window inner-width) (@ window inner-height))
       ((@ plot-div append-child) (@ renderer dom-element))
       ;; Scene camera
-      (setq camera (new (3fn *perspective-camera 75 (/ window.inner-width window.inner-height) 0.1 1000)))
+      (setq camera (new (3fn *perspective-camera 75 (/ (@ window inner-width) (@ window inner-height)) 0.1 1000)))
       ((@ camera position set) 2 -6 3)
       ((@ camera look-at) origin)
       ((@ scene add) camera)
@@ -609,4 +611,27 @@
       ((@ tangential-arrow set-length)
        (if (> ((@ tangential length)) 0) 10 0)))
 
+    (defun update-absorb-force ()
+      "Integrate position during animation"
+      ;; Update acceleration, velocity, position
+      (update-tilt-absorb)
+      (let* ((accel (* 1d-10 absorbed))
+	     (now ((@ (new (*date)) get-time)))
+	     (dt (- now (or time now))))
+	(setq time now)
+	(incf vel (* dt accel))
+	(incf pos (* dt vel))
+	(setf (@ sail position y) pos)))
+
+    (defun init-absorb-force ()
+      (init-absorb)
+      (setq vel 0)
+      (setq pos 0))
+	
+    (defun animate-force ()
+      (request-animation-frame animate-force)
+      (update-absorb-force)
+      ((@ controls update))
+      (render))
+    
     ))

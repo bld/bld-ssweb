@@ -63,8 +63,7 @@
 	  (init document window)
 	  (init-orbit-controls)
 	  (init-sail-parts)
-	  (init-absorb)
+	  (init-absorb-force)
 	  (init-tilt-controls)
-	  (animate))))
+	  (animate-force))))
       (:script :src "js/googleanalytics.js")))))
-    
