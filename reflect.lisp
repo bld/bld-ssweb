@@ -7,12 +7,12 @@
     (:html
      (:meta :charset "utf-8")
      (:meta :property "og:url" :content "http://flightschool.solarsails.info/reflect.html")
-     (:meta :property "og:title" :content "Sunlight Reflected by a Sail")
+     (:meta :property "og:title" :content "Sunlight Reflected by a Solar Sail")
      (:meta :property "og:description" :content "Lesson 4: Learn how to reflect light off of a solar sail.")
      (:meta :property "og:image" :content "http://flightschool.solarsails.info/img/reflect_image.png")
      (:meta :property "og:description" :content "Lesson 4: Learn how to reflect light off of a solar sail.")
      (:meta :property "og:site_name" :content "Solar Sail Flight School")
-     (:title "Sunlight Reflected by a Sail")
+     (:title "Sunlight Reflected by a Solar Sail")
      (:link :href "sail.css" :rel "stylesheet")
      (:script :src "js/three.min.js")
      (:script :src "js/jquery-1.11.1.min.js")
@@ -22,7 +22,7 @@
      (:script :src "js/lib.js")
      (:body
       (:div :id "info"
-	    (:h1 "Sunlight Reflected by a Sail")
+	    (:h1 "Sunlight Reflected by a Solar Sail")
 	    (:ul
 	     (:li "Light reflects off of the mirrored sail at the same angle that it hit it.")
 	     (:li "The yellow boxes show the light absorbed and reflected by the sail.")
@@ -49,7 +49,7 @@
 			(:li "Up and down arrows to tilt")
 			(:li "Right and left arrows to rotate")))))
       (:div :id "nav"
-	    (:h2 (:a :href "/directions.html" "Next: Directions of the Sunlight"))
+	    (:h2 (:a :href "http://www.patreon.com/bld" "Next: Help develop it at Patreon"))
 	    (:h2 (:a :href "/absorb.html" "Previous: Sunlight Absorbed by a Sail"))
 	    (:h2 (:a :href "/index.html" "Home")))
       (:img :id "up" :src "img/arrow_up.svg")
