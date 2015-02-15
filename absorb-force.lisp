@@ -18,24 +18,29 @@
      (:script :src "js/TrackballControls.js")
      (:script :type "text/javascript"
 	      (str (ps (lisp *ps-lisp-library*))))
+     (:script :src "js/decround.js")
      (:script :src "js/lib.js")
      (:body
       (:div :id "info"
 	    (:h1 "Force from Absorbed Sunlight on a Solar Sail")
 	    (:ul
-	     (:li "The yellow box shows the sunlight that is absorbed by the sail.")
-	     (:li "The arrow shows the direction of the sunlight, and its length shows how much hits the sail.")
-	     (:li "Observe how the volume of the box, length of the arrow, and absorbed % change as the sail tilts " (:em "(sun incidence)."))
-	     (:li (:b "Challenge:") "Find the sun incidence angles where the sunlight absorbed is 100%, 50%, and 0%.")
-	     (:li (:b "Extra credit:") "Calculate the " (:em "cosine") " of the sun incidence angle and compare to the absorbed %."))
+	     (:li "Light striking a sail pushes on it in the direction of the sunlight. The force is proportional to the amount of light absorbed.")
+	     (:li "Here is a small sail that speeds up by 0.05 mm/s every second at full sunlight.")
+	     (:li "Observe how the acceleration, speed, and position change over time at different sun incidence angles.")
+	     (:li (:b "Challenge:") "At what sun incidence angles is the acceleration maximum, half, and zero?"))
 	    (:table
 	     :id "tilt-controls"
 	     (:tr (:td (:b "Sun incidence")) (:td :id "incidence" "0") (:td "deg"))
 	     (:tr (:td (:b "Rotation about sun")) (:td :id "rotation" "0") (:td "deg"))
-	     (:tr (:td (:b "Absorbed")) (:td :id "absorbed" "100") (:td "%"))))
+	     ;;(:tr (:td (:b "Absorbed")) (:td :id "absorbed" "100") (:td "%"))
+	     (:tr (:td (:b "Acceleration")) (:td :id "accel" "1") (:td "mm/s^2"))
+	     (:tr (:td (:b "Speed")) (:td :id "speed" "0") (:td "mm/s"))
+	     (:tr (:td (:b "Distance")) (:td :id "distance" "0") (:td "m"))
+	     (:tr (:td (:b "Time")) (:td :id "elapsed" "0") (:td "min:sec"))))
       (:div :id "help"
 	    (:h2 (:a :href "#" :onclick "toggleDiv(\"helpText\"); return false;" "Help"))
 	    (:div :id "helpText"
+		  (:li "The scene resets after the sail travels 5 m.")
 		  (:li "Rotate the view by clicking or touching and dragging.")
 		  (:li "To zoom:"
 		       (:ul
