@@ -100,6 +100,7 @@ function calcAbsorbed(incidence) {
 function rotateGlobalY(object, rad) {
     var gy = new THREE.Vector3(0, 1, 0);
     var ly = object.worldToLocal(gy);
+    ly.normalize();
     return object.rotateOnAxis(ly, rad);
 };
 
