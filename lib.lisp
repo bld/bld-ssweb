@@ -55,6 +55,8 @@
     (defvar tangential-arrow)
     ;; Acceleration
     (defvar time)
+    (defvar elapsed)
+    (defvar timefactor)
 
     (defun *stars ()
       (let ((g (new (3fn *geometry)))
@@ -385,6 +387,7 @@
       "Rotate an object around the global Y axis by the given number of radians"
       (let* ((gy (new (3fn *vector3 0 1 0)))
 	     (ly ((@ object world-to-local) gy)))
+	((@ ly normalize))
 	((@ object rotate-on-axis) ly rad)))
 
     (defun init-absorb ()
@@ -418,13 +421,15 @@
       ;; Update angle fields
       (setf (@ ($ "#incidence") 0 inner-h-t-m-l) ((@ incidence to-string)))
       (setf (@ ($ "#rotation") 0 inner-h-t-m-l) ((@ rotation to-string)))
-      (setf (@ ($ "#absorbed") 0 inner-h-t-m-l) ((@ absorbed to-string)))
+      (let ((absorbed-html (@ ($ "#absorbed") 0)))
+	(when absorbed-html
+	  (setf (@ absorbed-html inner-h-t-m-l) ((@ absorbed to-string)))))
       ;; Update absorbed arrow
       ((@ absorb-arrow set-length) (* 10 (/ absorbed 100))))
 
     (defun calc-absorbed (incidence)
       "Calculate the absorbed percentage from the incidence angle"
-      (abs (round (* 100 (cos (* incidence (/ pi 180)))))))
+      (abs ((@ *math round10) (* 100 (cos (* incidence (/ pi 180)))) -1)))
 
     (defun up ()
       "Increment incidence"
@@ -598,7 +603,7 @@
 	(setf (@ arrow visible) bool)))
     
     (defun arrows-visible (bool)
-      (dolist (a (list normal-arrow incident-arrow tangential-arrow reflection-arrow))
+      (dolist (a (list normal-arrow incident-arrow tangential-arrow reflection-arrow absorb-arrow))
 	(arrow-visible a bool)))
     
     (defun update-tilt-direction ()
@@ -615,23 +620,43 @@
       "Integrate position during animation"
       ;; Update acceleration, velocity, position
       (update-tilt-absorb)
-      (let* ((accel (* 1d-10 absorbed))
+      (let* ((accel (* 5d-5 (cos (* incidence (/ pi 180)))))
 	     (now ((@ (new (*date)) get-time)))
-	     (dt (- now (or time now))))
+	     (dt (/ (* timefactor (- now (or time now))) 1000)))
 	(setq time now)
+	(incf elapsed dt)
 	(incf vel (* dt accel))
 	(incf pos (* dt vel))
-	(setf (@ sail position y) pos)))
+	(setf (@ sail position y) pos)
+	(setf (@ ($ "#accel") 0 inner-h-t-m-l) ((@ ((@ *math floor10) (* accel 1000) -4) to-string)))
+	(setf (@ ($ "#speed") 0 inner-h-t-m-l) ((@ ((@ *math floor10) (* vel 1000) -2) to-string)))
+	(setf (@ ($ "#distance") 0 inner-h-t-m-l) ((@ ((@ *math floor10) pos -3) to-string)))
+	(let* ((minutes (floor (/ elapsed 60)))
+	       (seconds (floor (- elapsed (* minutes 60)))))
+	  (setf (@ ($ "#elapsed") 0 inner-h-t-m-l) (+ ((@ minutes to-string)) (if (> seconds 9) ":" ":0") ((@ seconds to-fixed))))))
+      ;; Move absorbed arrow
+      ((@ absorb-arrow position copy) (@ sail position))
+      ;; Move sail mirror camera positions
+      ((@ sails mcam position copy) (@ sail position))
+      ;; Move vane mirrors camera positions
+      (dolist (vane vanes)
+	((@ vane mcam position copy) (@ sail position))))
 
     (defun init-absorb-force ()
       (init-absorb)
       (setq vel 0)
-      (setq pos 0))
+      (setq pos 0)
+      (setq elapsed 0)
+      (setq timefactor 10))
 	
     (defun animate-force ()
       (request-animation-frame animate-force)
+      (when (> pos 5)
+	(setf pos 0)
+	(setf vel 0)
+	(setf elapsed 0))
       (update-absorb-force)
       ((@ controls update))
       (render))
-    
+  
     ))
