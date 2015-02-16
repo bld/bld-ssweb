@@ -6,7 +6,7 @@
   (with-html-output-to-string (s nil :indent t :prologue t)
     (:html
      (:meta :charset "utf-8")
-     (:meta :property "og:url" :content "http://flightschool.solarsails.info/absorb-force.html")
+     (:meta :property "og:url" :content "http://flightschool.solarsails.info:8080/absorb-force.html")
      (:meta :property "og:title" :content "Force from Absorbed Sunlight on a Solar Sail")
      (:meta :property "og:image" :content "http://flightschool.solarsails.info/img/absorb_image.png")
      (:meta :property "og:description" :content "Lesson 5: Learn how absorbed sunlight pushes a solar sail.")
