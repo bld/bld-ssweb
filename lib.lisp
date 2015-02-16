@@ -57,6 +57,7 @@
     (defvar time)
     (defvar elapsed)
     (defvar timefactor)
+    (defvar pause)
 
     (defun *stars ()
       (let ((g (new (3fn *geometry)))
@@ -647,15 +648,28 @@
       (setq vel 0)
       (setq pos 0)
       (setq elapsed 0)
-      (setq timefactor 10))
+      (setq timefactor 10)
+      (setq pause false)
+      (let ((pause-html ($ "#pause")))
+	((@ pause-html click)
+	 #'(lambda (e)
+	     (if pause
+		 (progn
+		   (setq pause false)
+		   (setf (@ pause-html 0 inner-h-t-m-l) "Pause"))
+		 (progn
+		   (setq pause t)
+		   (setf (@ pause-html 0 inner-h-t-m-l) "Continue")))))))
 	
     (defun animate-force ()
       (request-animation-frame animate-force)
-      (when (> pos 5)
-	(setf pos 0)
-	(setf vel 0)
-	(setf elapsed 0))
-      (update-absorb-force)
+      (unless pause
+	(when (> pos 5)
+	  (setf pos 0)
+	  (setf vel 0)
+	  (setf elapsed 0))
+	(update-absorb-force))
+      (when pause (setq time false))
       ((@ controls update))
       (render))
   
