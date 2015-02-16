@@ -38,7 +38,8 @@
       (:div :id "help"
 	    (:h2 (:a :href "#" :onclick "toggleDiv(\"helpText\"); return false;" "Help"))
 	    (:div :id "helpText"
-		  (:li "The sail resets after travelling 100 m.")
+		  (:li "The sail resets after travelling 100 m, or hit \"Reset\" button.")
+		  (:li "Click \"Pause\" or hit spacebar to pause.")
 		  (:li "Rotate the view by clicking or touching and dragging.")
 		  (:li "To zoom:"
 		       (:ul
