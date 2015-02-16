@@ -25,7 +25,7 @@
 	    (:h1 "Force from Absorbed Sunlight on a Solar Sail")
 	    (:ul
 	     (:li "Sunlight pushes a sail in the direction it shines. The force is proportional to the light absorbed.")
-	     (:li (:b "Challenge:") "At what sun incidence angles is the acceleration maximum, half, and zero?"))
+	     (:li (:b "Challenge:") "Get the speed as close to 20 mm/s as you can."))
 	    (:table
 	     :id "tilt-controls"
 	     (:tr (:td (:b "Sun incidence")) (:td :id "incidence" "0") (:td "deg"))
@@ -38,7 +38,7 @@
       (:div :id "help"
 	    (:h2 (:a :href "#" :onclick "toggleDiv(\"helpText\"); return false;" "Help"))
 	    (:div :id "helpText"
-		  (:li "The scene resets after the sail travels 5 m.")
+		  (:li "The sail resets after travelling 100 m.")
 		  (:li "Rotate the view by clicking or touching and dragging.")
 		  (:li "To zoom:"
 		       (:ul
@@ -50,7 +50,8 @@
 			(:li "Up and down arrows to tilt")
 			(:li "Right and left arrows to rotate")))))
       (:div :id "nav"
-	    (:button :id "pause" :name "pause" "Pause")
+	    (:button :id "pause" "Pause")
+	    (:button :id "reset" "Reset")
 	    (:p (:b (:a :href "http://www.patreon.com/bld" "Next: Help develop it at Patreon")))
 	    (:p (:b (:a :href "/reflect.html" "Previous: Sunlight reflecting off of a solar sail")))
 	    (:p (:b (:a :href "/index.html" "Home"))))
