@@ -24,9 +24,7 @@
       (:div :id "info"
 	    (:h1 "Force from Absorbed Sunlight on a Solar Sail")
 	    (:ul
-	     (:li "Light striking a sail pushes on it in the direction of the sunlight. The force is proportional to the amount of light absorbed.")
-	     (:li "Here is a small sail that speeds up by 0.05 mm/s every second at full sunlight.")
-	     (:li "Observe how the acceleration, speed, and position change over time at different sun incidence angles.")
+	     (:li "Sunlight pushes a sail in the direction it shines. The force is proportional to the light absorbed.")
 	     (:li (:b "Challenge:") "At what sun incidence angles is the acceleration maximum, half, and zero?"))
 	    (:table
 	     :id "tilt-controls"
@@ -52,9 +50,10 @@
 			(:li "Up and down arrows to tilt")
 			(:li "Right and left arrows to rotate")))))
       (:div :id "nav"
-	    (:h2 (:a :href "http://www.patreon.com/bld" "Next: Help develop it at Patreon"))
-	    (:h2 (:a :href "/reflect.html" "Previous: Sunlight reflecting off of a solar sail"))
-	    (:h2 (:a :href "/index.html" "Home")))
+	    (:button :id "pause" :name "pause" "Pause")
+	    (:p (:b (:a :href "http://www.patreon.com/bld" "Next: Help develop it at Patreon")))
+	    (:p (:b (:a :href "/reflect.html" "Previous: Sunlight reflecting off of a solar sail")))
+	    (:p (:b (:a :href "/index.html" "Home"))))
       (:img :id "up" :src "img/arrow_up.svg")
       (:img :id "down" :src "img/arrow_down.svg")
       (:img :id "left" :src "img/arrow_left.svg")
