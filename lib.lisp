@@ -643,6 +643,11 @@
       (dolist (vane vanes)
 	((@ vane mcam position copy) (@ sail position))))
 
+    (defun reset-absorb-force ()
+      (setf pos 0)
+      (setf vel 0)
+      (setf elapsed 0))
+    
     (defun init-absorb-force ()
       (init-absorb)
       (setq vel 0)
@@ -650,6 +655,7 @@
       (setq elapsed 0)
       (setq timefactor 10)
       (setq pause false)
+      ;; Pause button event
       (let ((pause-html ($ "#pause")))
 	((@ pause-html click)
 	 #'(lambda (e)
@@ -659,15 +665,16 @@
 		   (setf (@ pause-html 0 inner-h-t-m-l) "Pause"))
 		 (progn
 		   (setq pause t)
-		   (setf (@ pause-html 0 inner-h-t-m-l) "Continue")))))))
+		   (setf (@ pause-html 0 inner-h-t-m-l) "Continue"))))))
+      (let ((reset-html ($ "#reset")))
+	((@ reset-html click)
+	 #'(lambda (e) (reset-absorb-force)))))
 	
     (defun animate-force ()
       (request-animation-frame animate-force)
       (unless pause
-	(when (> pos 5)
-	  (setf pos 0)
-	  (setf vel 0)
-	  (setf elapsed 0))
+	(when (> pos 100)
+	  (reset-absorb-force))
 	(update-absorb-force))
       (when pause (setq time false))
       ((@ controls update))
