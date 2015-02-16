@@ -465,6 +465,13 @@
       (when (> rotation 180)
 	(setq rotation (- rotation 360)))
       (update-tilt))
+
+    (defun tilt-key-event (e)
+      (case (@ e which)
+	(37 (left))
+	(38 (up))
+	(39 (right))
+	(40 (down))))
     
     (defun init-tilt-controls ()
       "Initialize tilt controls for tilting/rotating the sail"
@@ -473,13 +480,9 @@
 	    rotation 0
 	    absorbed 100)
       ;; Arrow key events
-      ((@ ($ (@ document body)) on) "keydown"
+      ((@ ($ (@ document body)) keydown)
        #'(lambda (e)
-	   (case (@ e which)
-	     (37 (left))
-	     (38 (up))
-	     (39 (right))
-	     (40 (down)))))
+	   (tilt-key-event e)))
       ;; Clicking on arrow images
       ((@ ($ "#up") click) #'(lambda (e) (up)))
       ((@ ($ "#down") click) #'(lambda (e) (down)))
@@ -620,7 +623,6 @@
     (defun update-absorb-force ()
       "Integrate position during animation"
       ;; Update acceleration, velocity, position
-      (update-tilt-absorb)
       (let* ((accel (* 5d-5 (abs (cos (* incidence (/ pi 180))))))
 	     (now ((@ (new (*date)) get-time)))
 	     (dt (/ (* timefactor (- now (or time now))) 1000)))
@@ -641,12 +643,27 @@
       ((@ sails mcam position copy) (@ sail position))
       ;; Move vane mirrors camera positions
       (dolist (vane vanes)
-	((@ vane mcam position copy) (@ sail position))))
+	((@ vane mcam position copy) (@ sail position)))
+      (update-tilt-absorb))
 
     (defun reset-absorb-force ()
       (setf pos 0)
       (setf vel 0)
       (setf elapsed 0))
+    
+    (defun toggle-pause (e)
+      (let ((pause-html ($ "#pause")))
+	(if pause
+	    (progn
+	      (setq pause false)
+	      (setf (@ pause-html 0 inner-h-t-m-l) "Pause"))
+	    (progn
+	      (setq pause t)
+	      (setf (@ pause-html 0 inner-h-t-m-l) "Continue")))))
+
+    (defun space-pause-event (e)
+      (when (= (@ e which) 32)
+	(toggle-pause e)))
     
     (defun init-absorb-force ()
       (init-absorb)
@@ -658,18 +675,17 @@
       ;; Pause button event
       (let ((pause-html ($ "#pause")))
 	((@ pause-html click)
-	 #'(lambda (e)
-	     (if pause
-		 (progn
-		   (setq pause false)
-		   (setf (@ pause-html 0 inner-h-t-m-l) "Pause"))
-		 (progn
-		   (setq pause t)
-		   (setf (@ pause-html 0 inner-h-t-m-l) "Continue"))))))
+	 #'toggle-pause))
+      ;; Pause with spacebar
+      ((@ ($ (@ document body)) keydown)
+       #'space-pause-event)
+      ;; Reset button
       (let ((reset-html ($ "#reset")))
 	((@ reset-html click)
-	 #'(lambda (e) (reset-absorb-force)))))
-	
+	 #'(lambda (e)
+	     (reset-absorb-force)
+	     (update-absorb-force)))))
+    
     (defun animate-force ()
       (request-animation-frame animate-force)
       (unless pause
