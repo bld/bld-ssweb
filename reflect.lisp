@@ -10,7 +10,6 @@
      (:meta :property "og:title" :content "Sunlight Reflected by a Solar Sail")
      (:meta :property "og:description" :content "Lesson 4: Learn how to reflect light off of a solar sail.")
      (:meta :property "og:image" :content "http://flightschool.solarsails.info/img/reflect_image.png")
-     (:meta :property "og:description" :content "Lesson 4: Learn how to reflect light off of a solar sail.")
      (:meta :property "og:site_name" :content "Solar Sail Flight School")
      (:title "Sunlight Reflected by a Solar Sail")
      (:link :href "sail.css" :rel "stylesheet")
