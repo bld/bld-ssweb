@@ -621,7 +621,7 @@
       "Integrate position during animation"
       ;; Update acceleration, velocity, position
       (update-tilt-absorb)
-      (let* ((accel (* 5d-5 (cos (* incidence (/ pi 180)))))
+      (let* ((accel (* 5d-5 (abs (cos (* incidence (/ pi 180))))))
 	     (now ((@ (new (*date)) get-time)))
 	     (dt (/ (* timefactor (- now (or time now))) 1000)))
 	(setq time now)
