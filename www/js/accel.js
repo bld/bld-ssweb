@@ -5,10 +5,10 @@ function toggleDiv (divId) {
 };
 
 function Sail () {
-    g = new THREE.Geometry();
-    w = 8;
-    w2 = w/2;
-    m = new THREE.MeshBasicMaterial({color : 0x444444, side : THREE.DoubleSide});
+    var g = new THREE.Geometry(),
+	w = 8,
+	w2 = w/2,
+	m = new THREE.MeshBasicMaterial({color : 0x444444, side : THREE.DoubleSide});
     g.vertices.push(
 	new THREE.Vector3(0, 0, 0),
 	new THREE.Vector3(w2, 0, 0),
