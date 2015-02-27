@@ -9,14 +9,14 @@ body {
     #info {
 	text-align: left;
 	padding: 1em;
-	width: 33%;
+	width: 40%;
 	position: absolute;
 	left: 0;
     }
     #help {
 	text-align: right;
 	padding: 1em;
-	width: 33%;
+	width: 40%;
 	position: absolute;
 	right: 0;
     }

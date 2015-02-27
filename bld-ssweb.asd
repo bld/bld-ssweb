@@ -18,4 +18,5 @@
    (:file "what")
    (:file "absorb")
    (:file "reflect")
-   (:file "directions")))
+   (:file "directions")
+   (:file "absorb-force")))
