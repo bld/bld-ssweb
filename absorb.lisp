@@ -18,6 +18,7 @@
      (:script :src "js/TrackballControls.js")
      (:script :type "text/javascript"
 	      (str (ps (lisp *ps-lisp-library*))))
+     (:script :src "js/decround.js")
      (:script :src "js/lib.js")
      (:body
       (:div :id "info"
