@@ -15,49 +15,43 @@
     (defun toggle-div (div-id)
       ((@ ($ (+ "#" div-id)) toggle)))
 
-    
-    
-    (defun Flightschool ()
-      (with-slots (scene origin plot-div renderer camera light alight stars sun target-list projector mouse) this
-	;; Scene
-	(setf scene (new (3fn *scene)))
-	;; Center coordinate
-	(setf origin (new (3fn *vector3 0 0 0)))
-	;; DOM element to put plot in
-	(setf plot-div ((@ document get-element-by-id) "plot"))
-	;; Renderer
-	(setf renderer (if (@ window *web-g-l-rendering-context)
-			   (new (3fn *web-g-l-renderer (create antialias true)))
-			   (new (3fn *canvas-renderer))))
-	((@ renderer set-size) (@ window inner-width) (@ window inner-height))
-	((@ plot-div append-child) (@ renderer dom-element))
-	;; Scene camera
-	(setf camera (new (3fn *perspective-camera 75 (/ (@ window inner-width) (@ window inner-height)) 0.1 1000)))
-	((@ camera position set) 2 -6 3)
-	((@ camera look-at) origin)
-	((@ scene add) camera)
-	;; Directional light
-	(setf light (new (3fn *directional-light 0xffffff 2)))
-	((@ light position set) 0 -1 0)
-	((@ scene add) light)
-	;; Ambient light
-	(setf alight (new (3fn *ambient-light 0xffffff)))
-	((@ scene add) alight)
-	;; Stars
-	(setf stars (new (*stars)))
-	((@ scene add) stars)
-	;; Sun
-	(setf sun (new (*sun)))
-	((@ sun translate-y) -500)
-	((@ scene add) sun)
-	;; Setup clicking parts of sail
-	(setf target-list (list))
-	(setf projector (new (3fn *projector)))
-	(setf mouse (create x 0 y 0))
-	;;((@ document add-event-listener) "click" on-document-mouse-click false)
-	;; Automatically resize window
-	;;((@ window add-event-listener) "resize" on-window-resize false)
-	))
+    (defun flightschool (spec)
+      "Flight school app"
+      (let ((that (create)))
+	(with-slots (scene origin plot-div renderer camera light alight stars sun target-list projector mouse) that
+	  ;; Scene
+	  (setf scene (new (3fn *scene)))
+	  ;; Center coordinate
+	  (setf origin (new (3fn *vector3 0 0 0)))
+	  ;; DOM element to put plot in
+	  (setf plot-div ((@ document get-element-by-id) "plot"))
+	  ;; Renderer
+	  (setf renderer (if (@ window *web-g-l-rendering-context)
+			     (new (3fn *web-g-l-renderer (create antialias true)))
+			     (new (3fn *canvas-renderer))))
+	  ((@ renderer set-size) (@ window inner-width) (@ window inner-height))
+	  ((@ plot-div append-child) (@ renderer dom-element))
+	  ;; Scene camera
+	  (setf camera (new (3fn *perspective-camera 75 (/ (@ window inner-width) (@ window inner-height)) 0.1 1000)))
+	  ((@ camera position set) 2 -6 3)
+	  ((@ camera look-at) origin)
+	  ((@ scene add) camera)
+	  ;; Directional light
+	  (setf light (new (3fn *directional-light 0xffffff 2)))
+	  ((@ light position set) 0 -1 0)
+	  ((@ scene add) light)
+	  ;; Ambient light
+	  (setf alight (new (3fn *ambient-light 0xffffff)))
+	  ((@ scene add) alight)
+	  ;; Stars
+	  (setf stars (new (*stars)))
+	  ((@ scene add) stars)
+	  ;; Sun
+	  (setf sun (new (*sun)))
+	  ((@ sun translate-y) -500)
+	  ((@ scene add) sun)
+	  )
+	that))
     
     (defvar scene)
     (defvar renderer)
