@@ -108,6 +108,10 @@
        (str
 	(ps
 	  (toggle-div "helpText")
-	  (init-parts document window)
-	  (animate))))
+	  #+null(init-parts document window)
+	  #+null(animate)
+	  (defvar app (parts))
+	  ((@ app init))
+	  ((@ app animate))
+	  )))
       (:script :src "js/googleanalytics.js")))))

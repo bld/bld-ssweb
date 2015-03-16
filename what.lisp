@@ -46,8 +46,13 @@
        (str
 	(ps
 	  (toggle-div "helpText")
-	  (init document window)
-	  (init-orbit-controls)
-	  (init-sail-parts)
-	  (animate))))
+	  #+null(progn ; original
+	    (init document window)
+	    (init-orbit-controls)
+	    (init-sail-parts)
+	    (animate))
+	  (progn ; new
+	    (defvar app (what))
+	    ((@ app init))
+	    ((@ app animate))))))
       (:script :src "js/googleanalytics.js")))))

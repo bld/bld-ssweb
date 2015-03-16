@@ -15,42 +15,311 @@
     (defun toggle-div (div-id)
       ((@ ($ (+ "#" div-id)) toggle)))
 
-    (defun flightschool (spec)
+    (setf (@ *function prototype method)
+	  (lambda (name func)
+	    (when (not (elt (@ this prototype) name))
+	      (setf (elt (@ this prototype) name) func)
+	      this)))
+
+    ((@ *object method) "superior"
+     (lambda (name)
+       (let* ((that this)
+	      (method (elt that name)))
+	 (lambda ()
+	   ((@ method apply) that arguments)))))
+
+    (defun flightschool ()
       "Flight school app"
       (let ((that (create)))
-	(with-slots (scene origin plot-div renderer camera light alight stars sun target-list projector mouse) that
+	(with-slots (scene origin plot-div renderer camera light alight stars sun target-list
+			   sail booms bus sails vanes
+			   render init on-window-resize) that
+	  
 	  ;; Scene
 	  (setf scene (new (3fn *scene)))
+
 	  ;; Center coordinate
 	  (setf origin (new (3fn *vector3 0 0 0)))
+
 	  ;; DOM element to put plot in
 	  (setf plot-div ((@ document get-element-by-id) "plot"))
+
 	  ;; Renderer
 	  (setf renderer (if (@ window *web-g-l-rendering-context)
 			     (new (3fn *web-g-l-renderer (create antialias true)))
 			     (new (3fn *canvas-renderer))))
 	  ((@ renderer set-size) (@ window inner-width) (@ window inner-height))
 	  ((@ plot-div append-child) (@ renderer dom-element))
+
 	  ;; Scene camera
 	  (setf camera (new (3fn *perspective-camera 75 (/ (@ window inner-width) (@ window inner-height)) 0.1 1000)))
 	  ((@ camera position set) 2 -6 3)
 	  ((@ camera look-at) origin)
 	  ((@ scene add) camera)
+
 	  ;; Directional light
 	  (setf light (new (3fn *directional-light 0xffffff 2)))
 	  ((@ light position set) 0 -1 0)
 	  ((@ scene add) light)
+
 	  ;; Ambient light
 	  (setf alight (new (3fn *ambient-light 0xffffff)))
 	  ((@ scene add) alight)
+
 	  ;; Stars
 	  (setf stars (new (*stars)))
 	  ((@ scene add) stars)
+
 	  ;; Sun
 	  (setf sun (new (*sun)))
 	  ((@ sun translate-y) -500)
 	  ((@ scene add) sun)
+
+	  ;; Target list
+	  (setf target-list (list))
+
+	  ;; Parts of the sail
+	  (setf sail (new (3fn *object3-d)))
+
+	  ;; Toggle sail parts visibility
+	  (setf sail-parts-visible
+		(lambda (bool)
+		  (dolist (p (@ sail children))
+		    (if (@ p obj) (setf (@ p obj visible) bool)))))
+	  
+	  ;; Render method
+	  (setf render
+		(lambda ()
+		  ;; Make sail parts invisible
+		  (funcall sail-parts-visible false)
+		  ;; Update mirror cube cameras
+		  (when sails
+		    ((@ sails mcam update-cube-map) renderer scene))
+		  (when vanes
+		    (dolist (vane vanes)
+		      ((@ vane mcam update-cube-map) renderer scene)))
+		  ;; Make sail parts visible
+		  (funcall sail-parts-visible true)
+		  ;; Render
+		  ((@ renderer render) scene camera)))
+
+	  ;; Booms
+	  (setf booms (create))
+	  (with-slots (loader file loadfn obj load select-obj1 select-obj2) booms
+	    ;; Selection objects
+	    ;; 1st set of booms
+	    (setf select-obj1 (new (*selection-box "booms" .4 .2 8)))
+	    (setf (@ select-obj1 visible) false)
+	    ((@ scene add) select-obj1)
+	    ;; 2nd set of booms
+	    (setf select-obj2 (new (*selection-box "booms" 8 .2 .4)))
+	    (setf (@ select-obj2 visible) false)
+	    ((@ scene add) select-obj2)
+	    ;; Load booms geometry from file
+	    (setf loader (new (3fn -j-s-o-n-loader t))
+		  file "js/booms.js"
+		  loadfn
+		  #'(lambda (geometry materials)
+		      (let* ((mats (new (3fn *mesh-face-material materials)))
+			     (obj (new (3fn *mesh geometry mats))))
+			(setf (@ booms obj) obj)
+			((@ sail add) obj)
+			;;((@ scene add) obj)
+			(funcall render)))
+		  load #'(lambda () ((@ loader load) file loadfn))))
+
+	  ;; Bus
+	  (setf bus (create))
+	  (with-slots (loader file loadfn obj load select-obj) bus
+	    ;; Selection object
+	    (setf select-obj (new (*selection-box "bus" 1 1 1)))
+	    (setf (@ select-obj visible) false)
+	    ((@ scene add) select-obj)
+	    ((@ select-obj rotate-y) (/ pi 4))
+	    ;; Bus geometry loaded from file
+	    (setf loader (new (3fn -j-s-o-n-loader t))
+		  file "js/bus.js"
+		  loadfn
+		  #'(lambda (geometry materials)
+		      (let* ((mats (new (3fn *mesh-face-material materials)))
+			     (obj (new (3fn *mesh geometry mats))))
+			(setf (@ bus obj) obj)
+			((@ sail add) obj)
+			;;((@ scene add) obj)
+			(funcall render)))
+		  load #'(lambda () ((@ loader load) file loadfn))))
+	  ((@ bus load))
+
+	  ;; Sails
+	  (setf sails (create))
+	  (with-slots (loader file loadfn obj load mcam select-obj) sails
+	    ;; Selection box
+	    (setf select-obj (new (*selection-box "sails" (* 4 (sqrt 2)) 0 (* 4 (sqrt 2)))))
+	    (setf (@ select-obj visible) false)
+	    ((@ select-obj rotate-y) (/ pi 4))
+	    ((@ scene add) select-obj)
+	    ;; Mirror camera
+	    (let ((mirror-camera (new (3fn *cube-camera 1 5000 512))))
+	      (setf mcam mirror-camera)
+	      ((@ scene add) mcam)
+	      ;; Sail geometry
+	      (setf loader (new (3fn -j-s-o-n-loader t))
+		    file "js/sails.js"
+		    loadfn
+		    #'(lambda (geometry materials)
+			(let* ((mat
+				(new
+				 (3fn *mesh-phong-material
+				      (create
+				       env-map (@ mirror-camera render-target)
+				       reflectivity 0.9))))
+			       (obj (new (3fn *mesh geometry mat))))
+			  (setf (@ obj name) "sails")
+			  (setf (@ sails obj) obj)
+			  ((@ sail add) obj)
+			  ;;((@ scene add) obj)
+			  (funcall render)))
+		    load #'(lambda () ((@ loader load) file loadfn)))))
+
+	  ;; Vanes
+	  (setf
+	   vanes
+	   (loop for (x z) in '((1 0)(0 1)(-1 0)(0 -1))
+	      for i = 0 then (incf i)
+	      for yrot = (* i (/ pi 2))
+	      collect
+		(let ((vane (create)))
+		  (with-slots (loader file loadfn obj load mcam select-obj) vane
+		    ;; Selection objects
+		    (setf select-obj (new (*selection-box "vanes" .5 1 1)))
+		    (setf (@ select-obj position x) (* 4.25 x)
+			  (@ select-obj position z) (* 4.25 z)
+			  (@ select-obj visible) false)
+		    ((@ select-obj rotate-y) yrot)
+		    ((@ scene add) select-obj)
+		    ;; Load vane geometry from file, with cube camera reflection
+		    (setf mcam (new (3fn *cube-camera 1 1000 256)))
+		    (setf loader (new (3fn -j-s-o-n-loader t))
+			  file "js/vane.js"
+			  loadfn
+			  #'(lambda (geometry materials)
+			      (let* ((mat (new (3fn *mesh-phong-material
+						    (create
+						     env-map (@ mcam render-target)
+						     reflectivity 0.9)))))
+				(setf obj (new (3fn *mesh geometry mat)))
+				(setf (@ obj name) "vanes")
+				((@ obj rotate-y) yrot)
+				((@ sail add) obj)
+				((@ scene add) obj)
+				(funcall render)))
+			  load #'(lambda () ((@ loader load) file loadfn))))
+		  vane)))
+	  
+	  ;; Add sail to scene
+	  ((@ scene add) sail)
+
+	  ;; Window resize
+	  (setf on-window-resize
+		(lambda ()
+		  (setf (@ camera aspect) (/ (@ window inner-width) (@ window inner-height)))
+		  ((@ camera update-projection-matrix))
+		  ((@ renderer set-size) (@ window inner-width) (@ window inner-height))
+		  ((@ camera look-at) origin)
+		  (funcall render)))
+
+	  ;; Init method
+	  (setf init
+		(lambda ()
+		  ((@ window add-event-listener) "resize" on-window-resize false)
+		  ((@ booms load))
+		  ((@ sails load))
+		  (dolist (vane vanes) ((@ vane load)))))
 	  )
+	that))
+
+    (defun what ()
+      "What is a Solar Sail app"
+      (let ((that (flightschool)))
+	(with-slots (controls camera render animate) that
+	  (setf controls (new (3fn *trackball-controls camera)))
+	  (setf
+	   (@ controls no-pan) true
+	   (@ controls no-zoom) false)
+	  ((@ controls add-event-listener) "change" render)
+	  (setf animate
+		(lambda ()
+		  (request-animation-frame animate)
+		  ((@ controls update)))))
+	that))
+
+    (defun parts ()
+      "Parts of a Solar Sail app"
+      (let ((that (what)))
+	(with-slots (init on-parts-click target-list booms sails bus vanes mouse part-name camera) that
+	  ;; Initialization function: click event
+	  (let ((super-init ((@ that superior) "init")))
+	    (setf init
+		  (lambda ()
+		    (funcall super-init)
+		    ((@ document add-event-listener) "click" on-parts-click false))))
+	  ;; Populate target list for mouse clicking
+	  (setf target-list
+		(list (@ booms select-obj1)
+		      (@ booms select-obj2)
+		      (@ bus select-obj)
+		      (@ sails select-obj)))
+	  (dolist (vane vanes)
+	    ((@ target-list push) (@ vane select-obj)))
+	  ;; Mouse for clicking parts
+	  (setf mouse (create x 0 y 0))
+	  ;; Event function for mouse click
+	  (setf on-parts-click
+		(lambda (event)
+		  (setf (@ mouse x) (- (* 2 (/ (@ event client-x) window.inner-width)) 1))
+		  (setf (@ mouse y) (- 1 (* 2 (/ (@ event client-y) window.inner-height))))
+		  (let ((vector (new (3fn *vector3 (@ mouse x) (@ mouse y) 1))))
+		    ((@ vector unproject) camera)
+		    (let* ((raycaster (new (3fn *raycaster (@ camera position) ((@ ((@ vector sub) (@ camera position)) normalize)))))
+			   (intersects ((@ raycaster intersect-objects) target-list)))
+		      (if (> (@ intersects length) 0)
+			  (let ((part-name-select (@ intersects 0 object name)))
+			    (unless (equal part-name-select part-name)
+			      ;; Hide original part description
+			      (when part-name (setf (@ ((@ document get-element-by-id) part-name) class-name) "hidden"))
+			      ;; Un-hide select part description
+			      (setf (@ ((@ document get-element-by-id) part-name-select) class-name) "")
+			      ;; Set part name for next time
+			      (setq part-name part-name-select)))
+			  (progn
+			    (when part-name (setf (@ ((@ document get-element-by-id) part-name) class-name) "hidden"))
+			    (setf part-name ""))))))))
+	that))
+
+    (defun absorb ()
+      "Absorbed light on a sail app"
+      (let ((that (what)))
+	(with-slots (camera mirror sail corners projection tilt-update-fn rotation incidence absorbed) that
+	  (setf rotation 0 incidence 0 absorbed 100)
+	  ((@ camera position set) -4 -6 6)
+	  (setf mirror (new (*mirror)))
+	  ((@ sail add) mirror)
+	  (setf corners (new (*corners mirror)))
+	  (setf projection (new (*projection mirror)))
+	  ((@ scene add) projection)
+	  (setf tilt-update-fn 
+		(lambda ()
+		  ;; Sail rotation matrix
+		  ((@ sail update-matrix-world))
+		  ;; Corners of the sail
+		  (setf corners (new (*corners mirror)))
+		  ;; Projection
+		  ((@ scene remove) projection)
+		  (setf projection (new (*projection mirror)))
+		  ((@ scene add) projection)
+		  ;; Angle fields
+		  (setf (@ ($ "#incidence") 0 inner-h-t-m-l) ((@ incidence to-string)))
+		  (setf (@ ($ "#rotation") 0 inner-h-t-m-l) ((@ rotation to-string)))
 	that))
     
     (defvar scene)
@@ -117,6 +386,7 @@
 	(new (3fn *mesh g m))))
 
     (defun *selection-box (name x y z)
+      "Selection box to click parts of the sail"
       (let ((sbox
 	     (new (3fn *mesh
 		       (new (3fn *box-geometry x y z))
@@ -126,7 +396,7 @@
 	(setf (@ sbox name) name)
 	sbox))
 
-    (defun *sails (scene target-list parent)
+    (defun *sails (scene target-list parent &optional (rfun #'render) (sails sails))
       (with-slots (loader file loadfn obj load mcam) this
 	;; Mirror camera
 	(let ((mirror-camera (new (3fn *cube-camera 1 5000 512))))
@@ -149,11 +419,11 @@
 		      ((@ parent add) obj)
 		      ;;((@ scene add) obj)
 		      ((@ target-list push) obj)
-		      (render)))
+		      (funcall rfun)))
 		load #'(lambda () ((@ loader load) file loadfn)))))
       this)
 
-    (defun *vane (scene yrot x z target-list parent)
+    (defun *vane (scene yrot x z target-list parent &optional (rfun render))
       (with-slots (loader file loadfn obj load mcam select-obj) this
 	;; Selection objects
 	(setf select-obj (new (*selection-box "vanes" .5 1 1)))
@@ -186,18 +456,19 @@
 		      ((@ parent add) obj)
 		      ;;((@ scene add) obj)
 		      ((@ target-list push) obj)
-		      (render)))
+		      (funcall rfun)))
 		load #'(lambda () ((@ loader load) file loadfn))))
 	this))
 
-    (defun *vanes (scene target-list parent)
+    (defun *vanes (scene target-list parent &optional (rfun #'render))
+      "List of 4 vanes"
       (loop for (x z) in '((1 0)(0 1)(-1 0)(0 -1))
 	 for i = 0 then (incf i)
 	 for yrot = (* i (/ pi 2))
-	 for vane = (new (*vane scene yrot x z target-list parent))
+	 for vane = (new (*vane scene yrot x z target-list parent rfun))
 	 collect vane))
 
-    (defun *booms (scene target-list parent)
+    (defun *booms (scene target-list parent &optional (rfun #'render) (booms booms))
       (with-slots (loader file loadfn obj load select-obj1 select-obj2) this
 	;; Selection objects
 	;; 1st set of booms
@@ -220,11 +491,11 @@
 		    (setf (@ booms obj) obj)
 		    ((@ parent add) obj)
 		    ;;((@ scene add) obj)
-		    (render)))
+		    (funcall rfun)))
 	      load #'(lambda () ((@ loader load) file loadfn)))
 	this))
 
-    (defun *bus (scene target-list parent)
+    (defun *bus (scene target-list parent &optional (rfun #'render) (bus bus))
       (with-slots (loader file loadfn obj load select-obj) this
 	;; Selection object
 	(setf select-obj (new (*selection-box "bus" 1 1 1)))
@@ -242,11 +513,12 @@
 		    (setf (@ bus obj) obj)
 		    ((@ parent add) obj)
 		    ;;((@ scene add) obj)
-		    (render)))
+		    (funcall rfun)))
 	      load #'(lambda () ((@ loader load) file loadfn)))
 	this))
 
     (defun on-window-resize ()
+      "Update scene on window resize"
       (setf (@ camera aspect) (/ (@ window inner-width) (@ window inner-height)))
       ((@ camera update-projection-matrix))
       ((@ renderer set-size) (@ window inner-width) (@ window inner-height))
@@ -359,7 +631,7 @@
       (setq projector (new (3fn *projector)))
       (setq mouse (create x 0 y 0))
       ;;((@ document add-event-listener) "click" on-document-mouse-click false)
-      ;; Automatically resize window
+      ;; Automatically render when window resized
       ((@ window add-event-listener) "resize" on-window-resize false))
 
     ;; Absorption and reflection controls
