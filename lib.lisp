@@ -299,7 +299,7 @@
     (defun absorb ()
       "Absorbed light on a sail app"
       (let ((that (what)))
-	(with-slots (camera mirror sail corners projection tilt-update-fn rotation incidence absorbed) that
+	(with-slots (scene camera mirror sail corners projection tilt-update-fn rotation incidence absorbed incident absorb-arrow origin) that
 	  (setf rotation 0 incidence 0 absorbed 100)
 	  ((@ camera position set) -4 -6 6)
 	  (setf mirror (new (*mirror)))
@@ -307,6 +307,11 @@
 	  (setf corners (new (*corners mirror)))
 	  (setf projection (new (*projection mirror)))
 	  ((@ scene add) projection)
+	  (setf incident (new (*incident)))
+	  (console.log incident)
+	  (setf absorb-arrow (new (3fn *arrow-helper incident origin 10 0xffff00)))
+	  (console.log absorb-arrow)
+	  ((@ scene add) absorb-arrow)
 	  (setf tilt-update-fn 
 		(lambda ()
 		  ;; Sail rotation matrix
@@ -320,6 +325,11 @@
 		  ;; Angle fields
 		  (setf (@ ($ "#incidence") 0 inner-h-t-m-l) ((@ incidence to-string)))
 		  (setf (@ ($ "#rotation") 0 inner-h-t-m-l) ((@ rotation to-string)))
+		  (let ((absorbed-html (@ ($ "#absorbed") 0)))
+		    (when absorbed-html
+		      (setf (@ absorbed-html inner-h-t-m-l) ((@ absorbed to-string)))))
+		  ;; Update absorbed arrow
+		  ((@ absorb-arrow set-length) (* 10 (/ absorbed 100))))))
 	that))
     
     (defvar scene)

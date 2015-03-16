@@ -61,11 +61,16 @@
        (str
 	(ps
 	  (toggle-div "helpText")
-	  (init document window)
-	  (init-orbit-controls)
-	  (init-sail-parts)
-	  (init-absorb)
-	  (init-tilt-controls)
-	  (animate))))
+	  #+null (progn ; original
+		   (init document window)
+		   (init-orbit-controls)
+		   (init-sail-parts)
+		   (init-absorb)
+		   (init-tilt-controls)
+		   (animate))
+	  (progn ; new
+	    (defvar app (absorb))
+	    ((@ app init))
+	    ((@ app animate))))))
       (:script :src "js/googleanalytics.js")))))
     
