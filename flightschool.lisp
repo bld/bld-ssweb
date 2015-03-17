@@ -119,6 +119,13 @@
 	     (setf alight (new (funcall *ambient-light 0xffffff)))
 	     ((@ scene add) alight)))
 
+	 add-directional
+	 (lambda (app)
+	   (with-slots (scene light) app
+	     (setf light (new (funcall *directional-light 0xffffff 2)))
+	     ((@ light position set) 0 -1 0)
+	     ((@ scene add) light)))
+
 	 add-sails
 	 (lambda (app)
 	   (with-slots (sail renderer render scene camera) app
@@ -177,6 +184,7 @@
 	  ((@ ssfs add-stars) flightschool)
 	  ((@ ssfs add-sun) flightschool)
 	  ((@ ssfs add-ambient) flightschool)
+	  ((@ ssfs add-directional) flightschool)
 	  ((@ ssfs add-sail) flightschool)
 	  (with-slots (renderer scene camera) flightschool
 	    ((@ renderer render) scene camera))
