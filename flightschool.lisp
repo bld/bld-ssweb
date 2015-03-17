@@ -59,20 +59,33 @@
 	
       (defvar ssfs
 	(create
+
 	 app
 	 (lambda ()
 	   (let ((that (create)))
-	     (with-slots (scene origin plot-div renderer camera) that
+	     (with-slots (scene origin plot-div renderer render camera) that
 	       (setf scene (new (funcall *scene))
 		     origin (new (funcall *vector3 0 0 0))
 		     plot-div ((@ document get-element-by-id) "plot")
 		     renderer (if (@ window *web-g-l-rendering-context)
 				  (new (funcall *web-g-l-renderer (create antialias true)))
 				  (new (funcall *canvas-renderer)))
-		     camera (new (funcall *perspective-camera 75 (/ (@ window inner-width) (@ window inner-height)) 0.1 1000)))
+		     camera (new (funcall *perspective-camera 75 (/ (@ window inner-width) (@ window inner-height)) 0.1 1000))
+		     render (lambda ()
+			      ((@ renderer render) scene camera)))
+	       ((@ camera position set) 2 -6 3)
+	       ((@ camera look-at) origin)
 	       ((@ renderer set-size) (@ window inner-width) (@ window inner-height))
-	       ((@ plot-div append-child) (@ renderer dom-element)))
+	       ((@ plot-div append-child) (@ renderer dom-element))
+	       ((@ window add-event-listener) "resize"
+		(lambda ()
+		  (setf (@ camera aspect) (/ (@ window inner-width) (@ window inner-height)))
+		  ((@ camera update-projection-matrix))
+		  ((@ renderer set-size) (@ window inner-width) (@ window inner-height))
+		  ((@ camera look-at) origin)
+		  (funcall render))))
 	     that))
+
 	 add-stars
 	 (lambda (app)
 	   (with-slots (scene stars) app
@@ -90,6 +103,7 @@
 			 ((@ g vertices push) v)))
 		     (new (funcall *point-cloud g m))))
 	     ((@ scene add) stars)))
+
 	 add-sun
 	 (lambda (app)
 	   (with-slots (scene sun) app
@@ -98,28 +112,42 @@
 			 (m (new (funcall *mesh-basic-material (create color 0xf9ffd9)))))
 		     (new (funcall *mesh g m))))
 	     ((@ scene add) sun)))
+
 	 add-ambient
 	 (lambda (app)
 	   (with-slots (scene alight) app
 	     (setf alight (new (funcall *ambient-light 0xffffff)))
 	     ((@ scene add) alight)))
+
 	 add-sails
 	 (lambda (app)
-	   (with-slots (sail renderer scene camera) app
-	     (let ((sails (new (funcall *mesh))))
-	       (with-slots (loader file loadfn load mcam select-obj geometry material) sails
+	   (with-slots (sail renderer render scene camera) app
+	     (let ((sails (create)))
+	       (with-slots (loader file loadfn load mcam object) sails
 		 (setf mcam (new (funcall *cube-camera 1 5000 512)))
-		 (setf material (new (funcall *mesh-phong-material
-					      (create
-					       env-map (@ mcam render-target)
-					       reflectivity 0.9))))
+		 ((@ scene add) mcam)
 		 (setf loader (new (funcall -j-s-o-n-loader t)))
 		 (setf file "js/sails.js")
 		 (setf loadfn
-		       (lambda (g m)
-			 (setf geometry g)
-			 (funcall (@ renderer render) scene camera))))
-	       ((@ sail add) sails))))
+		       (let ((material
+			      (new (funcall *mesh-phong-material
+					    (create
+					     env-map (@ mcam render-target)
+					     reflectivity 0.9)))))
+			 (lambda (geometry m)
+			   (setf object (new (funcall *mesh geometry material)))
+			   ((@ sail add) object)
+			   (funcall render))))
+		 (setf load (lambda ()
+			      ((@ loader load) file loadfn)))
+		 (setf render
+		       (lambda ()
+			 (setf (@ object visible) false)
+			 ((@ mcam update-cube-map) renderer scene)
+			 ((@ app superior) "render")
+			 (setf (@ object visible) true)))
+		 (funcall load)))))
+	 
 	 add-sail
 	 (lambda (app)
 	   (with-slots (scene sail) app

@@ -7,6 +7,7 @@
   :serial t
   :components
   ((:file "package")
+   (:file "flightschool")
    #|(:file "prop")
    (:file "ajax")
    (:file "ssweb-js")
