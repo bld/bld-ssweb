@@ -7,7 +7,7 @@
   :serial t
   :components
   ((:file "package")
-   (:file "prop")
+   #|(:file "prop")
    (:file "ajax")
    (:file "ssweb-js")
    (:file "ssweb")
@@ -19,4 +19,4 @@
    (:file "absorb")
    (:file "reflect")
    (:file "directions")
-   (:file "absorb-force")))
+   (:file "absorb-force")|#))
