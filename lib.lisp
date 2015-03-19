@@ -329,8 +329,6 @@
     (defun add-tilt (app)
       "Add tilt controls"
       (with-slots (camera sail update-tilt tilt-update-fn rotation incidence absorbed up down left right render) app
-	;; Move the camera
-	((@ camera position set) -4 -6 6)
 	;; Set new slots
 	(setf
 	 rotation 0 incidence 0 absorbed 100
@@ -432,7 +430,11 @@
     
     (defun absorb ()
       "Absorbed light on a sail app"
-      (add-projection (add-tilt (what))))
+      (let ((app (add-projection (add-tilt (what)))))
+	;; Move the camera
+	((@ app camera position set) -4 -6 6)
+	app))
+
 
     (defun add-reflection (app)
       (with-slots (absorbed normal incident reflectv reflection reflect-arrow mirror corners reflect-arrow tilt-update-fn origin scene visibility) app
