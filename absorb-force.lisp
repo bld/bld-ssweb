@@ -53,8 +53,8 @@
       (:div :id "nav"
 	    (:button :id "pause" "Pause")
 	    (:button :id "reset" "Reset")
-	    (:p (:b (:a :href "http://www.patreon.com/bld" "Next: Help develop it at Patreon")))
-	    (:p (:b (:a :href "/reflect.html" "Previous: Sunlight reflecting off of a solar sail")))
+	    (:p (:b (:a :href "http://patreon.com/bld" "Next: Help develop it at Patreon")))
+	    (:p (:b (:a :href "/reflect.html" "Previous: Sunlight Reflecting off of a Solar Sail")))
 	    (:p (:b (:a :href "/index.html" "Home"))))
       (:img :id "up" :src "img/arrow_up.svg")
       (:img :id "down" :src "img/arrow_down.svg")
@@ -66,10 +66,7 @@
        (str
 	(ps
 	  (toggle-div "helpText")
-	  (init document window)
-	  (init-orbit-controls)
-	  (init-sail-parts)
-	  (init-absorb-force)
-	  (init-tilt-controls)
-	  (animate-force))))
+	  (defvar app (absorb-force))
+	  ((@ app init))
+	  ((@ app animate)))))
       (:script :src "js/googleanalytics.js")))))

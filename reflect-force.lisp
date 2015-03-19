@@ -31,7 +31,7 @@
 	     (:tr (:td (:b "Sun incidence")) (:td :id "incidence" "0") (:td "deg"))
 	     (:tr (:td (:b "Rotation about sun")) (:td :id "rotation" "0") (:td "deg"))
 	     (:tr (:td (:b "Reflection incidence")))
-	     ;;(:tr (:td (:b "Absorbed")) (:td :id "absorbed" "100") (:td "%"))
+	     (:tr (:td (:b "Absorbed")) (:td :id "absorbed" "100") (:td "%"))
 	     (:tr (:td (:b "Acceleration")) (:td :id "accel" "1") (:td "mm/s^2"))
 	     (:tr (:td (:b "Speed")) (:td :id "speed" "0") (:td "mm/s"))
 	     (:tr (:td (:b "Distance")) (:td :id "distance" "0") (:td "m"))
@@ -67,10 +67,7 @@
        (str
 	(ps
 	  (toggle-div "helpText")
-	  (init document window)
-	  (init-orbit-controls)
-	  (init-sail-parts)
-	  (init-absorb-force)
-	  (init-tilt-controls)
-	  (animate-force))))
+	  (defvar app (reflect-force))
+	  ((@ app init))
+	  ((@ app animate)))))
       (:script :src "js/googleanalytics.js")))))

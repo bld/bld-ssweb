@@ -39,20 +39,14 @@
 			       (:li "Pinch and spread two fingers on a touch screen"))))))
 	    (:div :id "plot"))
       (:div :id "nav"
-	    (:h2 (:a :href "/parts.html" "Next: Parts of a Solar Sail"))
-	    (:h2 (:a :href "/index.html" "Home")))
+	    (:p (:b (:a :href "/parts.html" "Next: Parts of a Solar Sail")))
+	    (:p (:b (:a :href "/index.html" "Home"))))
       (:script 
        :type "text/javascript"
        (str
 	(ps
 	  (toggle-div "helpText")
-	  #+null(progn ; original
-	    (init document window)
-	    (init-orbit-controls)
-	    (init-sail-parts)
-	    (animate))
-	  (progn ; new
-	    (defvar app (what))
-	    ((@ app init))
-	    ((@ app animate))))))
+	  (defvar app (what))
+	  ((@ app init))
+	  ((@ app animate)))))
       (:script :src "js/googleanalytics.js")))))

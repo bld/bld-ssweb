@@ -1,37 +1,6 @@
 ;;; Parts of a solar sail
 
 (in-package :bld-ssweb)
-
-(define-easy-handler (parts-js :uri "/js/parts.js") ()
-  (setf (content-type*) "text/javascript")
-  (ps
-    
-    (defun init-parts (document window)
-      (init document window)
-      (init-orbit-controls)
-      (init-sail-parts)
-      ((@ document add-event-listener) "click" on-parts-click false))
-    
-    (defun on-parts-click (event)
-      (setf (@ mouse x) (- (* 2 (/ (@ event client-x) window.inner-width)) 1))
-      (setf (@ mouse y) (- 1 (* 2 (/ (@ event client-y) window.inner-height))))
-      (defvar vector (new (3fn *vector3 (@ mouse x) (@ mouse y) 1)))
-      ((@ projector unproject-vector) vector camera)
-      (defvar raycaster (new (3fn *raycaster (@ camera position) ((@ ((@ vector sub) (@ camera position)) normalize)))))
-      (defvar intersects ((@ raycaster intersect-objects) target-list))
-      (if (> (@ intersects length) 0)
-	  (let ((part-name-select (@ intersects 0 object name)))
-	    (unless (equal part-name-select part-name)
-	      ;; Hide original part description
-	      (when part-name (setf (@ ((@ document get-element-by-id) part-name) class-name) "hidden"))
-	      ;; Un-hide select part description
-	      (setf (@ ((@ document get-element-by-id) part-name-select) class-name) "")
-	      ;; Set part name for next time
-	      (setq part-name part-name-select)))
-	  (progn
-	    (when part-name (setf (@ ((@ document get-element-by-id) part-name) class-name) "hidden"))
-	    (setq part-name ""))))
-    ))
   
 (define-easy-handler (parts :uri "/parts.html") ()
   (with-html-output-to-string (s nil :indent t :prologue t)
@@ -99,19 +68,16 @@
 			 (:li "Hold the middle mouse button and move up and down")
 			 (:li "Pinch and spread two fingers on a touch screen"))))))
       (:div :id "nav" 
-	    (:h2 (:a :href "/absorb.html" "Next: Sunlight Absorbed by a Sail"))
-	    (:h2 (:a :href "/what.html" "Previous: What is a Solar Sail?"))
-	    (:h2 (:a :href "/index.html" "Home")))
+	    (:p (:b (:a :href "/absorb.html" "Next: Sunlight Absorbed by a Sail")))
+	    (:p (:b (:a :href "/what.html" "Previous: What is a Solar Sail?")))
+	    (:p (:b (:a :href "/index.html" "Home"))))
       (:div :id "plot")
       (:script 
        :type "text/javascript"
        (str
 	(ps
 	  (toggle-div "helpText")
-	  #+null(init-parts document window)
-	  #+null(animate)
 	  (defvar app (parts))
 	  ((@ app init))
-	  ((@ app animate))
-	  )))
+	  ((@ app animate)))))
       (:script :src "js/googleanalytics.js")))))

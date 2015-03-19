@@ -52,13 +52,8 @@
        :type "text/javascript"
        (str
 	(ps
-	  #+null(progn ; original
-	    (init document window)
-	    (init-sail-parts))
-	  (progn ; new
-	    (defvar app (flightschool))
-	    ((@ app render))
-	    ((@ app init)))
-	  )))
+	  (defvar app (flightschool))
+	  ((@ app render))
+	  ((@ app init)))))
       (:script :src "js/googleanalytics.js")))))
 

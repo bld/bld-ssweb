@@ -48,9 +48,9 @@
 			(:li "Up and down arrows to tilt")
 			(:li "Right and left arrows to rotate")))))
       (:div :id "nav"
-	    (:h2 (:a :href "/reflect.html" "Next: Sunlight Reflected by a Sail"))
-	    (:h2 (:a :href "/parts.html" "Previous: Parts of a Solar Sail"))
-	    (:h2 (:a :href "/index.html" "Home")))
+	    (:p (:b (:a :href "/reflect.html" "Next: Sunlight Reflected by a Sail")))
+	    (:p (:b (:a :href "/parts.html" "Previous: Parts of a Solar Sail")))
+	    (:p (:b (:a :href "/index.html" "Home"))))
       (:img :id "up" :src "img/arrow_up.svg")
       (:img :id "down" :src "img/arrow_down.svg")
       (:img :id "left" :src "img/arrow_left.svg")
@@ -61,16 +61,8 @@
        (str
 	(ps
 	  (toggle-div "helpText")
-	  #+null (progn ; original
-		   (init document window)
-		   (init-orbit-controls)
-		   (init-sail-parts)
-		   (init-absorb)
-		   (init-tilt-controls)
-		   (animate))
-	  (progn ; new
-	    (defvar app (absorb))
-	    ((@ app init))
-	    ((@ app animate))))))
+	  (defvar app (absorb))
+	  ((@ app init))
+	  ((@ app animate)))))
       (:script :src "js/googleanalytics.js")))))
     

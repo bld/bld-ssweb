@@ -49,9 +49,9 @@
 			(:li "Up and down arrows to tilt")
 			(:li "Right and left arrows to rotate")))))
       (:div :id "nav"
-	    (:h2 (:a :href "http://www.patreon.com/bld" "Next: Help develop it at Patreon"))
-	    (:h2 (:a :href "/absorb.html" "Previous: Sunlight Absorbed by a Sail"))
-	    (:h2 (:a :href "/index.html" "Home")))
+	    (:p (:b (:a :href "/absorb-force.html" "Next: Force from Absorbed Sunlight")))
+	    (:p (:b (:a :href "/absorb.html" "Previous: Sunlight Absorbed by a Sail")))
+	    (:p (:b (:a :href "/index.html" "Home"))))
       (:img :id "up" :src "img/arrow_up.svg")
       (:img :id "down" :src "img/arrow_down.svg")
       (:img :id "left" :src "img/arrow_left.svg")
@@ -62,11 +62,7 @@
        (str
 	(ps
 	  (toggle-div "helpText")
-	  (init document window)
-	  ((@ camera position multiply-scalar) 2)
-	  (init-orbit-controls)
-	  (init-sail-parts)
-	  (init-reflect)
-	  (init-tilt-controls)
-	  (animate))))
+	  (defvar app (reflect))
+	  ((@ app init))
+	  ((@ app animate)))))
       (:script :src "js/googleanalytics.js")))))
