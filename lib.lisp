@@ -9,9 +9,6 @@
     (defmacro 3fn (fn &rest args)
       `((@ *three* ,fn) ,@args))
     
-    (defmacro 3xfn (fn &rest args)
-      `((@ *t-h-r-e-ex ,fn) ,@args))
-
     (defun toggle-div (div-id)
       ((@ ($ (+ "#" div-id)) toggle)))
 
