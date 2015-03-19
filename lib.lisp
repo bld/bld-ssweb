@@ -259,7 +259,6 @@
 		    (funcall load))))))
       app)
     
-    
     (defun flightschool ()
       (add-sail (template)))
 
@@ -303,8 +302,8 @@
 	(setf on-parts-click
 	      (lambda (event)
 		;; Mouse coordinates
-		(setf (@ mouse x) (- (* 2 (/ (@ event client-x) window.inner-width)) 1))
-		(setf (@ mouse y) (- 1 (* 2 (/ (@ event client-y) window.inner-height))))
+		(setf (@ mouse x) (- (* 2 (/ (@ event client-x) (@ window inner-width))) 1))
+		(setf (@ mouse y) (- 1 (* 2 (/ (@ event client-y) (@ window inner-height)))))
 		(let ((vector (new (3fn *vector3 (@ mouse x) (@ mouse y) 1))))
 		  ((@ vector unproject) camera)
 		  (let* ((raycaster (new (3fn *raycaster (@ camera position) ((@ ((@ vector sub) (@ camera position)) normalize)))))
@@ -329,47 +328,26 @@
 
     (defun add-tilt (app)
       "Add tilt controls"
-      (with-slots (scene camera mirror sail corners projection update-tilt tilt-update-fn rotation incidence absorbed incident absorb-arrow origin up down left right render visibility) app
+      (with-slots (camera sail update-tilt tilt-update-fn rotation incidence absorbed up down left right render) app
 	;; Move the camera
 	((@ camera position set) -4 -6 6)
 	;; Set new slots
 	(setf
 	 rotation 0 incidence 0 absorbed 100
-	 mirror (mirror)
-	 corners (corners mirror)
-	 projection (projection mirror)
-	 incident (incident)
-	 absorb-arrow (new (3fn *arrow-helper incident origin 10 0xffff00))
-	 visibility
-	 (let ((visibility-super ((@ app superior) "visibility")))
-	   (lambda (bool)
-	     (funcall visibility-super bool)
-	     (setf (@ projection visible) bool
-		   (@ absorb-arrow visible) bool)))
-	 tilt-update-fn 
+	 tilt-update-fn
 	 (lambda ()
 	   ;; Sail rotation matrix
 	   ((@ sail update-matrix-world))
-	   ;; Corners of the sail
-	   (setf corners (corners mirror))
-	   ;; Projection
-	   ((@ scene remove) projection)
-	   (setf projection (projection mirror))
-	   ((@ scene add) projection)
 	   ;; Angle fields
 	   (let ((inc-html (@ ($ "#incidence") 0)))
 	     (when inc-html
 	       (setf (@ inc-html inner-h-t-m-l) ((@ incidence to-string)))))
-	   ;;(setf (@ ($ "#incidence") 0 inner-h-t-m-l) ((@ incidence to-string)))
 	   (let ((rot-html (@ ($ "#rotation") 0)))
 	     (when rot-html
 	       (setf (@ rot-html inner-h-t-m-l) ((@ rotation to-string)))))
-	   ;;(setf (@ ($ "#rotation") 0 inner-h-t-m-l) ((@ rotation to-string)))
 	   (let ((absorbed-html (@ ($ "#absorbed") 0)))
 	     (when absorbed-html
-	       (setf (@ absorbed-html inner-h-t-m-l) ((@ absorbed to-string)))))
-	   ;; Update absorbed arrow
-	   ((@ absorb-arrow set-length) (* 10 (/ absorbed 100))))
+	       (setf (@ absorbed-html inner-h-t-m-l) ((@ absorbed to-string))))))
 	 update-tilt
 	 (lambda ()
 	   (funcall tilt-update-fn)
@@ -414,16 +392,47 @@
 	((@ ($ "#down") click) #'(lambda (e) (funcall down)))
 	((@ ($ "#left") click) #'(lambda (e) (funcall left)))
 	((@ ($ "#right") click) #'(lambda (e) (funcall right)))
+	)
+      app)
+
+    (defun add-projection (app)
+      "Add projection of absorbed light"
+      (with-slots (mirror corners projection incident absorb-arrow visibility tilt-update-fn origin scene sail absorbed) app
+	(setf
+	 mirror (mirror)
+	 corners (corners mirror)
+	 projection (projection mirror)
+	 incident (incident)
+	 absorb-arrow (new (3fn *arrow-helper incident origin 10 0xffff00))
+	 visibility
+	 (let ((visibility-super ((@ app superior) "visibility")))
+	   (lambda (bool)
+	     (setf (@ projection visible) bool
+		   (@ absorb-arrow visible) bool)
+	     (funcall visibility-super bool)))
+	 tilt-update-fn
+	 (let ((tilt-super ((@ app superior) "tiltUpdateFn")))
+	   (lambda ()
+	     (funcall tilt-super)
+	     ;; Corners of the sail
+	     (setf corners (corners mirror))
+	     ;; Projection
+	     ((@ scene remove) projection)
+	     (setf projection (projection mirror))
+	     ((@ scene add) projection)
+	     ;; Update absorbed arrow
+	     ((@ absorb-arrow set-length) (* 10 (/ absorbed 100)))))
+	 )
 	;; Add objects
 	((@ sail add) mirror)
 	((@ scene add) projection)
 	((@ scene add) absorb-arrow)
 	)
       app)
-
+    
     (defun absorb ()
       "Absorbed light on a sail app"
-      (add-tilt (what)))
+      (add-projection (add-tilt (what))))
 
     (defun add-reflection (app)
       (with-slots (absorbed normal incident reflectv reflection reflect-arrow mirror corners reflect-arrow tilt-update-fn origin scene visibility) app
