@@ -554,7 +554,9 @@
 		  #'toggle-pause))
 	       ;; Pause with spacebar
 	       ((@ ($ (@ document body)) keydown)
-		#'space-pause-event)
+		(lambda (e)
+		  (when (= (@ e which) 32)
+		    (funcall toggle-pause e))))
 	       ;; Reset button
 	       (let ((reset-html ($ "#reset")))
 		 ((@ reset-html click)
