@@ -220,14 +220,14 @@
 
     (defun add-sail (app)
       "Add sail object with sub-parts"
-      (with-slots (scene sail sails booms bus vanes renderer render init) app
+      (with-slots (scene sail sails booms bus vanes renderer render init visibility) app
 	;; Sail object
 	(setf sail (new (3fn *object3-d)))
 	;; Add sail components
 	(add-vanes (add-bus (add-booms (add-sails app))))
 	;; Put sail in scene for rendering
 	((@ scene add) sail)
-	(with-slots (load visibility children) sail
+	(with-slots (load children) sail
 	  (setf
 	   ;; Load function to load sail parts
 	   load (lambda ()
@@ -332,7 +332,7 @@
 
     (defun add-tilt (app)
       "Add tilt controls"
-      (with-slots (scene camera mirror sail corners projection update-tilt tilt-update-fn rotation incidence absorbed incident absorb-arrow origin up down left right render) app
+      (with-slots (scene camera mirror sail corners projection update-tilt tilt-update-fn rotation incidence absorbed incident absorb-arrow origin up down left right render visibility) app
 	;; Move the camera
 	((@ camera position set) -4 -6 6)
 	;; Set new slots
@@ -343,6 +343,12 @@
 	 projection (projection mirror)
 	 incident (incident)
 	 absorb-arrow (new (3fn *arrow-helper incident origin 10 0xffff00))
+	 visibility
+	 (let ((visibility-super ((@ app superior) "visibility")))
+	   (lambda (bool)
+	     (funcall visibility-super bool)
+	     (setf (@ projection visible) bool
+		   (@ absorb-arrow visible) bool)))
 	 tilt-update-fn 
 	 (lambda ()
 	   ;; Sail rotation matrix
@@ -423,12 +429,18 @@
       (add-tilt (what)))
 
     (defun add-reflection (app)
-      (with-slots (absorbed normal incident reflectv reflection reflect-arrow mirror corners reflect-arrow tilt-update-fn origin scene) app
+      (with-slots (absorbed normal incident reflectv reflection reflect-arrow mirror corners reflect-arrow tilt-update-fn origin scene visibility) app
 	(setf normal (normal mirror)
 	      incident (incident)
 	      reflectv (reflectv incident normal)
 	      reflection (reflection corners reflectv)
 	      reflect-arrow (new (3fn *arrow-helper reflectv origin 9 0xffff00))
+	      visibility
+	      (let ((visibility-super ((@ app superior) "visibility")))
+		(lambda (bool)
+		  (funcall visibility-super bool)
+		  (setf (@ reflection visible) bool
+			(@ reflect-arrow visible) bool)))
 	      tilt-update-fn
 	      (let ((tilt-super ((@ app superior) "tiltUpdateFn"))) 
 		(lambda ()
