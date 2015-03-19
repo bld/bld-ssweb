@@ -453,10 +453,29 @@
 	((@ scene add) reflection)
 	((@ scene add) reflect-arrow))
       app)
-    
+
+    (defun add-target (app)
+      (with-slots (scene target) app
+	(let ((inc2 (* 2 (* 5 (random (/ 360 5)) (/ pi 180))))
+	      (rot (* 5 (random (/ 360 5)) (/ pi 180)))
+	      (dist (+ 20 (random 180)))
+	      (rad 5)
+	      (color 0xff0000))
+	  (setf target
+		(new
+		 (3fn *mesh
+		      (new (3fn *sphere-geometry rad 32 32))
+		      (new (3fn *mesh-basic-material (create color color))))))
+	  ((@ target position set)
+	   (* dist (sin inc2) (cos rot))
+	   (- (* dist (cos inc2)))
+	   (* dist (sin inc2) (sin rot)))
+	  ((@ scene add) target)))
+      app)
+	
     (defun reflect ()
       "Reflected light on a sail app"
-      (add-reflection (absorb)))
+      (add-target (add-reflection (absorb))))
 
     (defun absorb-force ()
       (let ((app (absorb))
