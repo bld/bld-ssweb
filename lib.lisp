@@ -399,7 +399,7 @@
 	(setf
 	 mirror (mirror)
 	 corners (corners mirror)
-	 projection (projection mirror)
+	 projection (projection corners)
 	 incident (incident)
 	 absorb-arrow (new (3fn *arrow-helper incident origin 10 0xffff00))
 	 visibility
@@ -416,7 +416,7 @@
 	     (setf corners (corners mirror))
 	     ;; Projection
 	     ((@ scene remove) projection)
-	     (setf projection (projection mirror))
+	     (setf projection (projection corners))
 	     ((@ scene add) projection)
 	     ;; Update absorbed arrow
 	     ((@ absorb-arrow set-length) (* 10 (/ absorbed 100)))))
@@ -434,7 +434,6 @@
 	;; Move the camera
 	((@ app camera position set) -4 -6 6)
 	app))
-
 
     (defun add-reflection (app)
       (with-slots (absorbed normal incident reflectv reflection reflect-arrow mirror corners reflect-arrow tilt-update-fn origin scene visibility) app
@@ -496,7 +495,7 @@
 	    (timefactor 10)
 	    (pause false)
 	    (time false))
-	(with-slots (sail scene mirror projection absorb-arrow controls render toggle-pause update animate init incidence space-pause-event update-tilt) app
+	(with-slots (sail scene mirror corners projection absorb-arrow controls render toggle-pause update animate init incidence update-tilt) app
 	  (setf
 	   toggle-pause
 	   (lambda (e)
@@ -523,15 +522,14 @@
 	       (setf (@ ($ "#distance") 0 inner-h-t-m-l) ((@ ((@ *math floor10) pos -3) to-string)))
 	       (let* ((minutes (floor (/ elapsed 60)))
 		      (seconds (floor (- elapsed (* minutes 60)))))
-		 (setf (@ ($ "#elapsed") 0 inner-h-t-m-l) (+ ((@ minutes to-string)) (if (> seconds 9) ":" ":0") ((@ seconds to-fixed))))))
+		 (setf (@ ($ "#elapsed") 0 inner-h-t-m-l)
+		       (+ ((@ minutes to-string)) (if (> seconds 9) ":" ":0") ((@ seconds to-fixed))))))
 	     ;; Move absorbed arrow
 	     ((@ absorb-arrow position copy) (@ sail position))
 	     ;; Update projection
 	     ((@ scene remove) projection)
-	     (setf projection (projection mirror))
-	     ((@ scene add) projection)
-	     ;;(funcall update-tilt)
-	     )
+	     (setf projection (projection corners))
+	     ((@ scene add) projection))
 	   animate
 	   (lambda ()
 	     (request-animation-frame animate)
@@ -541,7 +539,7 @@
 	       (funcall update))
 	     (when pause (setf time false))
 	     ((@ controls update))
-	     (funcall render))
+	     (funcall update-tilt))
 	   reset (lambda () (setf pos 0 vel 0 elapsed 0))
 	   init
 	   (let ((init-super ((@ app superior) "init")))
@@ -562,12 +560,15 @@
 		 ((@ reset-html click)
 		  #'(lambda (e)
 		      (funcall reset)
-		      (funcall update))))
-	       ))))
+		      (funcall update)
+		      (funcall update-tilt))))))))
 	app))
 
     (defun reflect-force ()
       (let ((app (absorb-force)))
+	(with-slots () app
+	  
+	  )
 	app))
     
     (defun stars ()
@@ -628,26 +629,22 @@
 	  (setf (@ o visible) false)
 	  o)))
     
-    (defun projection (m)
+    (defun projection (corners)
       "Projection of that portion of the sunlight that hits the sail"
       (let ((mat (new (3fn *line-basic-material (create color 0xffff00))))
 	    (pg (new (3fn *geometry)))
 	    (ymin -500))
 	(with-slots ((pv vertices)) pg
-	  (with-slots ((mv vertices)) (@ m geometry)
-	    (let ((mv1 ((@ m local-to-world) ((@ mv 1 clone))))
-		  (mv2 ((@ m local-to-world) ((@ mv 2 clone))))
-		  (mv3 ((@ m local-to-world) ((@ mv 3 clone))))
-		  (mv4 ((@ m local-to-world) ((@ mv 4 clone)))))
-	      (let ((mv1b (new (3fn *vector3 (@ mv1 x) ymin (@ mv1 z))))
-		    (mv2b (new (3fn *vector3 (@ mv2 x) ymin (@ mv2 z))))
-		    (mv3b (new (3fn *vector3 (@ mv3 x) ymin (@ mv3 z))))
-		    (mv4b (new (3fn *vector3 (@ mv4 x) ymin (@ mv4 z)))))
-		((@ pv push)
-		 mv1 mv2 mv3 mv4 mv1
-		 mv1b mv2b mv3b mv4b mv1b
-		 mv1 mv2 mv2b mv3b mv3 mv4 mv4b)
-		(new (3fn *line pg mat))))))))
+	  (destructuring-bind (mv1 mv2 mv3 mv4) corners
+	    (let ((mv1b (new (3fn *vector3 (@ mv1 x) ymin (@ mv1 z))))
+		  (mv2b (new (3fn *vector3 (@ mv2 x) ymin (@ mv2 z))))
+		  (mv3b (new (3fn *vector3 (@ mv3 x) ymin (@ mv3 z))))
+		  (mv4b (new (3fn *vector3 (@ mv4 x) ymin (@ mv4 z)))))
+	      ((@ pv push)
+	       mv1 mv2 mv3 mv4 mv1
+	       mv1b mv2b mv3b mv4b mv1b
+	       mv1 mv2 mv2b mv3b mv3 mv4 mv4b)
+	      (new (3fn *line pg mat)))))))
 
     (defun corners (m)
       "List of corner points of a mirror object in world coordinates"
