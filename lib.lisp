@@ -435,8 +435,22 @@
 	((@ app camera position set) -4 -6 6)
 	app))
 
+    (defun add-mirror (app)
+      (with-slots (sail mirror) app
+	(setf mirror (mirror))
+	((@ sail add) mirror))
+      app)
+
+    (defun add-corners (app)
+      (with-slots (sail corners mirror) app
+	(setf corners (corners mirror))
+	app))
+    
     (defun add-reflection (app)
+      "Add a box showing the reflected sunlight"
       (with-slots (absorbed normal incident reflectv reflection reflect-arrow mirror corners reflect-arrow tilt-update-fn origin scene visibility) app
+	(unless mirror (add-mirror app))
+	(unless corners (add-corners app))
 	(setf normal (normal mirror)
 	      incident (incident)
 	      reflectv (reflectv incident normal)
@@ -452,6 +466,8 @@
 	      (let ((tilt-super ((@ app superior) "tiltUpdateFn"))) 
 		(lambda ()
 		  (funcall tilt-super)
+		  ;; Update corners
+		  (setf corners (corners mirror))
 		  ;; Update reflection objects
 		  (setf normal (normal mirror)
 			reflectv (reflectv incident normal))
@@ -465,6 +481,7 @@
       app)
 
     (defun add-target (app)
+      "Add a big red randomly positioned target"
       (with-slots (scene target) app
 	(let ((inc2 (* 2 (* 5 (random (/ 360 5)) (/ pi 180))))
 	      (rot (* 5 (random (/ 360 5)) (/ pi 180)))
@@ -565,10 +582,7 @@
 	app))
 
     (defun reflect-force ()
-      (let ((app (absorb-force)))
-	(with-slots () app
-	  
-	  )
+      (let ((app (add-reflection (add-tilt (what)))))
 	app))
     
     (defun stars ()
