@@ -393,10 +393,22 @@
 	)
       app)
 
+    (defun add-mirror (app)
+      (with-slots (sail mirror) app
+	(setf mirror (mirror))
+	((@ sail add) mirror))
+      app)
+
+    (defun add-corners (app)
+      (with-slots (sail corners mirror) app
+	(setf corners (corners mirror))
+	app))
+    
     (defun add-projection (app)
       "Add projection of absorbed light"
       (with-slots (mirror corners projection incident absorb-arrow visibility tilt-update-fn origin scene sail absorbed) app
 	(setf
+	 app (add-corners (add-mirror app))
 	 mirror (mirror)
 	 corners (corners mirror)
 	 projection (projection corners)
@@ -435,17 +447,6 @@
 	((@ app camera position set) -4 -6 6)
 	app))
 
-    (defun add-mirror (app)
-      (with-slots (sail mirror) app
-	(setf mirror (mirror))
-	((@ sail add) mirror))
-      app)
-
-    (defun add-corners (app)
-      (with-slots (sail corners mirror) app
-	(setf corners (corners mirror))
-	app))
-    
     (defun add-reflection (app)
       "Add a box showing the reflected sunlight"
       (with-slots (absorbed normal incident reflectv reflection reflect-arrow mirror corners reflect-arrow tilt-update-fn origin scene visibility) app
@@ -504,26 +505,31 @@
       "Reflected light on a sail app"
       (add-target (add-reflection (absorb))))
 
+    (defun add-animation (app)
+      (with-slots (toggle-pause pause) app
+	(setf
+	 pause false
+	 toggle-pause
+	 (lambda (e)
+	   (let ((pause-html ($ "#pause")))
+	     (if pause
+		 (progn
+		   (setf pause false)
+		   (setf (@ pause-html 0 inner-h-t-m-l) "Pause"))
+		 (progn
+		   (setf pause t)
+		   (setf (@ pause-html 0 inner-h-t-m-l) "Continue")))))))
+      app)
+    
     (defun absorb-force ()
-      (let ((app (absorb))
+      (let ((app (add-animation (absorb)))
 	    (vel 0)
 	    (pos 0)
 	    (elapsed 0)
 	    (timefactor 10)
-	    (pause false)
 	    (time false))
-	(with-slots (sail scene mirror corners projection absorb-arrow controls render toggle-pause update animate init incidence update-tilt) app
+	(with-slots (sail pause scene mirror corners projection absorb-arrow controls render toggle-pause update animate init incidence update-tilt) app
 	  (setf
-	   toggle-pause
-	   (lambda (e)
-	     (let ((pause-html ($ "#pause")))
-	       (if pause
-		   (progn
-		     (setf pause false)
-		     (setf (@ pause-html 0 inner-h-t-m-l) "Pause"))
-		   (progn
-		     (setf pause t)
-		     (setf (@ pause-html 0 inner-h-t-m-l) "Continue")))))
 	   update
 	   (lambda ()
 	     (let* ((accel (* 5d-5 (abs (cos (* incidence (/ pi 180))))))
@@ -583,6 +589,9 @@
 
     (defun reflect-force ()
       (let ((app (add-reflection (add-tilt (what)))))
+	(with-slots () app
+	  
+	  )
 	app))
     
     (defun stars ()
