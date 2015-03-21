@@ -24,17 +24,16 @@
       (:div :id "info"
 	    (:h1 "Force from Reflected Sunlight on a Solar Sail")
 	    (:ul
-	     (:li "Reflected light pushes back on the sail in the opposite direction it shines, just like rocket and jet exhaust.")
+	     (:li "Reflected light pushes back on the sail in the opposite direction it shines, like rocket and jet exhaust.")
 	     (:li (:b "Challenge:")))
 	    (:table
 	     :id "tilt-controls"
 	     (:tr (:td (:b "Sun incidence")) (:td :id "incidence" "0") (:td "deg"))
 	     (:tr (:td (:b "Rotation about sun")) (:td :id "rotation" "0") (:td "deg"))
-	     (:tr (:td (:b "Reflection incidence")))
 	     (:tr (:td (:b "Absorbed")) (:td :id "absorbed" "100") (:td "%"))
-	     (:tr (:td (:b "Acceleration")) (:td :id "accel" "1") (:td "mm/s^2"))
-	     (:tr (:td (:b "Speed")) (:td :id "speed" "0") (:td "mm/s"))
-	     (:tr (:td (:b "Distance")) (:td :id "distance" "0") (:td "m"))
+	     ;;(:tr (:td (:b "Acceleration")) (:td :id "accel" "1") (:td "mm/s^2"))
+	     ;;(:tr (:td (:b "Speed")) (:td :id "speed" "0") (:td "mm/s"))
+	     ;;(:tr (:td (:b "Distance")) (:td :id "distance" "0") (:td "m"))
 	     (:tr (:td (:b "Time")) (:td :id "elapsed" "0") (:td "min:sec"))))
       (:div :id "help"
 	    (:h2 (:a :href "#" :onclick "toggleDiv(\"helpText\"); return false;" "Help"))

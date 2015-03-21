@@ -637,11 +637,10 @@
 	       ;;(setf (@ ($ "#accel") 0 inner-h-t-m-l) ((@ ((@ *math floor10) (* accel 1000) -4) to-string)))
 	       ;;(setf (@ ($ "#speed") 0 inner-h-t-m-l) ((@ ((@ *math floor10) (* vel 1000) -2) to-string)))
 	       ;;(setf (@ ($ "#distance") 0 inner-h-t-m-l) ((@ ((@ *math floor10) pos -3) to-string)))
-	       ;;(let* ((minutes (floor (/ elapsed 60)))
-	       ;;      (seconds (floor (- elapsed (* minutes 60)))))
-	       ;; (setf (@ ($ "#elapsed") 0 inner-h-t-m-l)
-	       ;;       (+ ((@ minutes to-string)) (if (> seconds 9) ":" ":0") ((@ seconds to-fixed))))))
-	       )
+	       (let* ((minutes (floor (/ elapsed 60)))
+	             (seconds (floor (- elapsed (* minutes 60)))))
+	        (setf (@ ($ "#elapsed") 0 inner-h-t-m-l)
+	              (+ ((@ minutes to-string)) (if (> seconds 9) ":" ":0") ((@ seconds to-fixed))))))
 	     ;; Move reflected arrow
 	     ((@ reflect-arrow position copy) (@ sail position))
 	     ;; Update reflection
