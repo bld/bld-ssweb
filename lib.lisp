@@ -749,9 +749,8 @@
 
     (defun rotate-global-y (object rad)
       "Rotate an object around the global Y axis by the given number of radians"
-      (let* ((gy (new (3fn *vector3 0 1 0)))
-	     (ly ((@ object world-to-local) gy)))
-	((@ ly normalize))
+      (let* ((q ((@ ((@ (@ object quaternion) clone)) inverse)))
+	     (ly ((@ ((@ (incident) apply-quaternion) q) normalize))))
 	((@ object rotate-on-axis) ly rad)))
 
     (defun calc-absorbed (incidence)
