@@ -328,11 +328,11 @@
 
     (defun add-tilt (app)
       "Add tilt controls"
-      (with-slots (camera sail update-tilt tilt-update-fn rotation incidence absorbed up down left right render) app
+      (with-slots (camera sail update-tilt rotation incidence absorbed up down left right render) app
 	;; Set new slots
 	(setf
 	 rotation 0 incidence 0 absorbed 100
-	 tilt-update-fn
+	 update-tilt
 	 (lambda ()
 	   ;; Sail rotation matrix
 	   ((@ sail update-matrix-world))
@@ -346,10 +346,6 @@
 	   (let ((absorbed-html (@ ($ "#absorbed") 0)))
 	     (when absorbed-html
 	       (setf (@ absorbed-html inner-h-t-m-l) ((@ absorbed to-string))))))
-	 update-tilt
-	 (lambda ()
-	   (funcall tilt-update-fn)
-	   (funcall render))
 	 ;; Tilt functions
 	 up (lambda ()
 	      ((@ sail rotate-z) (/ pi 36))
@@ -357,26 +353,30 @@
 	      (when (> incidence 180)
 		(setq incidence (- incidence 360)))
 	      (setq absorbed (calc-absorbed incidence))
-	      (funcall update-tilt))
+ 	      (funcall update-tilt)
+	      (funcall render))
 	 down (lambda ()
 		((@ sail rotate-z) (/ pi -36))
 		(decf incidence 5)
 		(when (< incidence -180)
 		  (setq incidence (+ 360 incidence)))
 		(setq absorbed (calc-absorbed incidence))
-		(funcall update-tilt))
+ 	      (funcall update-tilt)
+	      (funcall render))
 	 left (lambda ()
 		(rotate-global-y sail (/ pi 36))
 		(decf rotation 5)
 		(when (< rotation -180)
 		  (setq rotation (+ 360 rotation)))
-		(funcall update-tilt))
+ 	      (funcall update-tilt)
+	      (funcall render))
 	 right (lambda ()
 		 (rotate-global-y sail (/ pi -36))
 		 (incf rotation 5)
 		 (when (> rotation 180)
 		   (setq rotation (- rotation 360)))
-		 (funcall update-tilt)))
+ 	      (funcall update-tilt)
+	      (funcall render)))
 	;; Arrow key events
 	((@ ($ (@ document body)) keydown)
 	 #'(lambda (e)
@@ -406,7 +406,7 @@
     
     (defun add-projection (app)
       "Add projection of absorbed light"
-      (with-slots (mirror corners projection incident absorb-arrow visibility tilt-update-fn origin scene sail absorbed) app
+      (with-slots (mirror corners projection incident absorb-arrow visibility update-tilt origin scene sail absorbed) app
 	(setf
 	 app (add-corners (add-mirror app))
 	 mirror (mirror)
@@ -420,8 +420,8 @@
 	     (setf (@ projection visible) bool
 		   (@ absorb-arrow visible) bool)
 	     (funcall visibility-super bool)))
-	 tilt-update-fn
-	 (let ((tilt-super ((@ app superior) "tiltUpdateFn")))
+	 update-tilt
+	 (let ((tilt-super ((@ app superior) "updateTilt")))
 	   (lambda ()
 	     (funcall tilt-super)
 	     ;; Corners of the sail
@@ -449,11 +449,11 @@
 
     (defun add-reflection (app)
       "Add a box showing the reflected sunlight"
-      (with-slots (absorbed normal incident reflectv reflection reflect-arrow mirror corners reflect-arrow tilt-update-fn origin scene visibility) app
+      (with-slots (absorbed normal incident reflectv reflection reflect-arrow mirror corners update-tilt origin scene visibility sail) app
 	(unless mirror (add-mirror app))
 	(unless corners (add-corners app))
-	(setf normal (normal mirror)
-	      incident (incident)
+	(setf incident (incident))
+	(setf normal (normal sail)
 	      reflectv (reflectv incident normal)
 	      reflection (reflection corners reflectv)
 	      reflect-arrow (new (3fn *arrow-helper reflectv origin 9 0xffff00))
@@ -463,14 +463,14 @@
 		  (funcall visibility-super bool)
 		  (setf (@ reflection visible) bool
 			(@ reflect-arrow visible) bool)))
-	      tilt-update-fn
-	      (let ((tilt-super ((@ app superior) "tiltUpdateFn"))) 
+	      update-tilt
+	      (let ((tilt-super ((@ app superior) "updateTilt"))) 
 		(lambda ()
 		  (funcall tilt-super)
 		  ;; Update corners
 		  (setf corners (corners mirror))
 		  ;; Update reflection objects
-		  (setf normal (normal mirror)
+		  (setf normal (normal sail)
 			reflectv (reflectv incident normal))
 		  ((@ scene remove) reflection)
 		  (setf reflection (reflection corners reflectv))
@@ -505,65 +505,26 @@
       "Reflected light on a sail app"
       (add-target (add-reflection (absorb))))
 
-    (defun add-animation (app)
-      (with-slots (toggle-pause pause) app
-	(setf
-	 pause false
-	 toggle-pause
-	 (lambda (e)
-	   (let ((pause-html ($ "#pause")))
-	     (if pause
-		 (progn
-		   (setf pause false)
-		   (setf (@ pause-html 0 inner-h-t-m-l) "Pause"))
-		 (progn
-		   (setf pause t)
-		   (setf (@ pause-html 0 inner-h-t-m-l) "Continue")))))))
-      app)
-    
     (defun absorb-force ()
-      (let ((app (add-animation (absorb)))
+      (let ((app (absorb))
 	    (vel 0)
 	    (pos 0)
 	    (elapsed 0)
 	    (timefactor 10)
 	    (time false))
-	(with-slots (sail pause scene mirror corners projection absorb-arrow controls render toggle-pause update animate init incidence update-tilt) app
+	(with-slots (sail pause scene mirror corners projection absorb-arrow controls render toggle-pause update-anim animate init incidence update-tilt render) app
 	  (setf
-	   update
-	   (lambda ()
-	     (let* ((accel (* 5d-5 (abs (cos (* incidence (/ pi 180))))))
-		    (now ((@ (new (*date)) get-time)))
-		    (dt (/ (* timefactor (- now (or time now))) 1000)))
-	       (setf time now)
-	       (incf elapsed dt)
-	       (incf vel (* dt accel))
-	       (incf pos (* dt vel))
-	       (setf (@ sail position y) pos)
-	       (setf (@ ($ "#accel") 0 inner-h-t-m-l) ((@ ((@ *math floor10) (* accel 1000) -4) to-string)))
-	       (setf (@ ($ "#speed") 0 inner-h-t-m-l) ((@ ((@ *math floor10) (* vel 1000) -2) to-string)))
-	       (setf (@ ($ "#distance") 0 inner-h-t-m-l) ((@ ((@ *math floor10) pos -3) to-string)))
-	       (let* ((minutes (floor (/ elapsed 60)))
-		      (seconds (floor (- elapsed (* minutes 60)))))
-		 (setf (@ ($ "#elapsed") 0 inner-h-t-m-l)
-		       (+ ((@ minutes to-string)) (if (> seconds 9) ":" ":0") ((@ seconds to-fixed))))))
-	     ;; Move absorbed arrow
-	     ((@ absorb-arrow position copy) (@ sail position))
-	     ;; Update projection
-	     ((@ scene remove) projection)
-	     (setf projection (projection corners))
-	     ((@ scene add) projection))
-	   animate
-	   (lambda ()
-	     (request-animation-frame animate)
-	     (unless pause
-	       (when (> pos 100)
-		 (funcall reset))
-	       (funcall update))
-	     (when pause (setf time false))
-	     ((@ controls update))
-	     (funcall update-tilt))
-	   reset (lambda () (setf pos 0 vel 0 elapsed 0))
+	   pause false
+	   toggle-pause
+	   (lambda (e)
+	     (let ((pause-html ($ "#pause")))
+	       (if pause
+		   (progn
+		     (setf pause false)
+		     (setf (@ pause-html 0 inner-h-t-m-l) "Pause"))
+		   (progn
+		     (setf pause t)
+		     (setf (@ pause-html 0 inner-h-t-m-l) "Continue")))))
 	   init
 	   (let ((init-super ((@ app superior) "init")))
 	     (lambda ()
@@ -583,17 +544,125 @@
 		 ((@ reset-html click)
 		  #'(lambda (e)
 		      (funcall reset)
-		      (funcall update)
-		      (funcall update-tilt))))))))
+		      (funcall update-anim)
+		      (funcall update-tilt)
+		      (funcall render))))))
+	   update-anim
+	   (lambda ()
+	     (let* ((accel (* 5d-5 (abs (cos (* incidence (/ pi 180))))))
+		    (now ((@ (new (*date)) get-time)))
+		    (dt (/ (* timefactor (- now (or time now))) 1000)))
+	       (setf time now)
+	       (incf elapsed dt)
+	       (incf vel (* dt accel))
+	       (incf pos (* dt vel))
+	       (setf (@ sail position y) pos)
+	       (setf (@ ($ "#accel") 0 inner-h-t-m-l) ((@ ((@ *math floor10) (* accel 1000) -4) to-string)))
+	       (setf (@ ($ "#speed") 0 inner-h-t-m-l) ((@ ((@ *math floor10) (* vel 1000) -2) to-string)))
+	       (setf (@ ($ "#distance") 0 inner-h-t-m-l) ((@ ((@ *math floor10) pos -3) to-string)))
+	       (let* ((minutes (floor (/ elapsed 60)))
+		      (seconds (floor (- elapsed (* minutes 60)))))
+		 (setf (@ ($ "#elapsed") 0 inner-h-t-m-l)
+		       (+ ((@ minutes to-string)) (if (> seconds 9) ":" ":0") ((@ seconds to-fixed))))))
+	     ;; Move absorbed arrow
+	     ((@ absorb-arrow position copy) (@ sail position))
+	     ;; Update tilt & render
+	     (funcall update-tilt)
+	     (funcall render))
+	   animate
+	   (lambda ()
+	     (request-animation-frame animate)
+	     (unless pause
+	       (when (> pos 100)
+		 (funcall reset))
+	       (funcall update-anim))
+	     (when pause (setf time false))
+	     ((@ controls update)))
+	   reset (lambda () (setf pos 0 vel 0 elapsed 0))))
 	app))
 
     (defun reflect-force ()
-      (let ((app (add-reflection (add-tilt (what)))))
-	(with-slots () app
-	  
-	  )
+      (let ((app (add-reflection (add-tilt (what)))) 
+	    (vel (new (3fn *vector3 0 0 0)))
+	    (pos (new (3fn *vector3 0 0 0)))
+	    (elapsed 0)
+	    (timefactor 10)
+	    (time false))
+	(with-slots (sail pause scene mirror corners reflectv reflect-arrow reflection controls render toggle-pause update-anim animate init incidence update-tilt normal) app
+	  (setf
+	   pause false
+	   toggle-pause
+	   (lambda (e)
+	     (let ((pause-html ($ "#pause")))
+	       (if pause
+		   (progn
+		     (setf pause false)
+		     (setf (@ pause-html 0 inner-h-t-m-l) "Pause"))
+		   (progn
+		     (setf pause t)
+		     (setf (@ pause-html 0 inner-h-t-m-l) "Continue")))))
+	   init
+	   (let ((init-super ((@ app superior) "init")))
+	     (lambda ()
+	       ;; Absorb init
+	       (funcall init-super)
+	       ;; Pause button event
+	       (let ((pause-html ($ "#pause")))
+		 ((@ pause-html click)
+		  #'toggle-pause))
+	       ;; Pause with spacebar
+	       ((@ ($ (@ document body)) keydown)
+		(lambda (e)
+		  (when (= (@ e which) 32)
+		    (funcall toggle-pause e))))
+	       ;; Reset button
+	       (let ((reset-html ($ "#reset")))
+		 ((@ reset-html click)
+		  #'(lambda (e)
+		      (funcall reset)
+		      (funcall update-anim)
+		      (funcall update-tilt)
+		      (funcall render))))))
+	   update-anim
+	   (lambda ()
+	     (let* ((accel (* 5d-5 (abs (cos (* incidence (/ pi 180))))))
+		    (accel-v ((@ ((@ ((@ reflectv clone)) set-length) accel) negate)))
+		    (now ((@ (new (*date)) get-time)))
+		    (dt (/ (* timefactor (- now (or time now))) 1000)))
+	       (setf time now)
+	       (incf elapsed dt)
+	       ((@ vel add) ((@ ((@ accel-v clone)) multiply-scalar) dt))
+	       ((@ pos add) ((@ ((@ vel clone)) multiply-scalar) dt))
+	       ((@ sail position copy) pos)
+	       ;;(setf (@ ($ "#accel") 0 inner-h-t-m-l) ((@ ((@ *math floor10) (* accel 1000) -4) to-string)))
+	       ;;(setf (@ ($ "#speed") 0 inner-h-t-m-l) ((@ ((@ *math floor10) (* vel 1000) -2) to-string)))
+	       ;;(setf (@ ($ "#distance") 0 inner-h-t-m-l) ((@ ((@ *math floor10) pos -3) to-string)))
+	       ;;(let* ((minutes (floor (/ elapsed 60)))
+	       ;;      (seconds (floor (- elapsed (* minutes 60)))))
+	       ;; (setf (@ ($ "#elapsed") 0 inner-h-t-m-l)
+	       ;;       (+ ((@ minutes to-string)) (if (> seconds 9) ":" ":0") ((@ seconds to-fixed))))))
+	       )
+	     ;; Move reflected arrow
+	     ((@ reflect-arrow position copy) (@ sail position))
+	     ;; Update reflection
+	     (funcall update-tilt)
+	     (funcall render))
+	   animate
+	   (lambda ()
+	     (request-animation-frame animate)
+	     (unless pause
+	       (when (> pos 100)
+		 (funcall reset))
+	       (funcall update-anim))
+	     (when pause (setf time false))
+	     ((@ controls update)))
+	   reset
+	   (lambda ()
+	     ((@ pos set) 0 0 0)
+	     ((@ vel set) 0 0 0)
+	     (setf elapsed 0))))
 	app))
-    
+   
     (defun stars ()
       (let ((g (new (3fn *geometry)))
 	    (m (new (3fn *point-cloud-material
@@ -689,9 +758,9 @@
       "Calculate the absorbed percentage from the incidence angle"
       (abs ((@ *math round10) (* 100 (cos (* incidence (/ pi 180)))) -1)))
 
-    (defun normal (m)
-      "Normal of mirror"
-      (let ((n ((@ m local-to-world) (new (3fn *vector3 0 1 0)))))
+    (defun normal (sail)
+      "Normal vector of a sail"
+      (let ((n ((@ (incident) apply-quaternion) (@ sail quaternion))))
 	;; Test for pointing toward sun
 	(when (< (@ n y) 0)
 	  ((@ n negate)))
