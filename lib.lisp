@@ -25,6 +25,138 @@
 	 (lambda ()
 	   ((@ method apply) that arguments)))))
 
+    (defun stars ()
+      (let ((g (new (3fn *geometry)))
+	    (m (new (3fn *point-cloud-material
+			 (create size 2))))
+	    (r 500))
+	(dotimes (i 10000)
+	  (let ((v (new (3fn *vector3
+			     (- ((@ *math random)) 0.5)
+			     (- ((@ *math random)) 0.5)
+			     (- ((@ *math random)) 0.5)))))
+	    ((@ v set-length) (* (+ 1 ((@ *math random))) r))
+	    ((@ g vertices push) v)))
+	(new (3fn *point-cloud g m))))
+    
+    (defun sun ()
+      (let ((g (new (3fn *sphere-geometry 20 32 32)))
+	    (m (new (3fn *mesh-basic-material (create color 0xf9ffd9)))))
+	(new (3fn *mesh g m))))
+
+    (defun selection-box (name x y z)
+      "Selection box to click parts of the sail"
+      (let ((sbox
+	     (new (3fn *mesh
+		       (new (3fn *box-geometry x y z))
+		       (new (3fn *mesh-basic-material
+				 (create color 0xffffff
+					 wireframe true)))))))
+	(setf (@ sbox name) name)
+	sbox))
+
+    (defun mirror ()
+      "Invisible object representing the corners of the sail"
+      (let* ((w 8)
+	     (w2 (/ w 2))
+	     (m (new (3fn *mesh-basic-material
+			  (create 
+			   color 0x444444
+			   side (@ *three* *double-side)
+			   wireframe false))))
+	     (s (new (3fn *geometry))))
+	(with-slots (vertices faces) s
+	  ((@ vertices push)
+	   (new (3fn *vector3 0 0 0))
+	   (new (3fn *vector3 w2 0 0))
+	   (new (3fn *vector3 0 0 w2))
+	   (new (3fn *vector3 (- w2) 0 0))
+	   (new (3fn *vector3 0 0 (- w2))))
+	  ((@ faces push)
+	   (new (3fn *face3 0 1 2))
+	   (new (3fn *face3 0 2 3))
+	   (new (3fn *face3 0 3 4))
+	   (new (3fn *face3 0 4 1))))
+	((@ s compute-face-normals))
+	((@ s compute-bounding-sphere))
+	(let ((o (new (3fn *mesh s m))))
+	  (setf (@ o visible) false)
+	  o)))
+    
+    (defun projection (corners)
+      "Projection of that portion of the sunlight that hits the sail"
+      (let ((mat (new (3fn *line-basic-material (create color 0xffff00))))
+	    (pg (new (3fn *geometry)))
+	    (ymin -500))
+	(with-slots ((pv vertices)) pg
+	  (destructuring-bind (mv1 mv2 mv3 mv4) corners
+	    (let ((mv1b (new (3fn *vector3 (@ mv1 x) ymin (@ mv1 z))))
+		  (mv2b (new (3fn *vector3 (@ mv2 x) ymin (@ mv2 z))))
+		  (mv3b (new (3fn *vector3 (@ mv3 x) ymin (@ mv3 z))))
+		  (mv4b (new (3fn *vector3 (@ mv4 x) ymin (@ mv4 z)))))
+	      ((@ pv push)
+	       mv1 mv2 mv3 mv4 mv1
+	       mv1b mv2b mv3b mv4b mv1b
+	       mv1 mv2 mv2b mv3b mv3 mv4 mv4b)
+	      (new (3fn *line pg mat)))))))
+
+    (defun corners (m)
+      "List of corner points of a mirror object in world coordinates"
+      (with-slots ((mv vertices)) (@ m geometry)
+	(list
+	 ((@ m local-to-world) ((@ mv 1 clone)))
+	 ((@ m local-to-world) ((@ mv 2 clone)))
+	 ((@ m local-to-world) ((@ mv 3 clone)))
+	 ((@ m local-to-world) ((@ mv 4 clone))))))
+
+    (defun rotate-global-y (object rad)
+      "Rotate an object around the global Y axis by the given number of radians"
+      (let* ((q ((@ ((@ (@ object quaternion) clone)) inverse)))
+	     (ly ((@ ((@ (incident) apply-quaternion) q) normalize))))
+	((@ object rotate-on-axis) ly rad)))
+
+    (defun calc-absorbed (incidence)
+      "Calculate the absorbed percentage from the incidence angle"
+      (abs ((@ *math round10) (* 100 (cos (* incidence (/ pi 180)))) -1)))
+
+    (defun normal (sail)
+      "Normal vector of a sail"
+      (let ((n ((@ (incident) apply-quaternion) (@ sail quaternion))))
+	;; Test for pointing toward sun
+	(when (< (@ n y) 0)
+	  ((@ n negate)))
+	((@ n normalize))
+	n))
+
+    (defun incident ()
+      "Solar incidence vector"
+      (new (3fn *vector3 0 1 0)))
+      
+    (defun reflectv (incident normal)
+      "Reflection vector from incident and normal vectors"
+      (let ((v (new (3fn *vector3))))
+	((@ v copy) normal)
+	((@ v multiply-scalar)
+	 (* -2 ((@ incident dot) normal)))
+	((@ v add) incident)))
+
+    (defun reflection (corners reflectv)
+      "Reflection object given list of corner vectors"
+      (let ((refl (new (3fn *object3-d)))
+	    (l 500)
+	    (c 0xffff00)
+	    (hl 20)
+	    (hw 5))
+	(with-slots (update visibility children) refl
+	  ;; Initial creation of object
+	  (dotimes (i 4)
+	    ((@ refl add) (new (3fn *arrow-helper reflectv ((@ (aref corners i) clone)) l c hl hw))))
+	  (setf visibility ; Visibility method
+		(lambda (bool)
+		  (dolist (a children)
+		    (setf (@ a visible) bool)))))
+	refl))
+
     (defun template ()
       "Flight school app"
       (let ((app (create)))
@@ -456,7 +588,7 @@
 	(setf normal (normal sail)
 	      reflectv (reflectv incident normal)
 	      reflection (reflection corners reflectv)
-	      reflect-arrow (new (3fn *arrow-helper reflectv origin 9 0xffff00))
+	      reflect-arrow (new (3fn *arrow-helper reflectv origin 10 0xffff00))
 	      visibility
 	      (let ((visibility-super ((@ app superior) "visibility")))
 		(lambda (bool)
@@ -476,7 +608,7 @@
 		  (setf reflection (reflection corners reflectv))
 		  ((@ scene add) reflection)
 		  ((@ reflect-arrow set-direction) reflectv)
-		  ((@ reflect-arrow set-length) (* 9 (/ absorbed 100))))))
+		  ((@ reflect-arrow set-length) (* 10 (/ absorbed 100))))))
 	((@ scene add) reflection)
 	((@ scene add) reflect-arrow))
       app)
@@ -582,11 +714,11 @@
 	app))
 
     (defun reflect-force ()
-      (let ((app (add-reflection (add-tilt (what)))) 
+      (let ((app (add-target (add-reflection (add-tilt (what)))))
 	    (vel (new (3fn *vector3 0 0 0)))
 	    (pos (new (3fn *vector3 0 0 0)))
 	    (elapsed 0)
-	    (timefactor 10)
+	    (timefactor 100)
 	    (time false))
 	(with-slots (sail camera pause scene mirror corners reflectv reflect-arrow reflection controls render toggle-pause update-anim animate init incidence update-tilt normal) app
 	  ((@ camera position set) -4 -6 6)
@@ -662,137 +794,4 @@
 	     ((@ vel set) 0 0 0)
 	     (setf elapsed 0))))
 	app))
-   
-    (defun stars ()
-      (let ((g (new (3fn *geometry)))
-	    (m (new (3fn *point-cloud-material
-			 (create size 2))))
-	    (r 500))
-	(dotimes (i 10000)
-	  (let ((v (new (3fn *vector3
-			     (- ((@ *math random)) 0.5)
-			     (- ((@ *math random)) 0.5)
-			     (- ((@ *math random)) 0.5)))))
-	    ((@ v set-length) (* (+ 1 ((@ *math random))) r))
-	    ((@ g vertices push) v)))
-	(new (3fn *point-cloud g m))))
-    
-    (defun sun ()
-      (let ((g (new (3fn *sphere-geometry 20 32 32)))
-	    (m (new (3fn *mesh-basic-material (create color 0xf9ffd9)))))
-	(new (3fn *mesh g m))))
-
-    (defun selection-box (name x y z)
-      "Selection box to click parts of the sail"
-      (let ((sbox
-	     (new (3fn *mesh
-		       (new (3fn *box-geometry x y z))
-		       (new (3fn *mesh-basic-material
-				 (create color 0xffffff
-					 wireframe true)))))))
-	(setf (@ sbox name) name)
-	sbox))
-
-    (defun mirror ()
-      "Invisible object representing the corners of the sail"
-      (let* ((w 8)
-	     (w2 (/ w 2))
-	     (m (new (3fn *mesh-basic-material
-			  (create 
-			   color 0x444444
-			   side (@ *three* *double-side)
-			   wireframe false))))
-	     (s (new (3fn *geometry))))
-	(with-slots (vertices faces) s
-	  ((@ vertices push)
-	   (new (3fn *vector3 0 0 0))
-	   (new (3fn *vector3 w2 0 0))
-	   (new (3fn *vector3 0 0 w2))
-	   (new (3fn *vector3 (- w2) 0 0))
-	   (new (3fn *vector3 0 0 (- w2))))
-	  ((@ faces push)
-	   (new (3fn *face3 0 1 2))
-	   (new (3fn *face3 0 2 3))
-	   (new (3fn *face3 0 3 4))
-	   (new (3fn *face3 0 4 1))))
-	((@ s compute-face-normals))
-	((@ s compute-bounding-sphere))
-	(let ((o (new (3fn *mesh s m))))
-	  (setf (@ o visible) false)
-	  o)))
-    
-    (defun projection (corners)
-      "Projection of that portion of the sunlight that hits the sail"
-      (let ((mat (new (3fn *line-basic-material (create color 0xffff00))))
-	    (pg (new (3fn *geometry)))
-	    (ymin -500))
-	(with-slots ((pv vertices)) pg
-	  (destructuring-bind (mv1 mv2 mv3 mv4) corners
-	    (let ((mv1b (new (3fn *vector3 (@ mv1 x) ymin (@ mv1 z))))
-		  (mv2b (new (3fn *vector3 (@ mv2 x) ymin (@ mv2 z))))
-		  (mv3b (new (3fn *vector3 (@ mv3 x) ymin (@ mv3 z))))
-		  (mv4b (new (3fn *vector3 (@ mv4 x) ymin (@ mv4 z)))))
-	      ((@ pv push)
-	       mv1 mv2 mv3 mv4 mv1
-	       mv1b mv2b mv3b mv4b mv1b
-	       mv1 mv2 mv2b mv3b mv3 mv4 mv4b)
-	      (new (3fn *line pg mat)))))))
-
-    (defun corners (m)
-      "List of corner points of a mirror object in world coordinates"
-      (with-slots ((mv vertices)) (@ m geometry)
-	(list
-	 ((@ m local-to-world) ((@ mv 1 clone)))
-	 ((@ m local-to-world) ((@ mv 2 clone)))
-	 ((@ m local-to-world) ((@ mv 3 clone)))
-	 ((@ m local-to-world) ((@ mv 4 clone))))))
-
-    (defun rotate-global-y (object rad)
-      "Rotate an object around the global Y axis by the given number of radians"
-      (let* ((q ((@ ((@ (@ object quaternion) clone)) inverse)))
-	     (ly ((@ ((@ (incident) apply-quaternion) q) normalize))))
-	((@ object rotate-on-axis) ly rad)))
-
-    (defun calc-absorbed (incidence)
-      "Calculate the absorbed percentage from the incidence angle"
-      (abs ((@ *math round10) (* 100 (cos (* incidence (/ pi 180)))) -1)))
-
-    (defun normal (sail)
-      "Normal vector of a sail"
-      (let ((n ((@ (incident) apply-quaternion) (@ sail quaternion))))
-	;; Test for pointing toward sun
-	(when (< (@ n y) 0)
-	  ((@ n negate)))
-	((@ n normalize))
-	n))
-
-    (defun incident ()
-      "Solar incidence vector"
-      (new (3fn *vector3 0 1 0)))
-      
-    (defun reflectv (incident normal)
-      "Reflection vector from incident and normal vectors"
-      (let ((v (new (3fn *vector3))))
-	((@ v copy) normal)
-	((@ v multiply-scalar)
-	 (* -2 ((@ incident dot) normal)))
-	((@ v add) incident)))
-
-    (defun reflection (corners reflectv)
-      "Reflection object given list of corner vectors"
-      (let ((refl (new (3fn *object3-d)))
-	    (l 500)
-	    (c 0xffff00)
-	    (hl 20)
-	    (hw 5))
-	(with-slots (update visibility children) refl
-	  ;; Initial creation of object
-	  (dotimes (i 4)
-	    ((@ refl add) (new (3fn *arrow-helper reflectv ((@ (aref corners i) clone)) l c hl hw))))
-	  (setf visibility ; Visibility method
-		(lambda (bool)
-		  (dolist (a children)
-		    (setf (@ a visible) bool)))))
-	refl))
     ))
-
