@@ -588,7 +588,8 @@
 	    (elapsed 0)
 	    (timefactor 10)
 	    (time false))
-	(with-slots (sail pause scene mirror corners reflectv reflect-arrow reflection controls render toggle-pause update-anim animate init incidence update-tilt normal) app
+	(with-slots (sail camera pause scene mirror corners reflectv reflect-arrow reflection controls render toggle-pause update-anim animate init incidence update-tilt normal) app
+	  ((@ camera position set) -4 -6 6)
 	  (setf
 	   pause false
 	   toggle-pause
