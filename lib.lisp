@@ -737,7 +737,7 @@
     
     (defun reflect-force ()
       (let ((app (add-animation (add-target (add-reflection (add-tilt (what)))))))
-	(with-slots (sail camera pause scene mirror corners reflectv reflect-arrow reflection controls render toggle-pause update-anim animate init incidence update-tilt normal accelfn timefactor) app
+	(with-slots (sail camera reflectv reflect-arrow update-anim incidence accelfn timefactor) app
 	  ((@ camera position set) -4 -6 6)
 	  (setf
 	   timefactor 100
@@ -752,6 +752,42 @@
 	       ;; Move reflected arrow
 	       ((@ reflect-arrow position copy) (@ sail position))))))
 	app))
-    
-      ))
-  
+
+    (defun force ()
+      (let ((app (add-animation (add-target (add-reflection (add-projection (add-tilt (what))))))))
+	(with-slots (scene sail camera reflectv absorb-arrow reflect-arrow update-tilt update-anim incidence accelfn timefactor force-arrow normal) app
+	  ((@ camera position set) -4 -6 6)
+	  (setf
+	   timefactor 10
+	   force-arrow (new (3fn *arrow-helper
+				 (new (3fn *vector3 0 1 0))
+				 (new (3fn *vector3 0 0 0))
+				 10 0xff0000))
+	   accelfn
+	   (lambda ()
+	     (let* ((accel (* 5d-5 (abs (cos (* incidence (/ pi 180))))))
+		    (accel-a-v (new (3fn *vector3 0 accel 0)))
+		    (accel-r-v ((@ ((@ ((@ reflectv clone)) set-length) accel) negate))))
+	       ((@ ((@ accel-a-v clone)) add) accel-r-v)))
+	   update-tilt
+	   (let ((tilt-super ((@ app superior) "updateTilt")))
+	     (lambda ()
+	       (funcall tilt-super)
+	       ((@ force-arrow set-direction) normal)
+	       ((@ force-arrow set-length) (* 10 (abs (expt (cos (* incidence (/ pi 180))) 2))))
+	       ))
+	   update-anim
+	   (let ((up-anim-super ((@ app superior) "updateAnim")))
+	     (lambda ()
+	       (funcall up-anim-super)
+	       ((@ absorb-arrow position copy) (@ sail position))
+	       ((@ reflect-arrow position copy) (@ sail position))
+	       ((@ force-arrow position copy) (@ sail position))))
+	   visibility
+	   (let ((vis-super ((@ app superior) "visibility")))
+	     (lambda (bool)
+	       (funcall vis-super bool)
+	       (setf (@ force-arrow visible) bool))))
+	  ((@ scene add) force-arrow))
+	app))
+    ))

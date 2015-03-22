@@ -2,7 +2,7 @@
 
 (in-package :bld-ssweb)
 
-(define-easy-handler (reflect :uri "/force.html") ()
+(define-easy-handler (force :uri "/force.html") ()
   (with-html-output-to-string (s nil :indent t :prologue t)
     (:html
      (:meta :charset "utf-8")
@@ -31,9 +31,9 @@
 	     (:tr (:td (:b "Sun incidence")) (:td :id "incidence" "0") (:td "deg"))
 	     (:tr (:td (:b "Rotation about sun")) (:td :id "rotation" "0") (:td "deg"))
 	     (:tr (:td (:b "Absorbed")) (:td :id "absorbed" "100") (:td "%"))
-	     ;;(:tr (:td (:b "Acceleration")) (:td :id "accel" "1") (:td "mm/s^2"))
-	     ;;(:tr (:td (:b "Speed")) (:td :id "speed" "0") (:td "mm/s"))
-	     ;;(:tr (:td (:b "Distance")) (:td :id "distance" "0") (:td "m"))
+	     (:tr (:td (:b "Acceleration")) (:td :id "accel" "1") (:td "mm/s^2"))
+	     (:tr (:td (:b "Speed")) (:td :id "speed" "0") (:td "mm/s"))
+	     (:tr (:td (:b "Distance")) (:td :id "distance" "0") (:td "m"))
 	     (:tr (:td (:b "Time") "(100X)") (:td :id "elapsed" "0") (:td "min:sec"))))
       (:div :id "help"
 	    (:h2 (:a :href "#" :onclick "toggleDiv(\"helpText\"); return false;" "Help"))
