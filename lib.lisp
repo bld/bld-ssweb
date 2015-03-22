@@ -762,7 +762,7 @@
 	   force-arrow (new (3fn *arrow-helper
 				 (new (3fn *vector3 0 1 0))
 				 (new (3fn *vector3 0 0 0))
-				 10 0xff0000))
+				 20 0xff0000))
 	   accelfn
 	   (lambda ()
 	     (let* ((accel (* 5d-5 (abs (cos (* incidence (/ pi 180))))))
@@ -774,7 +774,7 @@
 	     (lambda ()
 	       (funcall tilt-super)
 	       ((@ force-arrow set-direction) normal)
-	       ((@ force-arrow set-length) (* 10 (abs (expt (cos (* incidence (/ pi 180))) 2))))
+	       ((@ force-arrow set-length) (* 20 (abs (expt (cos (* incidence (/ pi 180))) 2))))
 	       ))
 	   update-anim
 	   (let ((up-anim-super ((@ app superior) "updateAnim")))
