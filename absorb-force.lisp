@@ -53,7 +53,7 @@
       (:div :id "nav"
 	    (:button :id "pause" "Pause")
 	    (:button :id "reset" "Reset")
-	    (:p (:b (:a :href "http://patreon.com/bld" "Next: Help develop it at Patreon")))
+	    (:p (:b (:a :href "/reflect-force.html" "Next: Force from Reflected Sunlight on a Solar Sail")))
 	    (:p (:b (:a :href "/reflect.html" "Previous: Sunlight Reflecting off of a Solar Sail")))
 	    (:p (:b (:a :href "/index.html" "Home"))))
       (:img :id "up" :src "img/arrow_up.svg")

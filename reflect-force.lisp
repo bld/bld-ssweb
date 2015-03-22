@@ -1,4 +1,4 @@
-;;; Sunlight absorbed by a sail
+;;; Force from reflected sunlight
 
 (in-package :bld-ssweb)
 
@@ -7,7 +7,7 @@
     (:html
      (:meta :charset "utf-8")
      ;;(:meta :property "og:url" :content "http://flightschool.solarsails.info/reflect-force.html")
-     (:meta :property "og:title" :content "Force from Absorbed Sunlight on a Solar Sail")
+     (:meta :property "og:title" :content "Force from Reflected Sunlight on a Solar Sail")
      (:meta :property "og:image" :content "http://flightschool.solarsails.info/img/reflect_image.png")
      (:meta :property "og:description" :content "Lesson 6: Learn how reflected sunlight pushes a solar sail.")
      (:meta :property "og:site_name" :content "Solar Sail Flight School")
@@ -25,15 +25,15 @@
 	    (:h1 "Force from Reflected Sunlight on a Solar Sail")
 	    (:ul
 	     (:li "Reflected light pushes back on the sail in the opposite direction it shines, like rocket and jet exhaust.")
-	     (:li (:b "Challenge:") "Hit the red target with the sail."))
+	     (:li (:b "Challenge:") "Fly the sail into the red target."))
 	    (:table
 	     :id "tilt-controls"
 	     (:tr (:td (:b "Sun incidence")) (:td :id "incidence" "0") (:td "deg"))
 	     (:tr (:td (:b "Rotation about sun")) (:td :id "rotation" "0") (:td "deg"))
 	     (:tr (:td (:b "Absorbed")) (:td :id "absorbed" "100") (:td "%"))
-	     ;;(:tr (:td (:b "Acceleration")) (:td :id "accel" "1") (:td "mm/s^2"))
-	     ;;(:tr (:td (:b "Speed")) (:td :id "speed" "0") (:td "mm/s"))
-	     ;;(:tr (:td (:b "Distance")) (:td :id "distance" "0") (:td "m"))
+	     (:tr (:td (:b "Acceleration")) (:td :id "accel" "1") (:td "mm/s^2"))
+	     (:tr (:td (:b "Speed")) (:td :id "speed" "0") (:td "mm/s"))
+	     (:tr (:td (:b "Distance")) (:td :id "distance" "0") (:td "m"))
 	     (:tr (:td (:b "Time") "(100X)") (:td :id "elapsed" "0") (:td "min:sec"))))
       (:div :id "help"
 	    (:h2 (:a :href "#" :onclick "toggleDiv(\"helpText\"); return false;" "Help"))
@@ -54,7 +54,7 @@
 	    (:button :id "pause" "Pause")
 	    (:button :id "reset" "Reset")
 	    (:p (:b (:a :href "http://www.patreon.com/bld" "Next: Help develop it at Patreon")))
-	    (:p (:b (:a :href "/absorb-force.html" "Previous: Force from absorbed sunlight on a solar sail")))
+	    (:p (:b (:a :href "/absorb-force.html" "Previous: Force from Absorbed Sunlight on a Solar Sail")))
 	    (:p (:b (:a :href "/index.html" "Home"))))
       (:img :id "up" :src "img/arrow_up.svg")
       (:img :id "down" :src "img/arrow_down.svg")
