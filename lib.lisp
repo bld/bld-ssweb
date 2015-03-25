@@ -568,7 +568,7 @@
 	;; Add objects
 	((@ sail add) mirror)
 	((@ scene add) projection)
-	((@ scene add) absorb-arrow)
+	;;((@ scene add) absorb-arrow)
 	)
       app)
     
@@ -640,9 +640,10 @@
     (defun add-animation (app)
       (let ((elapsed 0)
 	    (time false))
-	(with-slots (timefactor pause toggle-pause init reset update-anim sail update-tilt render animate controls accelfn sail-position) app
+	(with-slots (timefactor pause toggle-pause init reset update-anim sail update-tilt render animate controls accelfn sail-position scene) app
 	  (with-slots (position velocity) sail-position
 	    (setf
+	     ;; Sail position & velocity
 	     sail-position (new (3fn *object3-d))
 	     position (new (3fn *vector3 0 0 0))
 	     velocity (new (3fn *vector3 0 0 0))
@@ -662,6 +663,7 @@
 	     (lambda ()
 	       ((@ position set) 0 0 0)
 	       ((@ velocity set) 0 0 0)
+	       ((@ sail-position update-matrix-world))
 	       (setf elapsed 0))
 	     init
 	     (let ((init-super ((@ app superior) "init")))
@@ -684,7 +686,10 @@
 			(funcall reset)
 			(funcall update-anim)
 			(funcall update-tilt)
-			(funcall render))))))
+			(funcall render))))
+		 ;; Attach sail object to sail-position & put in scene
+		 ((@ sail-position add) sail)
+		 ((@ scene add) sail-position)))
 	     accelfn
 	     (lambda () (new (3fn *vector3 0 0 0)))
 	     update-anim
@@ -696,7 +701,7 @@
 		 (incf elapsed dt)
 		 ((@ velocity add) ((@ ((@ accel-v clone)) multiply-scalar) dt))
 		 ((@ position add) ((@ ((@ velocity clone)) multiply-scalar) dt))
-		 ((@ sail position copy) position)
+		 ;;((@ sail position copy) position)
 		 (setf (@ ($ "#accel") 0 inner-h-t-m-l) ((@ ((@ *math floor10) (* ((@ accel-v length)) 1000) -4) to-string)))
 		 (setf (@ ($ "#speed") 0 inner-h-t-m-l) ((@ ((@ *math floor10) (* ((@ velocity length)) 1000) -2) to-string)))
 		 (setf (@ ($ "#distance") 0 inner-h-t-m-l) ((@ ((@ *math floor10) ((@ position length)) -3) to-string)))
@@ -721,19 +726,18 @@
     
     (defun absorb-force ()
       (let ((app (add-animation (absorb))))
-	(with-slots (accelfn incidence update-anim absorb-arrow sail) app
+	(with-slots (accelfn incidence update-anim absorb-arrow sail init sail-position) app
 	  (setf
 	   timefactor 10
 	   accelfn
 	   (lambda ()
 	     (let ((accel (* 5d-5 (abs (cos (* incidence (/ pi 180)))))))
 	       (new (3fn *vector3 0 accel 0))))
-	   update-anim
-	   (let ((up-anim-super ((@ app superior) "updateAnim")))
+	   init
+	   (let ((init-super ((@ app superior) "init")))
 	     (lambda ()
-	       (funcall up-anim-super)
-	       ;; Move absorbed arrow
-	       ((@ absorb-arrow position copy) (@ sail position))))
+	       (funcall init-super)
+	       ((@ sail-position add) absorb-arrow)))
 	   ))
 	app))
     
