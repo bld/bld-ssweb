@@ -726,7 +726,7 @@
     
     (defun absorb-force ()
       (let ((app (add-animation (absorb))))
-	(with-slots (accelfn incidence update-anim absorb-arrow sail init sail-position) app
+	(with-slots (accelfn incidence absorb-arrow sail init sail-position) app
 	  (setf
 	   timefactor 10
 	   accelfn
@@ -743,7 +743,7 @@
     
     (defun reflect-force ()
       (let ((app (add-animation (add-target (add-reflection (add-tilt (what)))))))
-	(with-slots (sail camera reflectv reflect-arrow update-anim incidence accelfn timefactor) app
+	(with-slots (sail camera reflectv reflect-arrow incidence accelfn timefactor sail-position init) app
 	  ((@ camera position set) -4 -6 6)
 	  (setf
 	   timefactor 100
@@ -751,12 +751,12 @@
 	   (lambda ()
 	     (let ((accel (* 5d-5 (abs (cos (* incidence (/ pi 180)))))))
 	       ((@ ((@ ((@ reflectv clone)) set-length) accel) negate))))
-	   update-anim
-	   (let ((up-anim-super ((@ app superior) "updateAnim")))
+	   init
+	   (let ((init-super ((@ app superior) "init")))
 	     (lambda ()
-	       (funcall up-anim-super)
-	       ;; Move reflected arrow
-	       ((@ reflect-arrow position copy) (@ sail position))))))
+	       (funcall init-super)
+	       ((@ sail-position add) reflect-arrow)))
+	   ))
 	app))
 
     (defun force ()
