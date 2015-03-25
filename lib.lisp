@@ -131,7 +131,9 @@
     (defun incident ()
       "Solar incidence vector"
       (new (3fn *vector3 0 1 0)))
-      
+
+    (defun origin () (new (3fn *vector3 0 0 0)))
+    
     (defun reflectv (incident normal)
       "Reflection vector from incident and normal vectors"
       (let ((v (new (3fn *vector3))))
@@ -545,7 +547,7 @@
 	 corners (corners mirror)
 	 projection (projection corners)
 	 incident (incident)
-	 absorb-arrow (new (3fn *arrow-helper incident origin 10 0xff0000))
+	 absorb-arrow (new (3fn *arrow-helper (incident) ((@ (incident) multiply-scalar) -10) 10 0xffff00))
 	 visibility
 	 (let ((visibility-super ((@ app superior) "visibility")))
 	   (lambda (bool)
@@ -563,7 +565,9 @@
 	     (setf projection (projection corners))
 	     ((@ scene add) projection)
 	     ;; Update absorbed arrow
-	     ((@ absorb-arrow set-length) (* 10 (/ absorbed 100)))))
+	     (let ((l (* 10 (/ absorbed 100))))
+	       ((@ absorb-arrow set-length) l)
+	       ((@ absorb-arrow position set-y) (- l)))))
 	 )
 	;; Add objects
 	((@ sail add) mirror)
@@ -724,8 +728,10 @@
       app)
 
     (defun add-absorb-force (app)
-      (with-slots (accelfn incidence absorb-arrow sail init sail-position) app
+      (with-slots (accelfn incidence absorb-force-arrow sail init sail-position incident origin update-tilt absorbed) app
 	(setf
+	 absorb-force-arrow
+	 (new (3fn *arrow-helper incident origin 10 0xff0000))
 	 accelfn
 	 (lambda ()
 	   (let ((accel (* 5d-5 (abs (cos (* incidence (/ pi 180)))))))
@@ -734,7 +740,12 @@
 	 (let ((init-super ((@ app superior) "init")))
 	   (lambda ()
 	     (funcall init-super)
-	     ((@ sail-position add) absorb-arrow)))
+	     ((@ sail-position add) absorb-force-arrow)))
+	 update-tilt
+	 (let ((tilt-super ((@ app superior) "updateTilt")))
+	   (lambda ()
+	     (funcall tilt-super)
+	     ((@ absorb-force-arrow set-length) (* 10 (/ absorbed 100)))))
 	 ))
       app)
     
@@ -765,7 +776,7 @@
 
     (defun force ()
       (let ((app (add-animation (add-target (add-reflection (add-projection (add-tilt (what))))))))
-	(with-slots (camera reflectv absorb-arrow reflect-arrow update-tilt incidence accelfn timefactor force-arrow normal init sail-position) app
+	(with-slots (camera reflectv absorb-force-arrow reflect-arrow update-tilt incidence accelfn timefactor force-arrow normal init sail-position) app
 	  ((@ camera position set) -4 -6 6)
 	  (setf
 	   timefactor 10
@@ -791,7 +802,7 @@
 	     (lambda ()
 	       (funcall init-super)
 	       ((@ sail-position add) force-arrow)
-	       ((@ sail-position add) absorb-arrow)
+	       ((@ sail-position add) absorb-force-arrow)
 	       ((@ sail-position add) reflect-arrow)))
 	   visibility
 	   (let ((vis-super ((@ app superior) "visibility")))
