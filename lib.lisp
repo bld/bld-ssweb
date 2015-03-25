@@ -5,19 +5,19 @@
 (define-easy-handler (lib-js :uri "/js/lib.js") ()
   (setf (content-type*) "text/javascript")
   (ps
-
+    
     (defmacro 3fn (fn &rest args)
       `((@ *three* ,fn) ,@args))
     
     (defun toggle-div (div-id)
       ((@ ($ (+ "#" div-id)) toggle)))
-
+    
     (setf (@ *function prototype method)
 	  (lambda (name func)
 	    (when (not (elt (@ this prototype) name))
 	      (setf (elt (@ this prototype) name) func)
 	      this)))
-
+    
     ((@ *object method) "superior"
      (lambda (name)
        (let* ((that this)
@@ -108,7 +108,7 @@
 	 ((@ m local-to-world) ((@ mv 2 clone)))
 	 ((@ m local-to-world) ((@ mv 3 clone)))
 	 ((@ m local-to-world) ((@ mv 4 clone))))))
-
+    
     (defun rotate-global-y (object rad)
       "Rotate an object around the global Y axis by the given number of radians"
       (let* ((q ((@ ((@ (@ object quaternion) clone)) inverse)))
@@ -225,7 +225,7 @@
 	  
 	  )
 	app))
-
+    
     (defun add-booms (app)
       "Add booms"
       (with-slots (sail booms render) app
@@ -545,7 +545,7 @@
 	 corners (corners mirror)
 	 projection (projection corners)
 	 incident (incident)
-	 absorb-arrow (new (3fn *arrow-helper incident origin 10 0xffff00))
+	 absorb-arrow (new (3fn *arrow-helper incident origin 10 0xff0000))
 	 visibility
 	 (let ((visibility-super ((@ app superior) "visibility")))
 	   (lambda (bool)
@@ -568,8 +568,7 @@
 	;; Add objects
 	((@ sail add) mirror)
 	((@ scene add) projection)
-	;;((@ scene add) absorb-arrow)
-	)
+	((@ scene add) absorb-arrow))
       app)
     
     (defun absorb ()
@@ -578,7 +577,7 @@
 	;; Move the camera
 	((@ app camera position set) -4 -6 6)
 	app))
-
+    
     (defun add-reflection (app)
       "Add a box showing the reflected sunlight"
       (with-slots (absorbed normal incident reflectv reflection reflect-arrow mirror corners update-tilt origin scene visibility sail) app
@@ -588,13 +587,13 @@
 	(setf normal (normal sail)
 	      reflectv (reflectv incident normal)
 	      reflection (reflection corners reflectv)
-	      reflect-arrow (new (3fn *arrow-helper reflectv origin 10 0xffff00))
+	      reflect-arrow (new (3fn *arrow-helper ((@ ((@ reflectv clone)) negate)) origin 10 0xff0000))
 	      visibility
 	      (let ((visibility-super ((@ app superior) "visibility")))
 		(lambda (bool)
 		  (funcall visibility-super bool)
-		  (setf (@ reflection visible) bool
-			(@ reflect-arrow visible) bool)))
+		  (setf (@ reflection visible) bool)
+		  (@ reflect-arrow visible) bool))
 	      update-tilt
 	      (let ((tilt-super ((@ app superior) "updateTilt"))) 
 		(lambda ()
@@ -607,12 +606,12 @@
 		  ((@ scene remove) reflection)
 		  (setf reflection (reflection corners reflectv))
 		  ((@ scene add) reflection)
-		  ((@ reflect-arrow set-direction) reflectv)
+		  ((@ reflect-arrow set-direction) ((@ ((@ reflectv clone)) negate)))
 		  ((@ reflect-arrow set-length) (* 10 (/ absorbed 100))))))
 	((@ scene add) reflection)
 	((@ scene add) reflect-arrow))
       app)
-
+    
     (defun add-target (app)
       "Add a big red randomly positioned target"
       (with-slots (scene target) app
@@ -632,7 +631,7 @@
 	   (* dist (sin inc2) (sin rot)))
 	  ((@ scene add) target)))
       app)
-	
+    
     (defun reflect ()
       "Reflected light on a sail app"
       (add-target (add-reflection (absorb))))
@@ -720,48 +719,53 @@
 		 (funcall render))
 	       (when pause (setf time false))
 	       ((@ controls update)))
-	   
+	     
 	     ))))
+      app)
+
+    (defun add-absorb-force (app)
+      (with-slots (accelfn incidence absorb-arrow sail init sail-position) app
+	(setf
+	 accelfn
+	 (lambda ()
+	   (let ((accel (* 5d-5 (abs (cos (* incidence (/ pi 180)))))))
+	     (new (3fn *vector3 0 accel 0))))
+	 init
+	 (let ((init-super ((@ app superior) "init")))
+	   (lambda ()
+	     (funcall init-super)
+	     ((@ sail-position add) absorb-arrow)))
+	 ))
       app)
     
     (defun absorb-force ()
-      (let ((app (add-animation (absorb))))
-	(with-slots (accelfn incidence absorb-arrow sail init sail-position) app
-	  (setf
-	   timefactor 10
-	   accelfn
+      (add-absorb-force (add-animation (absorb))))
+
+    (defun add-reflect-force (app)
+      (with-slots (sail camera reflectv reflect-arrow incidence accelfn timefactor sail-position init) app
+	(setf
+	 accelfn
+	 (lambda ()
+	   (let ((accel (* 5d-5 (abs (cos (* incidence (/ pi 180)))))))
+	     ((@ ((@ ((@ reflectv clone)) set-length) accel) negate))))
+	 init
+	 (let ((init-super ((@ app superior) "init")))
 	   (lambda ()
-	     (let ((accel (* 5d-5 (abs (cos (* incidence (/ pi 180)))))))
-	       (new (3fn *vector3 0 accel 0))))
-	   init
-	   (let ((init-super ((@ app superior) "init")))
-	     (lambda ()
-	       (funcall init-super)
-	       ((@ sail-position add) absorb-arrow)))
-	   ))
-	app))
+	     (funcall init-super)
+	     ((@ sail-position add) reflect-arrow)))
+	 ))
+      app)
     
     (defun reflect-force ()
-      (let ((app (add-animation (add-target (add-reflection (add-tilt (what)))))))
-	(with-slots (sail camera reflectv reflect-arrow incidence accelfn timefactor sail-position init) app
+      (let ((app (add-reflect-force (add-animation (add-target (add-reflection (add-tilt (what))))))))
+	(with-slots (camera timefactor) app
 	  ((@ camera position set) -4 -6 6)
-	  (setf
-	   timefactor 100
-	   accelfn
-	   (lambda ()
-	     (let ((accel (* 5d-5 (abs (cos (* incidence (/ pi 180)))))))
-	       ((@ ((@ ((@ reflectv clone)) set-length) accel) negate))))
-	   init
-	   (let ((init-super ((@ app superior) "init")))
-	     (lambda ()
-	       (funcall init-super)
-	       ((@ sail-position add) reflect-arrow)))
-	   ))
+	  (setf timefactor 100))
 	app))
 
     (defun force ()
       (let ((app (add-animation (add-target (add-reflection (add-projection (add-tilt (what))))))))
-	(with-slots (scene sail camera reflectv absorb-arrow reflect-arrow update-tilt update-anim incidence accelfn timefactor force-arrow normal) app
+	(with-slots (camera reflectv absorb-arrow reflect-arrow update-tilt incidence accelfn timefactor force-arrow normal init sail-position) app
 	  ((@ camera position set) -4 -6 6)
 	  (setf
 	   timefactor 10
@@ -782,18 +786,17 @@
 	       ((@ force-arrow set-direction) normal)
 	       ((@ force-arrow set-length) (* 20 (abs (expt (cos (* incidence (/ pi 180))) 2))))
 	       ))
-	   update-anim
-	   (let ((up-anim-super ((@ app superior) "updateAnim")))
+	   init
+	   (let ((init-super ((@ app superior) "init")))
 	     (lambda ()
-	       (funcall up-anim-super)
-	       ((@ absorb-arrow position copy) (@ sail position))
-	       ((@ reflect-arrow position copy) (@ sail position))
-	       ((@ force-arrow position copy) (@ sail position))))
+	       (funcall init-super)
+	       ((@ sail-position add) force-arrow)
+	       ((@ sail-position add) absorb-arrow)
+	       ((@ sail-position add) reflect-arrow)))
 	   visibility
 	   (let ((vis-super ((@ app superior) "visibility")))
 	     (lambda (bool)
 	       (funcall vis-super bool)
-	       (setf (@ force-arrow visible) bool))))
-	  ((@ scene add) force-arrow))
+	       (setf (@ force-arrow visible) bool)))))
 	app))
     ))
