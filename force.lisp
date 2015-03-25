@@ -54,7 +54,7 @@
 	    (:button :id "pause" "Pause")
 	    (:button :id "reset" "Reset")
 	    (:p (:b (:a :href "http://www.patreon.com/bld" "Next: Help develop it at Patreon")))
-	    (:p (:b (:a :href "/absorb-force.html" "Previous: Force from reflected sunlight on a solar sail")))
+	    (:p (:b (:a :href "/reflect-force.html" "Previous: Force from reflected sunlight on a solar sail")))
 	    (:p (:b (:a :href "/index.html" "Home"))))
       (:img :id "up" :src "img/arrow_up.svg")
       (:img :id "down" :src "img/arrow_down.svg")
