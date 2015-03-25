@@ -591,13 +591,13 @@
 	(setf normal (normal sail)
 	      reflectv (reflectv incident normal)
 	      reflection (reflection corners reflectv)
-	      reflect-arrow (new (3fn *arrow-helper ((@ ((@ reflectv clone)) negate)) origin 10 0xff0000))
+	      reflect-arrow (new (3fn *arrow-helper reflectv origin 10 0xffff00))
 	      visibility
 	      (let ((visibility-super ((@ app superior) "visibility")))
 		(lambda (bool)
 		  (funcall visibility-super bool)
-		  (setf (@ reflection visible) bool)
-		  (@ reflect-arrow visible) bool))
+		  (setf (@ reflection visible) bool
+			(@ reflect-arrow visible) bool)))
 	      update-tilt
 	      (let ((tilt-super ((@ app superior) "updateTilt"))) 
 		(lambda ()
@@ -610,7 +610,7 @@
 		  ((@ scene remove) reflection)
 		  (setf reflection (reflection corners reflectv))
 		  ((@ scene add) reflection)
-		  ((@ reflect-arrow set-direction) ((@ ((@ reflectv clone)) negate)))
+		  ((@ reflect-arrow set-direction) reflectv)
 		  ((@ reflect-arrow set-length) (* 10 (/ absorbed 100))))))
 	((@ scene add) reflection)
 	((@ scene add) reflect-arrow))
@@ -753,8 +753,10 @@
       (add-absorb-force (add-animation (absorb))))
 
     (defun add-reflect-force (app)
-      (with-slots (sail camera reflectv reflect-arrow incidence accelfn timefactor sail-position init) app
+      (with-slots (sail camera reflectv reflect-arrow absorbed reflect-force-arrow incidence accelfn timefactor sail-position init origin update-tilt) app
 	(setf
+	 reflect-force-arrow
+	 (new (3fn *arrow-helper ((@ ((@ reflectv clone)) negate)) origin 10 0xff0000))
 	 accelfn
 	 (lambda ()
 	   (let ((accel (* 5d-5 (abs (cos (* incidence (/ pi 180)))))))
@@ -763,7 +765,21 @@
 	 (let ((init-super ((@ app superior) "init")))
 	   (lambda ()
 	     (funcall init-super)
+	     ((@ sail-position add) reflect-force-arrow)
 	     ((@ sail-position add) reflect-arrow)))
+	 update-tilt
+	 (let ((tilt-super ((@ app superior) "updateTilt"))) 
+	   (lambda ()
+	     (funcall tilt-super)
+	     ((@ reflect-force-arrow set-direction)
+	      ((@ ((@ reflectv clone)) negate)))
+	     ((@ reflect-force-arrow set-length)
+	      (* 10 (/ absorbed 100)))))
+	 visibility
+	 (let ((visibility-super ((@ app superior) "visibility")))
+	   (lambda (bool)
+	     (funcall visibility-super bool)
+	     (setf (@ reflect-force-arrow visible) bool)))
 	 ))
       app)
     
@@ -771,7 +787,7 @@
       (let ((app (add-reflect-force (add-animation (add-target (add-reflection (add-tilt (what))))))))
 	(with-slots (camera timefactor) app
 	  ((@ camera position set) -4 -6 6)
-	  (setf timefactor 100))
+	  (setf timefactor 10))
 	app))
 
     (defun force ()
