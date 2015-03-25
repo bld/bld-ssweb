@@ -638,83 +638,85 @@
       (add-target (add-reflection (absorb))))
 
     (defun add-animation (app)
-      (let ((vel (new (3fn *vector3 0 0 0)))
-	    (pos (new (3fn *vector3 0 0 0)))
-	    (elapsed 0)
+      (let ((elapsed 0)
 	    (time false))
-	(with-slots (timefactor pause toggle-pause init reset update-anim sail update-tilt render animate controls accelfn) app
-	  (setf
-	   timefactor 10
-	   pause false
-	   toggle-pause
-	   (lambda (e)
-	     (let ((pause-html ($ "#pause")))
-	       (if pause
-		   (progn
-		     (setf pause false)
-		     (setf (@ pause-html 0 inner-h-t-m-l) "Pause"))
-		   (progn
-		     (setf pause t)
-		     (setf (@ pause-html 0 inner-h-t-m-l) "Continue")))))
-	   reset
-	   (lambda ()
-	     ((@ pos set) 0 0 0)
-	     ((@ vel set) 0 0 0)
-	     (setf elapsed 0))
-	   init
-	   (let ((init-super ((@ app superior) "init")))
-	     (lambda ()
-	       ;; Absorb init
-	       (funcall init-super)
-	       ;; Pause button event
+	(with-slots (timefactor pause toggle-pause init reset update-anim sail update-tilt render animate controls accelfn sail-position) app
+	  (with-slots (position velocity) sail-position
+	    (setf
+	     sail-position (new (3fn *object3-d))
+	     position (new (3fn *vector3 0 0 0))
+	     velocity (new (3fn *vector3 0 0 0))
+	     timefactor 10
+	     pause false
+	     toggle-pause
+	     (lambda (e)
 	       (let ((pause-html ($ "#pause")))
-		 ((@ pause-html click)
-		  #'toggle-pause))
-	       ;; Pause with spacebar
-	       ((@ ($ (@ document body)) keydown)
-		(lambda (e)
-		  (when (= (@ e which) 32)
-		  (funcall toggle-pause e))))
-	       ;; Reset button
-	       (let ((reset-html ($ "#reset")))
-		 ((@ reset-html click)
-		  #'(lambda (e)
-		      (funcall reset)
-		      (funcall update-anim)
-		      (funcall update-tilt)
-		      (funcall render))))))
-	   accelfn
-	   (lambda () (new (3fn *vector3 0 0 0)))
-	   update-anim
-	   (lambda ()
-	     (let* ((accel-v (funcall accelfn))
-		    (now ((@ (new (*date)) get-time)))
-		    (dt (/ (* timefactor (- now (or time now))) 1000)))
-	       (setf time now)
-	       (incf elapsed dt)
-	       ((@ vel add) ((@ ((@ accel-v clone)) multiply-scalar) dt))
-	       ((@ pos add) ((@ ((@ vel clone)) multiply-scalar) dt))
-	       ((@ sail position copy) pos)
-	       (setf (@ ($ "#accel") 0 inner-h-t-m-l) ((@ ((@ *math floor10) (* ((@ accel-v length)) 1000) -4) to-string)))
-	       (setf (@ ($ "#speed") 0 inner-h-t-m-l) ((@ ((@ *math floor10) (* ((@ vel length)) 1000) -2) to-string)))
-	       (setf (@ ($ "#distance") 0 inner-h-t-m-l) ((@ ((@ *math floor10) ((@ pos length)) -3) to-string)))
-	       (let* ((minutes (floor (/ elapsed 60)))
-		      (seconds (floor (- elapsed (* minutes 60)))))
-		 (setf (@ ($ "#elapsed") 0 inner-h-t-m-l)
-		       (+ ((@ minutes to-string)) (if (> seconds 9) ":" ":0") ((@ seconds to-fixed)))))))
-	   animate
-	   (lambda ()
-	     (request-animation-frame animate)
-	     (unless pause
-	       (when (> ((@ pos length)) 100)
-		 (funcall reset))
-	       (funcall update-anim)
-	       (funcall update-tilt)
-	       (funcall render))
-	     (when pause (setf time false))
-	     ((@ controls update)))
+		 (if pause
+		     (progn
+		       (setf pause false)
+		       (setf (@ pause-html 0 inner-h-t-m-l) "Pause"))
+		     (progn
+		       (setf pause t)
+		       (setf (@ pause-html 0 inner-h-t-m-l) "Continue")))))
+	     reset
+	     (lambda ()
+	       ((@ position set) 0 0 0)
+	       ((@ velocity set) 0 0 0)
+	       (setf elapsed 0))
+	     init
+	     (let ((init-super ((@ app superior) "init")))
+	       (lambda ()
+		 ;; Absorb init
+		 (funcall init-super)
+		 ;; Pause button event
+		 (let ((pause-html ($ "#pause")))
+		   ((@ pause-html click)
+		    #'toggle-pause))
+		 ;; Pause with spacebar
+		 ((@ ($ (@ document body)) keydown)
+		  (lambda (e)
+		    (when (= (@ e which) 32)
+		      (funcall toggle-pause e))))
+		 ;; Reset button
+		 (let ((reset-html ($ "#reset")))
+		   ((@ reset-html click)
+		    #'(lambda (e)
+			(funcall reset)
+			(funcall update-anim)
+			(funcall update-tilt)
+			(funcall render))))))
+	     accelfn
+	     (lambda () (new (3fn *vector3 0 0 0)))
+	     update-anim
+	     (lambda ()
+	       (let* ((accel-v (funcall accelfn))
+		      (now ((@ (new (*date)) get-time)))
+		      (dt (/ (* timefactor (- now (or time now))) 1000)))
+		 (setf time now)
+		 (incf elapsed dt)
+		 ((@ velocity add) ((@ ((@ accel-v clone)) multiply-scalar) dt))
+		 ((@ position add) ((@ ((@ velocity clone)) multiply-scalar) dt))
+		 ((@ sail position copy) position)
+		 (setf (@ ($ "#accel") 0 inner-h-t-m-l) ((@ ((@ *math floor10) (* ((@ accel-v length)) 1000) -4) to-string)))
+		 (setf (@ ($ "#speed") 0 inner-h-t-m-l) ((@ ((@ *math floor10) (* ((@ velocity length)) 1000) -2) to-string)))
+		 (setf (@ ($ "#distance") 0 inner-h-t-m-l) ((@ ((@ *math floor10) ((@ position length)) -3) to-string)))
+		 (let* ((minutes (floor (/ elapsed 60)))
+			(seconds (floor (- elapsed (* minutes 60)))))
+		   (setf (@ ($ "#elapsed") 0 inner-h-t-m-l)
+			 (+ ((@ minutes to-string)) (if (> seconds 9) ":" ":0") ((@ seconds to-fixed)))))))
+	     animate
+	     (lambda ()
+	       (request-animation-frame animate)
+	       (unless pause
+		 (when (> ((@ position length)) 100)
+		   (funcall reset))
+		 (funcall update-anim)
+		 (funcall update-tilt)
+		 (funcall render))
+	       (when pause (setf time false))
+	       ((@ controls update)))
 	   
-	   )))
+	     ))))
       app)
     
     (defun absorb-force ()
