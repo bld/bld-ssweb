@@ -651,7 +651,7 @@
 	     sail-position (new (3fn *object3-d))
 	     position (new (3fn *vector3 0 0 0))
 	     velocity (new (3fn *vector3 0 0 0))
-	     velocity-arrow (new (3fn *arrow-helper (incident) (origin) 0 0x0000ff))
+	     velocity-arrow (new (3fn *arrow-helper (incident) (origin) 0 0x5555ff))
 	     timefactor 10
 	     pause false
 	     toggle-pause
@@ -695,7 +695,9 @@
 		 ;; Attach sail object to sail-position & put in scene
 		 ((@ sail-position add) sail)
 		 ((@ sail-position add) velocity-arrow)
-		 ((@ scene add) sail-position)))
+		 ((@ scene add) sail-position)
+		 ;; Start paused
+		 (funcall toggle-pause)))
 	     accelfn
 	     (lambda () (new (3fn *vector3 0 0 0)))
 	     update-anim

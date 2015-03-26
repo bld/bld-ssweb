@@ -107,3 +107,15 @@ a { color: #e4741f }
 #reflectedcolor {
     color: #ff0;
 }
+
+.force {
+    color: #f00;
+}
+
+.velocity {
+    color: #55f;
+}
+
+.light {
+    color: #ff0;
+}

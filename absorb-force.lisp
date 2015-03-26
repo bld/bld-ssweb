@@ -24,14 +24,19 @@
       (:div :id "info"
 	    (:h1 "Force from Absorbed Sunlight on a Solar Sail")
 	    (:ul
-	     (:li "Sunlight pushes a sail in the direction it shines. The force is proportional to the light absorbed.")
-	     (:li (:b "Challenge:") "Get the speed as close to 20 mm/s as you can."))
+	     (:li "Sunlight pushes a sail in the direction it shines.")
+	     (:li "The " (:span :class "force" "force") " is proportional to the " (:span :class "light" "light") " absorbed.")
+	     (:li "The arrows show the direction and amount of:"
+		  (:ul (:li (:span :class "light" "Sunlight"))
+		       (:li (:span :class "force" "Acceleration & force"))
+		       (:li (:span :class "velocity" "Velocity & speed"))))
+	     (:li (:b "Challenge:") "Get the " (:span :class "velocity" "speed") " as close to 20 mm/s as you can."))
 	    (:table
 	     :id "tilt-controls"
 	     (:tr (:td (:b "Sun incidence")) (:td :id "incidence" "0") (:td "deg"))
 	     (:tr (:td (:b "Rotation about sun")) (:td :id "rotation" "0") (:td "deg"))
 	     ;;(:tr (:td (:b "Absorbed")) (:td :id "absorbed" "100") (:td "%"))
-	     (:tr (:td (:b "Acceleration")) (:td :id "accel" "1") (:td "mm/s^2"))
+	     (:tr (:td (:b "Acceleration")) (:td :id "accel" "1") (:td "mm/s" (:sup "2")))
 	     (:tr (:td (:b "Speed")) (:td :id "speed" "0") (:td "mm/s"))
 	     (:tr (:td (:b "Distance")) (:td :id "distance" "0") (:td "m"))
 	     (:tr (:td (:b "Time") "(10X)") (:td :id "elapsed" "0") (:td "min:sec"))))

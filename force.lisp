@@ -25,13 +25,17 @@
 	    (:h1 "Force from Sunlight on a Solar Sail")
 	    (:ul
 	     (:li "Absorbed and reflected sunlight combine to push on a sail.")
+	     (:li "The arrows show the direction and amount of:"
+		  (:ul (:li (:span :class "light" "Sunlight"))
+		       (:li (:span :class "force" "Acceleration & force"))
+		       (:li (:span :class "velocity" "Velocity & speed"))))
 	     (:li (:b "Challenge:") "Hit the red target with the sail."))
 	    (:table
 	     :id "tilt-controls"
 	     (:tr (:td (:b "Sun incidence")) (:td :id "incidence" "0") (:td "deg"))
 	     (:tr (:td (:b "Rotation about sun")) (:td :id "rotation" "0") (:td "deg"))
 	     (:tr (:td (:b "Absorbed")) (:td :id "absorbed" "100") (:td "%"))
-	     (:tr (:td (:b "Acceleration")) (:td :id "accel" "1") (:td "mm/s^2"))
+	     (:tr (:td (:b "Acceleration")) (:td :id "accel" "1") (:td "mm/s" (:sup "2")))
 	     (:tr (:td (:b "Speed")) (:td :id "speed" "0") (:td "mm/s"))
 	     (:tr (:td (:b "Distance")) (:td :id "distance" "0") (:td "m"))
 	     (:tr (:td (:b "Time") "(100X)") (:td :id "elapsed" "0") (:td "min:sec"))))
