@@ -616,10 +616,11 @@
 	((@ scene add) reflect-arrow))
       app)
     
-    (defun add-target (app)
+    (defun add-target (app &key (imin -90) (imax 90))
       "Add a big red randomly positioned target"
       (with-slots (scene target) app
-	(let ((inc2 (* 2 (* 5 (random (/ 360 5)) (/ pi 180))))
+	(let ((inc2 (* (+ (* 2 (+ imin (* 5 (random (1+ (/ (- imax imin) 2 5)))))))
+		       (/ pi 180)))
 	      (rot (* 5 (random (/ 360 5)) (/ pi 180)))
 	      (dist (+ 20 (random 80)))
 	      (rad 5)
@@ -643,13 +644,14 @@
     (defun add-animation (app)
       (let ((elapsed 0)
 	    (time false))
-	(with-slots (timefactor pause toggle-pause init reset update-anim sail update-tilt render animate controls accelfn sail-position scene) app
+	(with-slots (timefactor pause toggle-pause init reset update-anim sail update-tilt render animate controls accelfn sail-position scene velocity-arrow) app
 	  (with-slots (position velocity) sail-position
 	    (setf
 	     ;; Sail position & velocity
 	     sail-position (new (3fn *object3-d))
 	     position (new (3fn *vector3 0 0 0))
 	     velocity (new (3fn *vector3 0 0 0))
+	     velocity-arrow (new (3fn *arrow-helper (incident) (origin) 0 0x0000ff))
 	     timefactor 10
 	     pause false
 	     toggle-pause
@@ -692,19 +694,28 @@
 			(funcall render))))
 		 ;; Attach sail object to sail-position & put in scene
 		 ((@ sail-position add) sail)
+		 ((@ sail-position add) velocity-arrow)
 		 ((@ scene add) sail-position)))
 	     accelfn
 	     (lambda () (new (3fn *vector3 0 0 0)))
 	     update-anim
 	     (lambda ()
-	       (let* ((accel-v (funcall accelfn))
+	       (let* (;; Acceleration
+		      (accel-v (funcall accelfn))
+		      ;; Current time
 		      (now ((@ (new (*date)) get-time)))
+		      ;; Time step
 		      (dt (/ (* timefactor (- now (or time now))) 1000)))
+		 ;; Update time and elapsed time
 		 (setf time now)
 		 (incf elapsed dt)
+		 ;; "Integrate" velocity and position
 		 ((@ velocity add) ((@ ((@ accel-v clone)) multiply-scalar) dt))
 		 ((@ position add) ((@ ((@ velocity clone)) multiply-scalar) dt))
-		 ;;((@ sail position copy) position)
+		 ;; Update velocity arrow
+		 ((@ velocity-arrow set-direction) ((@ ((@ velocity clone)) normalize)))
+		 ((@ velocity-arrow set-length) (* 1000 ((@ velocity length))))
+		 ;; Update HTML accel/speed/distance/time
 		 (setf (@ ($ "#accel") 0 inner-h-t-m-l) ((@ ((@ *math floor10) (* ((@ accel-v length)) 1000) -4) to-string)))
 		 (setf (@ ($ "#speed") 0 inner-h-t-m-l) ((@ ((@ *math floor10) (* ((@ velocity length)) 1000) -2) to-string)))
 		 (setf (@ ($ "#distance") 0 inner-h-t-m-l) ((@ ((@ *math floor10) ((@ position length)) -3) to-string)))
@@ -728,7 +739,7 @@
       app)
 
     (defun add-absorb-force (app)
-      (with-slots (accelfn incidence absorb-force-arrow sail init sail-position incident origin update-tilt absorbed) app
+      (with-slots (accelfn incidence absorb-arrow absorb-force-arrow sail init sail-position incident origin update-tilt absorbed) app
 	(setf
 	 absorb-force-arrow
 	 (new (3fn *arrow-helper incident origin 10 0xff0000))
@@ -740,7 +751,8 @@
 	 (let ((init-super ((@ app superior) "init")))
 	   (lambda ()
 	     (funcall init-super)
-	     ((@ sail-position add) absorb-force-arrow)))
+	     ((@ sail-position add) absorb-force-arrow)
+	     ((@ sail-position add) absorb-arrow)))
 	 update-tilt
 	 (let ((tilt-super ((@ app superior) "updateTilt")))
 	   (lambda ()
@@ -787,43 +799,43 @@
       (let ((app (add-reflect-force (add-animation (add-target (add-reflection (add-tilt (what))))))))
 	(with-slots (camera timefactor) app
 	  ((@ camera position set) -4 -6 6)
-	  (setf timefactor 10))
+	  (setf timefactor 100))
 	app))
 
     (defun force ()
-      (let ((app (add-animation (add-target (add-reflection (add-projection (add-tilt (what))))))))
-	(with-slots (camera reflectv absorb-force-arrow reflect-arrow update-tilt incidence accelfn timefactor force-arrow normal init sail-position) app
-	  ((@ camera position set) -4 -6 6)
+      (let* ((app-absorb (add-target (absorb-force) :imax -10))
+	     (accelfn-absorb (@ app-absorb accelfn))
+	     (app (add-reflect-force (add-reflection app-absorb)))
+	     (accelfn-reflect (@ app accelfn)))
+	(with-slots (timefactor force-arrow accelfn update-tilt visibility init
+				reflectv normal incidence sail-position) app
 	  (setf
-	   timefactor 10
-	   force-arrow (new (3fn *arrow-helper
-				 (new (3fn *vector3 0 1 0))
-				 (new (3fn *vector3 0 0 0))
-				 20 0xff0000))
+	   timefactor 100
+	   force-arrow
+	   (new (3fn *arrow-helper
+		     (new (3fn *vector3 0 1 0))
+		     (new (3fn *vector3 0 0 0))
+		     20 0xff0000))
 	   accelfn
 	   (lambda ()
-	     (let* ((accel (* 5d-5 (abs (cos (* incidence (/ pi 180))))))
-		    (accel-a-v (new (3fn *vector3 0 accel 0)))
-		    (accel-r-v ((@ ((@ ((@ reflectv clone)) set-length) accel) negate))))
-	       ((@ ((@ accel-a-v clone)) add) accel-r-v)))
+	     ((@ (funcall accelfn-absorb) add) (funcall accelfn-reflect)))
 	   update-tilt
 	   (let ((tilt-super ((@ app superior) "updateTilt")))
 	     (lambda ()
 	       (funcall tilt-super)
 	       ((@ force-arrow set-direction) normal)
-	       ((@ force-arrow set-length) (* 20 (abs (expt (cos (* incidence (/ pi 180))) 2))))
-	       ))
-	   init
-	   (let ((init-super ((@ app superior) "init")))
-	     (lambda ()
-	       (funcall init-super)
-	       ((@ sail-position add) force-arrow)
-	       ((@ sail-position add) absorb-force-arrow)
-	       ((@ sail-position add) reflect-arrow)))
+	       ((@ force-arrow set-length)
+		(* 20 (abs (expt (cos (* incidence (/ pi 180))) 2))))))
 	   visibility
 	   (let ((vis-super ((@ app superior) "visibility")))
 	     (lambda (bool)
 	       (funcall vis-super bool)
-	       (setf (@ force-arrow visible) bool)))))
+	       (setf (@ force-arrow visible) bool)))
+	   init
+	   (let ((init-super ((@ app superior) "init")))
+	     (lambda ()
+	       (funcall init-super)
+	       ((@ sail-position add) force-arrow)))
+	   ))
 	app))
     ))
