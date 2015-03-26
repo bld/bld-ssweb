@@ -35,7 +35,10 @@
 	     (:li (:h3 (:a :href "/what.html" "What is a solar sail?")))
 	     (:li (:h3 (:a :href "/parts.html" "Parts of a solar sail")))
 	     (:li (:h3 (:a :href "/absorb.html" "Sunlight absorbed by a sail")))
-	     (:li (:h3 (:a :href "/reflect.html" "Sunlight reflected by a sail"))))
+	     (:li (:h3 (:a :href "/reflect.html" "Sunlight reflected by a sail")))
+	     (:li (:h3 (:a :href "/absorb-force.html" "Force from absorbed sunlight on a solar sail")))
+	     (:li (:h3 (:a :href "/reflect-force.html" "Force from reflected sunlight on a solar sail")))
+	     (:li (:h3 (:a :href "/force.html" "Force from sunlight on a solar sail"))))
 
 	    (:br)
 	    

@@ -29,7 +29,8 @@
 		  (:ul (:li (:span :class "light" "Sunlight"))
 		       (:li (:span :class "force" "Acceleration & force"))
 		       (:li (:span :class "velocity" "Velocity & speed"))))
-	     (:li (:b "Challenge:") "Fly the sail into the red target."))
+	     (:li (:b "Challenge:") "Fly the sail into the red target.")
+	     (:li "Hit the spacebar or click Continue to start."))
 	    (:table
 	     :id "tilt-controls"
 	     (:tr (:td (:b "Sun incidence")) (:td :id "incidence" "0") (:td "deg"))

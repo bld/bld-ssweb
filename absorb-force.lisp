@@ -30,7 +30,8 @@
 		  (:ul (:li (:span :class "light" "Sunlight"))
 		       (:li (:span :class "force" "Acceleration & force"))
 		       (:li (:span :class "velocity" "Velocity & speed"))))
-	     (:li (:b "Challenge:") "Get the " (:span :class "velocity" "speed") " as close to 20 mm/s as you can."))
+	     (:li (:b "Challenge:") "Get the " (:span :class "velocity" "speed") " as close to 20 mm/s as you can.")
+	     (:li "Hit the spacebar or click Continue to start."))
 	    (:table
 	     :id "tilt-controls"
 	     (:tr (:td (:b "Sun incidence")) (:td :id "incidence" "0") (:td "deg"))
