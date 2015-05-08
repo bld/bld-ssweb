@@ -31,15 +31,24 @@
 	    
 	    (:h2 "Lessons")
 
-	    (:ol
-	     (:li (:h3 (:a :href "/what.html" "What is a solar sail?")))
-	     (:li (:h3 (:a :href "/parts.html" "Parts of a solar sail")))
-	     (:li (:h3 (:a :href "/absorb.html" "Sunlight absorbed by a sail")))
-	     (:li (:h3 (:a :href "/reflect.html" "Sunlight reflected by a sail")))
-	     (:li (:h3 (:a :href "/absorb-force.html" "Force from absorbed sunlight on a solar sail")))
-	     (:li (:h3 (:a :href "/reflect-force.html" "Force from reflected sunlight on a solar sail")))
-	     (:li (:h3 (:a :href "/force.html" "Force from sunlight on a solar sail"))))
+	    (:ul
+	    
+	     (:li (:h3 (:a :href "#" :onclick "toggleDiv(\"theSail\"); return false;" "The Sail"))
+		  (:ol :id "theSail"
+		       (:li (:h3 (:a :href "/what.html" "What is a solar sail?")))
+		       (:li (:h3 (:a :href "/parts.html" "Parts of a solar sail")))))
+	     
+	     (:li (:h3 (:a :href "#" :onclick "toggleDiv(\"Light\"); return false;" "Light"))
+		  (:ol :id "Light" :start 3
+		       (:li (:h3 (:a :href "/absorb.html" "Sunlight absorbed by a sail")))
+		       (:li (:h3 (:a :href "/reflect.html" "Sunlight reflected by a sail")))))
 
+	     (:li (:h3 (:a :href "#" :onclick "toggleDiv(\"Forces\"); return false;" "Forces"))
+		  (:ol :id "Forces" :start 5
+		       (:li (:h3 (:a :href "/absorb-force.html" "Force from absorbed sunlight on a solar sail")))
+		       (:li (:h3 (:a :href "/reflect-force.html" "Force from reflected sunlight on a solar sail")))
+		       (:li (:h3 (:a :href "/force.html" "Force from sunlight on a solar sail"))))))
+	    
 	    (:br)
 	    
 	    (:p (:b (:a :href "http://www.patreon.com/bld"
@@ -55,6 +64,9 @@
        :type "text/javascript"
        (str
 	(ps
+	  (toggle-div "theSail")
+	  (toggle-div "Light")
+	  (toggle-div "Forces")
 	  (defvar app (flightschool))
 	  ((@ app render))
 	  ((@ app init)))))
