@@ -6,7 +6,7 @@
   (with-html-output-to-string (s nil :indent t :prologue t)
     (:html
      (:meta :charset "utf-8")
-     ;;(:meta :property "og:url" :content "http://flightschool.solarsails.info/reflect-force.html")
+     (:meta :property "og:url" :content "http://flightschool.solarsails.info/reflect-force.html")
      (:meta :property "og:title" :content "Force from Reflected Sunlight on a Solar Sail")
      (:meta :property "og:image" :content "http://flightschool.solarsails.info/img/reflect_image.png")
      (:meta :property "og:description" :content "Lesson 6: Learn how reflected sunlight pushes a solar sail.")
@@ -35,7 +35,6 @@
 	     :id "tilt-controls"
 	     (:tr (:td (:b "Sun incidence")) (:td :id "incidence" "0") (:td "deg"))
 	     (:tr (:td (:b "Rotation about sun")) (:td :id "rotation" "0") (:td "deg"))
-	     (:tr (:td (:b "Absorbed")) (:td :id "absorbed" "100") (:td "%"))
 	     (:tr (:td (:b "Acceleration")) (:td :id "accel" "1") (:td "mm/s" (:sup "2")))
 	     (:tr (:td (:b "Speed")) (:td :id "speed" "0") (:td "mm/s"))
 	     (:tr (:td (:b "Distance")) (:td :id "distance" "0") (:td "m"))
