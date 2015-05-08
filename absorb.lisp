@@ -24,9 +24,9 @@
       (:div :id "info"
 	    (:h1 "Sunlight Absorbed by a Sail")
 	    (:ul
-	     (:li "The yellow box shows the sunlight that is absorbed by the sail.")
-	     (:li "The arrow shows the direction of the sunlight, and its length shows how much hits the sail.")
-	     (:li "Observe how the volume of the box, length of the arrow, and absorbed % change as the sail tilts " (:em "(sun incidence)."))
+	     (:li "The yellow box shows the sunlight absorbed by the sail.")
+	     (:li "The arrow shows the direction and how much sunlight hits the sail.")
+	     (:li "Tilt the sail (" (:em "sun incidence") ") and watch how the box and arrow change.")
 	     (:li (:b "Challenge:") "Find the sun incidence angles where the sunlight absorbed is 100%, 50%, and 0%.")
 	     (:li (:b "Extra credit:") "Calculate the " (:em "cosine") " of the sun incidence angle and compare to the absorbed %."))
 	    (:table
