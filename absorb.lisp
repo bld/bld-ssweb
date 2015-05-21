@@ -22,11 +22,12 @@
      (:script :src "js/lib.js")
      (:body
       (:div :id "info"
-	    (:h1 "Sunlight Absorbed by a Sail")
-	    (:ul
+	    (:h1 (:a :href "#" :onclick "toggleDiv(\"infoText\"); return false;" "Sunlight Absorbed by a Sail"))
+	    (:ul :id "infoText"
 	     (:li "The yellow box shows the sunlight absorbed by the sail.")
 	     (:li "The arrow shows the direction and how much sunlight hits the sail.")
-	     (:li "Tilt the sail (" (:em "sun incidence") ") and watch how the box and arrow change.")
+	     (:li "Tilt the sail (" (:em "sun incidence") ") and watch how the box and arrow change."))
+	    (:ul
 	     (:li (:b "Challenge:") "Find the sun incidence angles where the sunlight absorbed is 100%, 50%, and 0%.")
 	     (:li (:b "Extra credit:") "Calculate the " (:em "cosine") " of the sun incidence angle and compare to the absorbed %."))
 	    (:table
@@ -60,6 +61,7 @@
        :type "text/javascript"
        (str
 	(ps
+	  (toggle-div "infoText")
 	  (toggle-div "helpText")
 	  (defvar app (absorb))
 	  ((@ app init))

@@ -22,13 +22,14 @@
      (:script :src "js/lib.js")
      (:body
       (:div :id "info"
-	    (:h1 "Sunlight Reflected by a Solar Sail")
-	    (:ul
+	    (:h1 (:a :href "#" :onclick "toggleDiv(\"infoText\"); return false;" "Sunlight Reflected by a Solar Sail"))
+	    (:ul :id "infoText"
 	     (:li "Light reflects off of the mirrored sail at the same angle that it hit it.")
 	     (:li "The yellow boxes show the light absorbed and reflected by the sail.")
 	     (:li "The arrows show the directions and amount of the absorbed and reflected light.")
 	     (:li "Slightly less light is reflected than absorbed because of imperfections in the sail.")
-	     (:li "Point the reflected light by tilting and rotating the sail.")
+	     (:li "Point the reflected light by tilting and rotating the sail."))
+	    (:ul
 	     (:li (:b "Challenge:") "Find the red target and reflect the light to hit it. Reload to change the target location."))
 	    (:table
 	     :id "tilt-controls"
@@ -61,6 +62,7 @@
        :type "text/javascript"
        (str
 	(ps
+	  (toggle-div "infoText")
 	  (toggle-div "helpText")
 	  (defvar app (reflect))
 	  ((@ app init))

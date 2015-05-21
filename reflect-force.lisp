@@ -8,7 +8,7 @@
      (:meta :charset "utf-8")
      (:meta :property "og:url" :content "http://flightschool.solarsails.info/reflect-force.html")
      (:meta :property "og:title" :content "Force from Reflected Sunlight on a Solar Sail")
-     (:meta :property "og:image" :content "http://flightschool.solarsails.info/img/reflect_image.png")
+     (:meta :property "og:image" :content "http://flightschool.solarsails.info/img/reflect_force.png")
      (:meta :property "og:description" :content "Lesson 6: Learn how reflected sunlight pushes a solar sail.")
      (:meta :property "og:site_name" :content "Solar Sail Flight School")
      (:title "Force from Reflected Sunlight on a Solar Sail")
@@ -22,21 +22,22 @@
      (:script :src "js/lib.js")
      (:body
       (:div :id "info"
-	    (:h1 "Force from Reflected Sunlight on a Solar Sail")
-	    (:ul
+	    (:h1 (:a :href "#" :onclick "toggleDiv(\"infoText\"); return false;" "Force from Reflected Sunlight on a Solar Sail"))
+	    (:ul :id "infoText"
 	     (:li "Reflected light pushes back on the sail in the opposite direction it shines, like rocket and jet exhaust")
 	     (:li "The arrows show the direction and amount of:"
 		  (:ul (:li (:span :class "light" "Sunlight"))
 		       (:li (:span :class "force" "Acceleration & force"))
-		       (:li (:span :class "velocity" "Velocity & speed"))))
+		       (:li (:span :class "velocity" "Velocity & speed")))))
+	    (:ul
 	     (:li (:b "Challenge:") "Fly the sail into the red target.")
 	     (:li "Hit the spacebar or click Continue to start."))
 	    (:table
 	     :id "tilt-controls"
 	     (:tr (:td (:b "Sun incidence")) (:td :id "incidence" "0") (:td "deg"))
 	     (:tr (:td (:b "Rotation about sun")) (:td :id "rotation" "0") (:td "deg"))
-	     (:tr (:td (:b "Acceleration")) (:td :id "accel" "1") (:td "mm/s" (:sup "2")))
-	     (:tr (:td (:b "Speed")) (:td :id "speed" "0") (:td "mm/s"))
+	     (:tr (:td :class "force" (:b "Acceleration")) (:td :id "accel" "1") (:td "mm/s" (:sup "2")))
+	     (:tr (:td :class "velocity" (:b "Speed")) (:td :id "speed" "0") (:td "mm/s"))
 	     (:tr (:td (:b "Distance")) (:td :id "distance" "0") (:td "m"))
 	     (:tr (:td (:b "Time") "(100X)") (:td :id "elapsed" "0") (:td "min:sec"))))
       (:div :id "help"
@@ -69,6 +70,7 @@
        :type "text/javascript"
        (str
 	(ps
+	  (toggle-div "infoText")
 	  (toggle-div "helpText")
 	  (defvar app (reflect-force))
 	  ((@ app init))

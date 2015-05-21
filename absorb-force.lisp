@@ -8,7 +8,7 @@
      (:meta :charset "utf-8")
      (:meta :property "og:url" :content "http://flightschool.solarsails.info/absorb-force.html")
      (:meta :property "og:title" :content "Force from Absorbed Sunlight on a Solar Sail")
-     (:meta :property "og:image" :content "http://flightschool.solarsails.info/img/absorb_image.png")
+     (:meta :property "og:image" :content "http://flightschool.solarsails.info/img/absorb_force.png")
      (:meta :property "og:description" :content "Lesson 5: Learn how absorbed sunlight pushes a solar sail.")
      (:meta :property "og:site_name" :content "Solar Sail Flight School")
      (:title "Force from Absorbed Sunlight on a Solar Sail")
@@ -22,14 +22,15 @@
      (:script :src "js/lib.js")
      (:body
       (:div :id "info"
-	    (:h1 "Force from Absorbed Sunlight on a Solar Sail")
-	    (:ul
+	    (:h1 (:a :href "#" :onclick "toggleDiv(\"infoText\"); return false;" "Force from Absorbed Sunlight on a Solar Sail"))
+	    (:ul :id "infoText"
 	     (:li "Sunlight pushes a sail in the direction it shines.")
 	     (:li "The " (:span :class "force" "force") " is proportional to the " (:span :class "light" "light") " absorbed.")
 	     (:li "The arrows show the direction and amount of:"
 		  (:ul (:li (:span :class "light" "Sunlight"))
 		       (:li (:span :class "force" "Acceleration & force"))
-		       (:li (:span :class "velocity" "Velocity & speed"))))
+		       (:li (:span :class "velocity" "Velocity & speed")))))
+	    (:ul
 	     (:li (:b "Challenge:") "Get the " (:span :class "velocity" "speed") " as close to 20 mm/s as you can.")
 	     (:li "Hit the spacebar or click Continue to start."))
 	    (:table
@@ -37,8 +38,8 @@
 	     (:tr (:td (:b "Sun incidence")) (:td :id "incidence" "0") (:td "deg"))
 	     (:tr (:td (:b "Rotation about sun")) (:td :id "rotation" "0") (:td "deg"))
 	     ;;(:tr (:td (:b "Absorbed")) (:td :id "absorbed" "100") (:td "%"))
-	     (:tr (:td (:b "Acceleration")) (:td :id "accel" "1") (:td "mm/s" (:sup "2")))
-	     (:tr (:td (:b "Speed")) (:td :id "speed" "0") (:td "mm/s"))
+	     (:tr (:td :class "force" (:b "Acceleration")) (:td :id "accel" "1") (:td "mm/s" (:sup "2")))
+	     (:tr (:td :class "velocity" (:b "Speed")) (:td :id "speed" "0") (:td "mm/s"))
 	     (:tr (:td (:b "Distance")) (:td :id "distance" "0") (:td "m"))
 	     (:tr (:td (:b "Time") "(10X)") (:td :id "elapsed" "0") (:td "min:sec"))))
       (:div :id "help"
@@ -71,6 +72,7 @@
        :type "text/javascript"
        (str
 	(ps
+	  (toggle-div "infoText")
 	  (toggle-div "helpText")
 	  (defvar app (absorb-force))
 	  ((@ app init))
