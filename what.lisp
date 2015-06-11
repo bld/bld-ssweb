@@ -23,20 +23,26 @@
       (:div :id "screen"
 	    (:div :id "info"
 		  (:h1 (:a :href "#" :onclick "toggleDiv(\"infoText\"); return false;" "What is a Solar Sail?"))
-		  (:ul :id "infoText"
-		       (:li "Solar sails are large, lightweight mirrors that are pushed by the pressure of reflected sunlight to propel a spacecraft throughout the solar system and beyond.")
-		       (:li "The following simulations let you practice the skills needed to steer and navigate a solar sail spacecraft."))
-		  (:ul (:li (:b "Challenge:") "Zoom in on the center, look at the backside, and find the sun.")))
+		  (:ul :id "infoText" (:li "Solar sails are large, lightweight mirrors that are attached to spacecraft.")
+		       (:li "Sunlight reflects off of the sails, which pushes the spacecraft around the solar system and beyond.")
+		       (:li (:b "Challenges:")
+			    (:ul
+			     (:li "Click on " (:em "Help") " and learn how the interface works. Click on it again to make it disappear.")
+			     (:li "Zoom in on the center, look at the back of the sail, and find the sun.")))))
+
 	    (:div :id "help"
 		  (:h2 (:a :href "#" :onclick "toggleDiv(\"helpText\"); return false;" "Help"))
 		  (:div :id "helpText"
 			(:ul
-			 (:li "Rotate the view by clicking or touching and dragging.")
-			 (:li "To zoom:"
+			 (:li "Click on the title, " (:em "What is a Solar Sail") ", to hide the text. Click again to show it.")
+			 (:li "Rotate the view:"
 			      (:ul
-			       (:li "Roll a mouse wheel")
-			       (:li "Hold the middle mouse button and move up and down")
-			       (:li "Pinch and spread two fingers on a touch screen"))))))
+			       (:li "Mouse: click, hold, and move up, down, left, and right.")
+			       (:li "Touchscreen: slide your finger up, down, left, and right.")))
+			 (:li "Zoom in and out:"
+			      (:ul
+			       (:li "Mouse: roll the mouse wheel or hold the middle mouse button and move up and down.")
+			       (:li "Touchscreen: with two fingers, pinch to zoom out, or spread them apart to zoom in."))))))
 	    (:div :id "plot"))
       (:div :id "nav"
 	    (:p (:b (:a :href "/parts.html" "Next: Parts of a Solar Sail")))
@@ -46,7 +52,6 @@
        (str
 	(ps
 	  (toggle-div "helpText")
-	  (toggle-div "infoText")
 	  (defvar app (what))
 	  ((@ app init))
 	  ((@ app animate)))))
