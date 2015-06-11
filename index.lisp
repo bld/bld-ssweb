@@ -27,29 +27,18 @@
 	    (:p (:b "Learn to fly a solar sail through space on the pressure of sunlight."))
 	    (:ul
 	     (:li (:b "If you can see a solar sail and stars, then the school will work with with your browser. "))
-	     (:li (:b "If not, you need a browser " (:a :href "http://get.webgl.org/" "with the WebGL feature enabled."))))
+	     (:li (:b "If not, you need a browser with the " (:a :href "http://get.webgl.org/" "WebGL feature enabled."))))
 	    
 	    (:h2 "Lessons")
 
-	    (:ul
-	    
-	     (:li (:h3 (:a :href "#" :onclick "toggleDiv(\"theSail\"); return false;" "The Sail"))
-		  (:ol :id "theSail"
-		       (:li (:h3 (:a :href "/what.html" "What is a solar sail?")))
-		       (:li (:h3 (:a :href "/parts.html" "Parts of a solar sail")))))
-	     
-	     (:li (:h3 (:a :href "#" :onclick "toggleDiv(\"Light\"); return false;" "Light"))
-		  (:ol :id "Light" :start 3
-		       (:li (:h3 (:a :href "/absorb.html" "Sunlight absorbed by a sail")))
-		       (:li (:h3 (:a :href "/reflect.html" "Sunlight reflected by a sail")))))
-
-	     (:li (:h3 (:a :href "#" :onclick "toggleDiv(\"Forces\"); return false;" "Forces"))
-		  (:ol :id "Forces" :start 5
-		       (:li (:h3 (:a :href "/absorb-force.html" "Force from absorbed sunlight on a solar sail")))
-		       (:li (:h3 (:a :href "/reflect-force.html" "Force from reflected sunlight on a solar sail")))
-		       (:li (:h3 (:a :href "/force.html" "Force from sunlight on a solar sail"))))))
-	    
-	    (:br)
+	    (:ol
+	     (:li (:b (:a :href "/what.html" "What is a solar sail?")))
+	     (:li (:b (:a :href "/parts.html" "Parts of a solar sail")))
+	     (:li (:b (:a :href "/absorb.html" "Sunlight absorbed by a sail")))
+	     (:li (:b (:a :href "/reflect.html" "Sunlight reflected by a sail")))
+	     (:li (:b (:a :href "/absorb-force.html" "Force from absorbed sunlight on a solar sail")))
+	     (:li (:b (:a :href "/reflect-force.html" "Force from reflected sunlight on a solar sail")))
+	     (:li (:b (:a :href "/force.html" "Force from sunlight on a solar sail"))))
 	    
 	    (:p (:b (:a :href "http://www.patreon.com/bld"
 			"Help build the school by supporting this project at "
@@ -64,9 +53,6 @@
        :type "text/javascript"
        (str
 	(ps
-	  (toggle-div "theSail")
-	  (toggle-div "Light")
-	  (toggle-div "Forces")
 	  (defvar app (flightschool))
 	  ((@ app render))
 	  ((@ app init)))))
