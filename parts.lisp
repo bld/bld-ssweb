@@ -19,11 +19,14 @@
      (:script :type "text/javascript"
 	      (str (ps (lisp *ps-lisp-library*))))
      (:script :src "js/lib.js")
-     (:script :src "js/parts.js")
      (:body
       (:div :id "info"
-	    (:h1 "Parts of a Solar Sail")
-	    (:ul (:li (:b "Challenge:") "Click on and read about the 4 major parts of the sail."))
+	    (:h1 (:a :href "#" :onclick "toggleDiv(\"infoText\"); return false;" "Parts of a Solar Sail"))
+	    (:ul :id "infoText"
+		 (:li (:b "Challenges:")
+		      (:ul
+		       (:li "Click on " (:em "Help") " and learn how the interface works. Click on it again to make it disappear.")
+		       (:li "Try to find the 4 major parts of the sail by clicking on different areas. Read about each one."))))
 	    (:div :id "sails" :class "hidden"
 		  (:h2 "Sails")
 		  (:ul
@@ -61,12 +64,15 @@
 	    (:div :id "helpText"
 		  (:ul
 		   (:li "Click or tap on the parts of the sail for a description.")
-		   (:li "Rotate the view by clicking or touching and dragging.")
-		   (:li "To zoom:"
+		   (:li "Click on the title, " (:em "Parts of a Solar Sail") ", to hide the text. Click again to show it.")
+		   (:li "Rotate the view:"
 			(:ul
-			 (:li "Roll the mouse wheel")
-			 (:li "Hold the middle mouse button and move up and down")
-			 (:li "Pinch and spread two fingers on a touch screen"))))))
+			 (:li "Mouse: click, hold, and move up, down, left, and right.")
+			 (:li "Touchscreen: slide your finger up, down, left, and right.")))
+		   (:li "Zoom in and out:"
+			(:ul
+			 (:li "Mouse: roll the mouse wheel or hold the middle mouse button and move up and down.")
+			 (:li "Touchscreen: with two fingers, pinch to zoom out, or spread them apart to zoom in."))))))
       (:div :id "nav" 
 	    (:p (:b (:a :href "/absorb.html" "Next: Sunlight Absorbed by a Sail")))
 	    (:p (:b (:a :href "/what.html" "Previous: What is a Solar Sail?")))
