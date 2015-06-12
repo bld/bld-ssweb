@@ -21,49 +21,67 @@
      (:script :src "js/decround.js")
      (:script :src "js/lib.js")
      (:body
+
+      (:div :id "intro"
+	    (:h1 :id "intro0" (:a :href "#" :onclick "toggleDiv(\"intro0\"); toggleDiv(\"intro1\"); return false;" "Sunlight Reflected by a Solar Sail"))
+	    (:h1 :id "intro1" (:a :href "#" :onclick "toggleDiv(\"intro1\"); toggleDiv(\"intro2\"); return false;" "This lesson shows how to control the light that reflects off of a solar sail."))
+	    (:h1 :id "intro2" (:a :href "#" :onclick "toggleDiv(\"intro2\"); toggleDiv(\"intro3\"); return false;" "The yellow boxes show the portion of sunlight absorbed and reflected by the sail."))
+	    (:h1 :id "intro3" (:a :href "#" :onclick "toggleDiv(\"intro3\"); toggleDiv(\"intro4\"); return false;" "The arrows show the directions and amounts of sunlight absorbed and reflected by the sail."))
+	    (:h1 :id "intro4" (:a :href "#" :onclick "toggleDiv(\"intro4\"); toggleDiv(\"info\"); toggleDiv(\"arrows\"); return false;" "You can change where the reflected light shines by steering the sail.")))
+
       (:div :id "info"
-	    (:h1 (:a :href "#" :onclick "toggleDiv(\"infoText\"); return false;" "Sunlight Reflected by a Solar Sail"))
-	    (:ul :id "infoText"
-	     (:li "Light reflects off of the mirrored sail at the same angle that it hit it.")
-	     (:li "The yellow boxes show the light absorbed and reflected by the sail.")
-	     (:li "The arrows show the directions and amount of the absorbed and reflected light.")
-	     (:li "Slightly less light is reflected than absorbed because of imperfections in the sail.")
-	     (:li "Point the reflected light by tilting and rotating the sail."))
+	    (:h1 "Sunlight Reflected by a Solar Sail")
+	    (:h2 "Challenges:")
 	    (:ul
-	     (:li (:b "Challenge:") "Find the red target and reflect the light to hit it. Reload to change the target location."))
+	     (:li "Rotate the view to find the red target.")
+	     (:li "Steer the sail to hit the target with the reflected sunlight. Reload to change the target location."))
 	    (:table
 	     :id "tilt-controls"
 	     (:tr (:td (:b "Sun incidence")) (:td :id "incidence" "0") (:td "deg"))
 	     (:tr (:td (:b "Rotation about sun")) (:td :id "rotation" "0") (:td "deg"))
 	     (:tr (:td (:b "Absorbed")) (:td :id "absorbed" "100") (:td "%"))))
+
       (:div :id "help"
 	    (:h2 (:a :href "#" :onclick "toggleDiv(\"helpText\"); return false;" "Help"))
 	    (:div :id "helpText"
 		  (:li "Rotate the view by clicking or touching and dragging.")
-		  (:li "To zoom:"
+		  (:li "Keyboard and Mouse:"
 		       (:ul
-			(:li "Roll a mouse wheel")
-			(:li "Hold the middle mouse button and move up and down")
-			(:li "Pinch and spread two fingers on a touch screen")))
-		  (:li "To steer the sail:"
+			(:li "Zoom in and out by rolling the mouse wheel up and down, or hold the middle mouse button and move the mouse up and down.")
+			(:li "Rotate the view by clicking and holding the left mouse button, and moving the mouse left, right, up, and down.")
+			(:li "Tilt the sail by pressing the up and down arrow keys.")
+			(:li "Rotate the sail by pressing the left and right arrow keys.")))
+		  (:li "Touchscreen:"
 		       (:ul
-			(:li "Up and down arrows to tilt")
-			(:li "Right and left arrows to rotate")))))
+			(:li "Zoom in and out by putting two fingers on the screen and pinching or spreading them apart.")
+			(:li "Rotate the view by sliding one finger left, right, up, or down.")
+			(:li "Tilt the sail by tapping the yellow up and down arrows.")
+			(:li "Rotate the sail by tapping the yellow left and right arrows.")))
+		  (:li "Reload to see the introduction again.")))
+
       (:div :id "nav"
 	    (:p (:b (:a :href "/absorb-force.html" "Next: Force from Absorbed Sunlight")))
 	    (:p (:b (:a :href "/absorb.html" "Previous: Sunlight Absorbed by a Sail")))
 	    (:p (:b (:a :href "/index.html" "Home"))))
-      (:img :id "up" :src "img/arrow_up.svg")
-      (:img :id "down" :src "img/arrow_down.svg")
-      (:img :id "left" :src "img/arrow_left.svg")
-      (:img :id "right" :src "img/arrow_right.svg")
+
+      (:div :id "arrows"
+	    (:img :id "up" :src "img/arrow_up.svg")
+	    (:img :id "down" :src "img/arrow_down.svg")
+	    (:img :id "left" :src "img/arrow_left.svg")
+	    (:img :id "right" :src "img/arrow_right.svg"))
+      
       (:div :id "plot")
       (:script
        :type "text/javascript"
        (str
 	(ps
-	  (toggle-div "infoText")
 	  (toggle-div "helpText")
+	  (toggle-div "info")
+	  (toggle-div "arrows")
+	  (toggle-div "intro1")
+	  (toggle-div "intro2")
+	  (toggle-div "intro3")
+	  (toggle-div "intro4")
 	  (defvar app (reflect))
 	  ((@ app init))
 	  ((@ app animate)))))
