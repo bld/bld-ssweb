@@ -20,13 +20,19 @@
 	      (str (ps (lisp *ps-lisp-library*))))
      (:script :src "js/lib.js")
      (:body
+
+      (:div :id "intro"
+	    (:h1 :id "intro0" (:a :href "#" :onclick "toggleDiv(\"intro0\"); toggleDiv(\"intro1\"); return false;"
+				 "Parts of a Solar Sail"))
+	    (:h1 :id "intro1" (:a :href "#" :onclick "toggleDiv(\"intro1\"); toggleDiv(\"info\"); return false;"
+				 "In this lesson, you will learn the parts of a solar sail spacecraft that make it work.")))
+
       (:div :id "info"
-	    (:h1 (:a :href "#" :onclick "toggleDiv(\"infoText\"); return false;" "Parts of a Solar Sail"))
-	    (:ul :id "infoText"
-		 (:li (:b "Challenges:")
-		      (:ul
-		       (:li "Click on " (:em "Help") " and learn how the interface works. Click on it again to make it disappear.")
-		       (:li "Try to find the 4 major parts of the sail by clicking on different areas. Read about each one."))))
+	    (:h1 "Parts of a Solar Sail")
+	    (:h2 "Challenges:")
+	    (:ul
+	     (:li "Click on " (:em "Help") " and learn how the interface works. Click on it again to make it disappear.")
+	     (:li "Try to find the 4 major parts of the sail by clicking on different areas. Read about each one."))
 	    (:div :id "sails" :class "hidden"
 		  (:h2 "Sails")
 		  (:ul
@@ -57,14 +63,14 @@
 		  (:ul
 		   (:li "Steering vanes are small sails at the boom tips that can rotate.")
 		   (:li "They push the main sail to point in the direction you want to go.")
-		   (:li "They work like airplane ailerons and trim tabs to steer and hold the orientation of the sail. ")
+		   (:li "They work like airplane flaps and ailerons to steer the sail. ")
 		   (:li "For more information see: " (:a :target "_blank" :href "http://wiki.solarsails.info/index.php/Category:Attitude_Control" "Attitude Control")))))
       (:div :id "help"
 	    (:h2 (:a :href "#" :onclick "toggleDiv(\"helpText\"); return false;" "Help"))
 	    (:div :id "helpText"
 		  (:ul
 		   (:li "Click or tap on the parts of the sail for a description.")
-		   (:li "Click on the title, " (:em "Parts of a Solar Sail") ", to hide the text. Click again to show it.")
+		   (:li "Reload to show the intro again.")
 		   (:li "Rotate the view:"
 			(:ul
 			 (:li "Mouse: click, hold, and move up, down, left, and right.")
@@ -83,6 +89,8 @@
        (str
 	(ps
 	  (toggle-div "helpText")
+	  (toggle-div "intro1")
+	  (toggle-div "info")
 	  (defvar app (parts))
 	  ((@ app init))
 	  ((@ app animate)))))

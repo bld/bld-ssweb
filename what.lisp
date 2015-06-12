@@ -22,14 +22,16 @@
      (:body
 
       (:div :id "intro"
-	    (:h1 :id "what0" (:a :href "#" :onclick "toggleDiv(\"what0\"); toggleDiv(\"what1\"); return false;"
+	    (:h1 :id "intro0" (:a :href "#" :onclick "toggleDiv(\"intro0\"); toggleDiv(\"intro1\"); return false;"
 				 "What is a Solar Sail?"))
-	    (:h1 :id "what1" (:a :href "#" :onclick "toggleDiv(\"what1\"); toggleDiv(\"what2\"); return false;"
+	    (:h1 :id "intro1" (:a :href "#" :onclick "toggleDiv(\"intro1\"); toggleDiv(\"intro2\"); return false;"
+				  "This lesson explains what a solar sail is, and introduces the camera controls used throughout flight school."))
+	    (:h1 :id "intro2" (:a :href "#" :onclick "toggleDiv(\"intro2\"); toggleDiv(\"intro3\"); return false;"
 				 "A solar sail is a large, lightweight mirror that is attached to a spacecraft."))
-	    (:h1 :id "what2" (:a :href "#" :onclick "toggleDiv(\"what2\"); toggleDiv(\"challenge\"); return false;"
-				 "Sunlight pushes the mirror, which propels the spacecraft around the solar system and beyond like the wind propels a sailboat across the sea.")))
+	    (:h1 :id "intro3" (:a :href "#" :onclick "toggleDiv(\"intro3\"); toggleDiv(\"info\"); return false;"
+				  "Sunlight pushes the mirror, which propels the spacecraft around the solar system and beyond.")))
       
-      (:div :id "challenge"
+      (:div :id "info"
 	    (:h1 "What is a solar sail?")
 	    (:h2 "Challenges:")
 	    (:ul
@@ -40,7 +42,6 @@
 	    (:h2 (:a :href "#" :onclick "toggleDiv(\"helpText\"); return false;" "Help"))
 	    (:div :id "helpText"
 		  (:ul
-		   (:li "Reload to see the introduction again.")
 		   (:li "Rotate the view:"
 			(:ul
 			 (:li "Mouse: click, hold, and move up, down, left, and right.")
@@ -48,7 +49,9 @@
 		   (:li "Zoom in and out:"
 			(:ul
 			 (:li "Mouse: roll the mouse wheel or hold the middle mouse button and move up and down.")
-			 (:li "Touchscreen: with two fingers, pinch to zoom out, or spread them apart to zoom in."))))))
+			 (:li "Touchscreen: with two fingers, pinch to zoom out, or spread them apart to zoom in.")))
+		   (:li "Reload to see the introduction again."))))
+
 
       (:div :id "plot")
 
@@ -61,9 +64,10 @@
        (str
 	(ps
 	  (toggle-div "helpText")
-	  (toggle-div "what1")
-	  (toggle-div "what2")
-	  (toggle-div "challenge")
+	  (toggle-div "intro1")
+	  (toggle-div "intro2")
+	  (toggle-div "intro3")
+	  (toggle-div "info")
 	  (defvar app (what))
 	  ((@ app init))
 	  ((@ app animate)))))
