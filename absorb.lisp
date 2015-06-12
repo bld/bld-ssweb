@@ -7,11 +7,11 @@
     (:html
      (:meta :charset "utf-8")
      (:meta :property "og:url" :content "http://flightschool.solarsails.info/absorb.html")
-     (:meta :property "og:title" :content "Sunlight Absorbed by a Sail")
+     (:meta :property "og:title" :content "Sunlight Absorbed by a Solar Sail")
      (:meta :property "og:image" :content "http://flightschool.solarsails.info/img/absorb_image.png")
      (:meta :property "og:description" :content "Lesson 3: Learn how light strikes a solar sail.")
      (:meta :property "og:site_name" :content "Solar Sail Flight School")
-     (:title "Sunlight Absorbed by a Sail")
+     (:title "Sunlight Absorbed by a Solar Sail")
      (:link :href "sail.css" :rel "stylesheet")
      (:script :src "js/three.min.js")
      (:script :src "js/jquery-1.11.1.min.js")
@@ -23,14 +23,14 @@
      (:body
 
       (:div :id "intro"
-	    (:h1 :id "intro0" (:a :href "#" :onclick "toggleDiv(\"intro0\"); toggleDiv(\"intro1\"); return false;" "Sunlight Absorbed by a Sail"))
+	    (:h1 :id "intro0" (:a :href "#" :onclick "toggleDiv(\"intro0\"); toggleDiv(\"intro1\"); return false;" "Sunlight Absorbed by a Solar Sail"))
 	    (:h1 :id "intro1" (:a :href "#" :onclick "toggleDiv(\"intro1\"); toggleDiv(\"intro2\"); return false;" "This lesson shows how to control the amount of sunlight that a solar sail absorbs."))
 	    (:h1 :id "intro2" (:a :href "#" :onclick "toggleDiv(\"intro2\"); toggleDiv(\"intro3\"); return false;" "The yellow box shows the portion of sunlight that is absorbed by the sail."))
 	    (:h1 :id "intro3" (:a :href "#" :onclick "toggleDiv(\"intro3\"); toggleDiv(\"intro4\"); return false;" "The arrow shows the direction and amount of the absorbed sunlight."))
 	    (:h1 :id "intro4" (:a :href "#" :onclick "toggleDiv(\"intro4\"); toggleDiv(\"info\"); toggleDiv(\"arrows\"); return false;" "Tilt the sail " (:em "(sun incidence)") " and watch how the box and arrow change.")))
       
       (:div :id "info"
-	    (:h1 "Sunlight Absorbed by a Sail")
+	    (:h1 "Sunlight Absorbed by a Solar Sail")
 	    (:h2 "Challenges")
 	    (:ul
 	     (:li "Click on " (:em "Help") " and learn how the interface works. Click on it again to make it disappear.")
