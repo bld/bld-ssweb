@@ -11,7 +11,13 @@
     
     (defun toggle-div (div-id)
       ((@ ($ (+ "#" div-id)) toggle)))
+
+    (defun show-div (div-id)
+      ((@ ($ (+ "#" div-id)) show)))
     
+    (defun hide-div (div-id)
+      ((@ ($ (+ "#" div-id)) hide)))
+
     (setf (@ *function prototype method)
 	  (lambda (name func)
 	    (when (not (elt (@ this prototype) name))
@@ -759,7 +765,9 @@
 	 (let ((tilt-super ((@ app superior) "updateTilt")))
 	   (lambda ()
 	     (funcall tilt-super)
-	     ((@ absorb-force-arrow set-length) (* 10 (/ absorbed 100)))))
+	     ((@ absorb-force-arrow set-length) (* 10 (/ absorbed 100)))
+	     (let ((accel-v (funcall accelfn)))
+	       (setf (@ ($ "#accel") 0 inner-h-t-m-l) ((@ ((@ *math floor10) (* ((@ accel-v length)) 1000) -4) to-string))))))
 	 ))
       app)
     
