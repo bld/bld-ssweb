@@ -29,13 +29,13 @@
 	    (:h1 :id "intro3" (:a :href "#" :onclick "hideDiv(\"intro3\"); showDiv(\"intro4\"); return false;" "The arrows show the directions and amounts of sunlight absorbed and reflected by the sail."))
 	    (:h1 :id "intro4" (:a :href "#" :onclick "hideDiv(\"intro\"); showDiv(\"info\"); showDiv(\"help\"); showDiv(\"arrows\"); return false;" "You can change where the reflected light shines by steering the sail."))
 	    ;; Skip intro
-	    (:h2 :id "skip" (:a :href "#" :onclick "hideDiv(\"intro\"); showDiv(\"info\"); showDiv(\"help\"); showDiv(\"arrows\"); return false;" "Skip intro")))
+	    (:h3 :id "skip" (:a :href "#" :onclick "hideDiv(\"intro\"); showDiv(\"info\"); showDiv(\"help\"); showDiv(\"arrows\"); return false;" "Skip intro")))
 
       (:div :id "info"
 	    (:h1 "Sunlight Reflected by a Solar Sail")
-	    (:h2 "Challenges:")
+	    (:h3 "Challenges:")
 	    (:ul
-	     (:li "Rotate the view to find the red target.")
+	     (:li "Rotate and zoom the view to find the red target.")
 	     (:li "Steer the sail to hit the target with the reflected sunlight. Reload to change the target location."))
 	    (:table
 	     :id "tilt-controls"
@@ -44,11 +44,11 @@
 	     (:tr (:td (:b "Absorbed")) (:td :id "absorbed" "100") (:td "%"))))
 
       (:div :id "help"
-	    (:h2 (:a :href "#" :onclick "toggleDiv(\"helpText\"); return false;" "Help"))
+	    (:h2 (:a :href "#" :onclick "toggleDiv(\"helpText\"); toggleDiv(\"info\"); toggleDiv(\"nav\"); toggleDiv(\"arrows\"); return false;" "Help"))
 	    (:div :id "helpText"
 		  (:li "Keyboard and Mouse:"
 		       (:ul
-			(:li "Zoom in and out by rolling the mouse wheel up and down, or holding the middle mouse button and moving the mouse up and down.")
+			(:li "Zoom by rolling the mouse wheel up and down, or holding the middle mouse button and moving up and down.")
 			(:li "Rotate the view by holding the left mouse button, and moving the mouse left, right, up, and down.")
 			(:li "Tilt the sail by pressing the up and down arrow keys.")
 			(:li "Rotate the sail by pressing the left and right arrow keys.")))
