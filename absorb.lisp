@@ -29,13 +29,13 @@
 	    (:h1 :id "intro3" (:a :href "#" :onclick "hideDiv(\"intro3\"); showDiv(\"intro4\"); return false;" "The arrow shows the direction and amount of the absorbed sunlight."))
 	    (:h1 :id "intro4" (:a :href "#" :onclick "hideDiv(\"intro\"); showDiv(\"info\"); showDiv(\"help\"); showDiv(\"arrows\"); return false;" "Tilt the sail " (:em "(sun incidence)") " and watch how the box and arrow change."))
 	    ;; Skip intro
-	    (:h2 :id "skip" (:a :href "#" :onclick "hideDiv(\"intro\"); showDiv(\"info\"); showDiv(\"help\"); showDiv(\"arrows\"); return false;" "Skip intro")))
+	    (:h3 :id "skip" (:a :href "#" :onclick "hideDiv(\"intro\"); showDiv(\"info\"); showDiv(\"help\"); showDiv(\"arrows\"); return false;" "Skip intro")))
       
       (:div :id "info"
 	    (:h1 "Sunlight Absorbed by a Solar Sail")
-	    (:h2 "Challenges")
+	    (:h3 "Challenges")
 	    (:ul
-	     (:li "Click on " (:em "Help") " and learn how the interface works. Click on it again to make it disappear.")
+	     ;;(:li "Click on " (:em "Help") " and learn how the interface works. Click on it again to make it disappear.")
 	     (:li "Find the sun incidence angles where the sunlight absorbed is 100%, 50%, and 0%.")
 	     (:li (:b "Extra credit:") "Calculate the " (:em "cosine") " of the sun incidence angle and compare to the absorbed %."))
 	    (:table
@@ -45,11 +45,11 @@
 	     (:tr (:td (:b "Absorbed")) (:td :id "absorbed" "100") (:td "%"))))
 
       (:div :id "help"
-	    (:h2 (:a :href "#" :onclick "toggleDiv(\"helpText\"); return false;" "Help"))
+	    (:h2 (:a :href "#" :onclick "toggleDiv(\"helpText\"); toggleDiv(\"info\"); toggleDiv(\"nav\"); toggleDiv(\"arrows\"); return false;" "Help"))
 	    (:div :id "helpText"
 		  (:li "Keyboard and Mouse:"
 		       (:ul
-			(:li "Zoom in and out by rolling the mouse wheel up and down, or holding the middle mouse button and moving the mouse up and down.")
+			(:li "Zoom by rolling the mouse wheel up and down, or holding the middle mouse button and moving up and down.")
 			(:li "Rotate the view by holding the left mouse button, and moving the mouse left, right, up, and down.")
 			(:li "Tilt the sail by pressing the up and down arrow keys.")
 			(:li "Rotate the sail by pressing the left and right arrow keys.")))
