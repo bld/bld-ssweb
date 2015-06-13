@@ -23,11 +23,13 @@
      (:body
 
       (:div :id "intro"
-	    (:h1 :id "intro0" (:a :href "#" :onclick "toggleDiv(\"intro0\"); toggleDiv(\"intro1\"); return false;" "Sunlight Reflected by a Solar Sail"))
-	    (:h1 :id "intro1" (:a :href "#" :onclick "toggleDiv(\"intro1\"); toggleDiv(\"intro2\"); return false;" "This lesson shows how to control the light that reflects off of a solar sail."))
-	    (:h1 :id "intro2" (:a :href "#" :onclick "toggleDiv(\"intro2\"); toggleDiv(\"intro3\"); return false;" "The yellow boxes show the portion of sunlight absorbed and reflected by the sail."))
-	    (:h1 :id "intro3" (:a :href "#" :onclick "toggleDiv(\"intro3\"); toggleDiv(\"intro4\"); return false;" "The arrows show the directions and amounts of sunlight absorbed and reflected by the sail."))
-	    (:h1 :id "intro4" (:a :href "#" :onclick "toggleDiv(\"intro4\"); toggleDiv(\"info\"); toggleDiv(\"arrows\"); return false;" "You can change where the reflected light shines by steering the sail.")))
+	    (:h1 :id "intro0" (:a :href "#" :onclick "hideDiv(\"intro0\"); showDiv(\"intro1\"); return false;" "Sunlight Reflected by a Solar Sail"))
+	    (:h1 :id "intro1" (:a :href "#" :onclick "hideDiv(\"intro1\"); showDiv(\"intro2\"); return false;" "This lesson shows how to control the light that reflects off of a solar sail."))
+	    (:h1 :id "intro2" (:a :href "#" :onclick "hideDiv(\"intro2\"); showDiv(\"intro3\"); return false;" "The yellow boxes show the portion of sunlight absorbed and reflected by the sail."))
+	    (:h1 :id "intro3" (:a :href "#" :onclick "hideDiv(\"intro3\"); showDiv(\"intro4\"); return false;" "The arrows show the directions and amounts of sunlight absorbed and reflected by the sail."))
+	    (:h1 :id "intro4" (:a :href "#" :onclick "hideDiv(\"intro\"); showDiv(\"info\"); showDiv(\"help\"); showDiv(\"arrows\"); return false;" "You can change where the reflected light shines by steering the sail."))
+	    ;; Skip intro
+	    (:h2 :id "skip" (:a :href "#" :onclick "hideDiv(\"intro\"); showDiv(\"info\"); showDiv(\"help\"); showDiv(\"arrows\"); return false;" "Skip intro")))
 
       (:div :id "info"
 	    (:h1 "Sunlight Reflected by a Solar Sail")
@@ -44,11 +46,10 @@
       (:div :id "help"
 	    (:h2 (:a :href "#" :onclick "toggleDiv(\"helpText\"); return false;" "Help"))
 	    (:div :id "helpText"
-		  (:li "Rotate the view by clicking or touching and dragging.")
 		  (:li "Keyboard and Mouse:"
 		       (:ul
-			(:li "Zoom in and out by rolling the mouse wheel up and down, or hold the middle mouse button and move the mouse up and down.")
-			(:li "Rotate the view by clicking and holding the left mouse button, and moving the mouse left, right, up, and down.")
+			(:li "Zoom in and out by rolling the mouse wheel up and down, or holding the middle mouse button and moving the mouse up and down.")
+			(:li "Rotate the view by holding the left mouse button, and moving the mouse left, right, up, and down.")
 			(:li "Tilt the sail by pressing the up and down arrow keys.")
 			(:li "Rotate the sail by pressing the left and right arrow keys.")))
 		  (:li "Touchscreen:"
@@ -57,7 +58,7 @@
 			(:li "Rotate the view by sliding one finger left, right, up, or down.")
 			(:li "Tilt the sail by tapping the yellow up and down arrows.")
 			(:li "Rotate the sail by tapping the yellow left and right arrows.")))
-		  (:li "Reload to see the introduction again.")))
+		  (:li "Reload to see the introduction again and change the target.")))
 
       (:div :id "nav"
 	    (:p (:b (:a :href "/absorb-force.html" "Next: Force from Absorbed Sunlight")))
@@ -75,13 +76,14 @@
        :type "text/javascript"
        (str
 	(ps
-	  (toggle-div "helpText")
-	  (toggle-div "info")
-	  (toggle-div "arrows")
-	  (toggle-div "intro1")
-	  (toggle-div "intro2")
-	  (toggle-div "intro3")
-	  (toggle-div "intro4")
+	  (hide-div "helpText")
+	  (hide-div "help")
+	  (hide-div "info")
+	  (hide-div "arrows")
+	  (hide-div "intro1")
+	  (hide-div "intro2")
+	  (hide-div "intro3")
+	  (hide-div "intro4")
 	  (defvar app (reflect))
 	  ((@ app init))
 	  ((@ app animate)))))

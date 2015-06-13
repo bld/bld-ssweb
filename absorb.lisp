@@ -23,11 +23,13 @@
      (:body
 
       (:div :id "intro"
-	    (:h1 :id "intro0" (:a :href "#" :onclick "toggleDiv(\"intro0\"); toggleDiv(\"intro1\"); return false;" "Sunlight Absorbed by a Solar Sail"))
-	    (:h1 :id "intro1" (:a :href "#" :onclick "toggleDiv(\"intro1\"); toggleDiv(\"intro2\"); return false;" "This lesson shows how to control the amount of sunlight that a solar sail absorbs."))
-	    (:h1 :id "intro2" (:a :href "#" :onclick "toggleDiv(\"intro2\"); toggleDiv(\"intro3\"); return false;" "The yellow box shows the portion of sunlight that is absorbed by the sail."))
-	    (:h1 :id "intro3" (:a :href "#" :onclick "toggleDiv(\"intro3\"); toggleDiv(\"intro4\"); return false;" "The arrow shows the direction and amount of the absorbed sunlight."))
-	    (:h1 :id "intro4" (:a :href "#" :onclick "toggleDiv(\"intro4\"); toggleDiv(\"info\"); toggleDiv(\"arrows\"); return false;" "Tilt the sail " (:em "(sun incidence)") " and watch how the box and arrow change.")))
+	    (:h1 :id "intro0" (:a :href "#" :onclick "hideDiv(\"intro0\"); showDiv(\"intro1\"); return false;" "Sunlight Absorbed by a Solar Sail"))
+	    (:h1 :id "intro1" (:a :href "#" :onclick "hideDiv(\"intro1\"); showDiv(\"intro2\"); return false;" "This lesson shows how to control the amount of sunlight that a solar sail absorbs."))
+	    (:h1 :id "intro2" (:a :href "#" :onclick "hideDiv(\"intro2\"); showDiv(\"intro3\"); return false;" "The yellow box shows the portion of sunlight that is absorbed by the sail."))
+	    (:h1 :id "intro3" (:a :href "#" :onclick "hideDiv(\"intro3\"); showDiv(\"intro4\"); return false;" "The arrow shows the direction and amount of the absorbed sunlight."))
+	    (:h1 :id "intro4" (:a :href "#" :onclick "hideDiv(\"intro\"); showDiv(\"info\"); showDiv(\"help\"); showDiv(\"arrows\"); return false;" "Tilt the sail " (:em "(sun incidence)") " and watch how the box and arrow change."))
+	    ;; Skip intro
+	    (:h2 :id "skip" (:a :href "#" :onclick "hideDiv(\"intro\"); showDiv(\"info\"); showDiv(\"help\"); showDiv(\"arrows\"); return false;" "Skip intro")))
       
       (:div :id "info"
 	    (:h1 "Sunlight Absorbed by a Solar Sail")
@@ -45,11 +47,10 @@
       (:div :id "help"
 	    (:h2 (:a :href "#" :onclick "toggleDiv(\"helpText\"); return false;" "Help"))
 	    (:div :id "helpText"
-		  (:li "Rotate the view by clicking or touching and dragging.")
 		  (:li "Keyboard and Mouse:"
 		       (:ul
-			(:li "Zoom in and out by rolling the mouse wheel up and down, or hold the middle mouse button and move the mouse up and down.")
-			(:li "Rotate the view by clicking and holding the left mouse button, and moving the mouse left, right, up, and down.")
+			(:li "Zoom in and out by rolling the mouse wheel up and down, or holding the middle mouse button and moving the mouse up and down.")
+			(:li "Rotate the view by holding the left mouse button, and moving the mouse left, right, up, and down.")
 			(:li "Tilt the sail by pressing the up and down arrow keys.")
 			(:li "Rotate the sail by pressing the left and right arrow keys.")))
 		  (:li "Touchscreen:"
@@ -76,13 +77,14 @@
        :type "text/javascript"
        (str
 	(ps
-	  (toggle-div "helpText")
-	  (toggle-div "intro1")
-	  (toggle-div "intro2")
-	  (toggle-div "intro3")
-	  (toggle-div "intro4")
-	  (toggle-div "info")
-	  (toggle-div "arrows")
+	  (hide-div "helpText")
+	  (hide-div "help")
+	  (hide-div "intro1")
+	  (hide-div "intro2")
+	  (hide-div "intro3")
+	  (hide-div "intro4")
+	  (hide-div "info")
+	  (hide-div "arrows")
 	  (defvar app (absorb))
 	  ((@ app init))
 	  ((@ app animate)))))

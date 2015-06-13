@@ -21,18 +21,28 @@
      (:script :src "js/decround.js")
      (:script :src "js/lib.js")
      (:body
+
+      (:div :id "intro"
+	    (:h1 :id "intro0" (:a :href "#" :onclick "hideDiv(\"intro0\"); showDiv(\"intro1\"); return false;" "Force from Absorbed Sunlight on a Solar Sail"))
+	    (:h1 :id "intro1" (:a :href "#" :onclick "hideDiv(\"intro1\"); showDiv(\"intro2\"); return false;" "This lesson shows how a solar sail accelerates when pushed by the absorbed sunlight."))
+	    (:h1 :id "intro2" (:a :href "#" :onclick "hideDiv(\"intro2\"); showDiv(\"intro3\"); return false;" "Sunlight pushes on objects in the direction it shines."))
+	    (:h1 :id "intro3" (:a :href "#" :onclick "hideDiv(\"intro3\"); showDiv(\"intro4\"); return false;" "The " (:span :class "force" "force") " is proportional to the " (:span :class "light" "light") " absorbed."))
+	    (:h1 :id "intro4" (:a :href "#" :onclick "hideDiv(\"intro4\"); showDiv(\"intro5\"); return false;" "Tilting the sail reduces the amount of sunlight it absorbs, and therefore reduces the force."))
+	    (:h1 :id "intro5" (:a :href "#" :onclick "hideDiv(\"intro\"); showDiv(\"info\"); showDiv(\"help\"); showDiv(\"arrows\"); return false;" "The arrows show the direction and amount of:"
+				  (:br) (:span :class "light" "Sunlight")
+				  (:br) (:span :class "force" "Acceleration & force")
+				  (:br) (:span :class "velocity" "Velocity & speed")))
+	    ;; Skip intro
+	    (:h2 :id "skip" (:a :href "#" :onclick "hideDiv(\"intro\"); showDiv(\"info\"); showDiv(\"help\"); showDiv(\"arrows\"); return false;" "Skip intro")))
+      
       (:div :id "info"
-	    (:h1 (:a :href "#" :onclick "toggleDiv(\"infoText\"); return false;" "Force from Absorbed Sunlight on a Solar Sail"))
-	    (:ul :id "infoText"
-	     (:li "Sunlight pushes a sail in the direction it shines.")
-	     (:li "The " (:span :class "force" "force") " is proportional to the " (:span :class "light" "light") " absorbed.")
-	     (:li "The arrows show the direction and amount of:"
-		  (:ul (:li (:span :class "light" "Sunlight"))
-		       (:li (:span :class "force" "Acceleration & force"))
-		       (:li (:span :class "velocity" "Velocity & speed")))))
+	    (:h1 "Force from Absorbed Sunlight on a Solar Sail")
+	    (:h2 "Challenges:")
 	    (:ul
-	     (:li (:b "Challenge:") "Get the " (:span :class "velocity" "speed") " as close to 20 mm/s as you can.")
-	     (:li "Hit the spacebar or click Continue to start."))
+	     (:li "Click on " (:em "Help") " and learn how the interface works. Click on it again to make it disappear.")
+	     (:li "As the sail accelerates, tilt it away from the sun to reduce the acceleration.")
+	     (:li "Try to stop the acceleration (90 deg tilt) when the " (:span :class "velocity" "speed") " is as close to 20 mm/s as you can get it.")
+	     (:li "Hit the spacebar or click Continue/Pause to start or stop the animation."))
 	    (:table
 	     :id "tilt-controls"
 	     (:tr (:td (:b "Sun incidence")) (:td :id "incidence" "0") (:td "deg"))
@@ -42,38 +52,53 @@
 	     (:tr (:td :class "velocity" (:b "Speed")) (:td :id "speed" "0") (:td "mm/s"))
 	     (:tr (:td (:b "Distance")) (:td :id "distance" "0") (:td "m"))
 	     (:tr (:td (:b "Time") "(10X)") (:td :id "elapsed" "0") (:td "min:sec"))))
+
       (:div :id "help"
 	    (:h2 (:a :href "#" :onclick "toggleDiv(\"helpText\"); return false;" "Help"))
 	    (:div :id "helpText"
-		  (:li "The sail resets after travelling 100 m, or hit \"Reset\" button.")
+		  (:li "The sail resets after travelling 100 m, or hitting the \"Reset\" button.")
 		  (:li "Click \"Pause\" or hit spacebar to pause.")
-		  (:li "Rotate the view by clicking or touching and dragging.")
-		  (:li "To zoom:"
+		  (:li "Keyboard and Mouse:"
 		       (:ul
-			(:li "Roll a mouse wheel")
-			(:li "Hold the middle mouse button and move up and down")
-			(:li "Pinch and spread two fingers on a touch screen")))
-		  (:li "To steer the sail:"
+			(:li "Zoom in and out by rolling the mouse wheel up and down, or holding the middle mouse button and moving the mouse up and down.")
+			(:li "Rotate the view by holding the left mouse button, and moving the mouse left, right, up, and down.")
+			(:li "Tilt the sail by pressing the up and down arrow keys.")
+			(:li "Rotate the sail by pressing the left and right arrow keys.")))
+		  (:li "Touchscreen:"
 		       (:ul
-			(:li "Up and down arrows to tilt")
-			(:li "Right and left arrows to rotate")))))
+			(:li "Zoom in and out by putting two fingers on the screen and pinching or spreading them apart.")
+			(:li "Rotate the view by sliding one finger left, right, up, or down.")
+			(:li "Tilt the sail by tapping the yellow up and down arrows.")
+			(:li "Rotate the sail by tapping the yellow left and right arrows.")))
+		  (:li "Reload to see the introduction again.")))
+
       (:div :id "nav"
 	    (:button :id "pause" "Pause")
 	    (:button :id "reset" "Reset")
 	    (:p (:b (:a :href "/reflect-force.html" "Next: Force from Reflected Sunlight on a Solar Sail")))
 	    (:p (:b (:a :href "/reflect.html" "Previous: Sunlight Reflecting off of a Solar Sail")))
 	    (:p (:b (:a :href "/index.html" "Home"))))
-      (:img :id "up" :src "img/arrow_up.svg")
-      (:img :id "down" :src "img/arrow_down.svg")
-      (:img :id "left" :src "img/arrow_left.svg")
-      (:img :id "right" :src "img/arrow_right.svg")
+
+      (:div :id "arrows"
+	    (:img :id "up" :src "img/arrow_up.svg")
+	    (:img :id "down" :src "img/arrow_down.svg")
+	    (:img :id "left" :src "img/arrow_left.svg")
+	    (:img :id "right" :src "img/arrow_right.svg"))
+
       (:div :id "plot")
       (:script
        :type "text/javascript"
        (str
 	(ps
-	  (toggle-div "infoText")
-	  (toggle-div "helpText")
+	  (hide-div "helpText")
+	  (hide-div "help")
+	  (hide-div "intro1")
+	  (hide-div "intro2")
+	  (hide-div "intro3")
+	  (hide-div "intro4")
+	  (hide-div "intro5")
+	  (hide-div "info")
+	  (hide-div "arrows")
 	  (defvar app (absorb-force))
 	  ((@ app init))
 	  ((@ app animate)))))
