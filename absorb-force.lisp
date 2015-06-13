@@ -33,16 +33,16 @@
 				  (:br) (:span :class "force" "Acceleration & force")
 				  (:br) (:span :class "velocity" "Velocity & speed")))
 	    ;; Skip intro
-	    (:h2 :id "skip" (:a :href "#" :onclick "hideDiv(\"intro\"); showDiv(\"info\"); showDiv(\"help\"); showDiv(\"arrows\"); return false;" "Skip intro")))
+	    (:h3 :id "skip" (:a :href "#" :onclick "hideDiv(\"intro\"); showDiv(\"info\"); showDiv(\"help\"); showDiv(\"arrows\"); return false;" "Skip intro")))
       
       (:div :id "info"
-	    (:h1 "Force from Absorbed Sunlight on a Solar Sail")
-	    (:h2 "Challenges:")
+	    (:h1 "Force from Absorbed Sunlight")
+	    (:h3 "Challenges:")
 	    (:ul
-	     (:li "Click on " (:em "Help") " and learn how the interface works. Click on it again to make it disappear.")
-	     (:li "As the sail accelerates, tilt it away from the sun to reduce the acceleration.")
-	     (:li "Try to stop the acceleration (90 deg tilt) when the " (:span :class "velocity" "speed") " is as close to 20 mm/s as you can get it.")
-	     (:li "Hit the spacebar or click Continue/Pause to start or stop the animation."))
+	     ;;(:li "Click on " (:em "Help") " and learn how the interface works. Click on it again to make it disappear.")
+	     (:li "Hit the spacebar or \"Continue/Pause\" to start/stop the animation.")
+	     (:li "Tilt the sail away from the sun to reduce the acceleration.")
+	     (:li "Try to stop the acceleration (90 deg tilt) when the " (:span :class "velocity" "speed") " speed reaches 20 mm/s."))
 	    (:table
 	     :id "tilt-controls"
 	     (:tr (:td (:b "Sun incidence")) (:td :id "incidence" "0") (:td "deg"))
@@ -54,13 +54,13 @@
 	     (:tr (:td (:b "Time") "(10X)") (:td :id "elapsed" "0") (:td "min:sec"))))
 
       (:div :id "help"
-	    (:h2 (:a :href "#" :onclick "toggleDiv(\"helpText\"); return false;" "Help"))
+	    (:h2 (:a :href "#" :onclick "toggleDiv(\"helpText\"); toggleDiv(\"info\"); toggleDiv(\"nav\"); toggleDiv(\"arrows\"); return false;" "Help"))
 	    (:div :id "helpText"
+		  (:li "Hit the spacebar or \"Continue/Pause\" to start/stop the animation.")
 		  (:li "The sail resets after travelling 100 m, or hitting the \"Reset\" button.")
-		  (:li "Click \"Pause\" or hit spacebar to pause.")
 		  (:li "Keyboard and Mouse:"
 		       (:ul
-			(:li "Zoom in and out by rolling the mouse wheel up and down, or holding the middle mouse button and moving the mouse up and down.")
+			(:li "Zoom by rolling the mouse wheel up and down, or holding the middle mouse button and moving up and down.")
 			(:li "Rotate the view by holding the left mouse button, and moving the mouse left, right, up, and down.")
 			(:li "Tilt the sail by pressing the up and down arrow keys.")
 			(:li "Rotate the sail by pressing the left and right arrow keys.")))
