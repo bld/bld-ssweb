@@ -31,22 +31,22 @@
 	    (:h1 :id "intro3" (:a :href "#" :onclick "hideDiv(\"intro\"); showDiv(\"info\"); showDiv(\"help\"); return false;"
 				  "Sunlight pushes the mirror, which propels the spacecraft around the solar system and beyond."))
 	    ;; Skip intro
-	    (:h2 :id "skip" (:a :href "#" :onclick "hideDiv(\"intro\"); showDiv(\"info\"); showDiv(\"help\"); return false;" "Skip intro")))
+	    (:h3 :id "skip" (:a :href "#" :onclick "hideDiv(\"intro\"); showDiv(\"info\"); showDiv(\"help\"); return false;" "Skip intro")))
       
       (:div :id "info"
 	    (:h1 "What is a solar sail?")
-	    (:h2 "Challenges:")
+	    (:h3 "Challenges:")
 	    (:ul
 	     (:li "Click on " (:em "Help") " and learn how the interface works. Click on it again to make it disappear.")
 	     (:li "Zoom in on the center, zoom back out, look at the back of the sail, and find the sun.")))
       
       (:div :id "help"
-	    (:h2 (:a :href "#" :onclick "toggleDiv(\"helpText\"); return false;" "Help"))
+	    (:h2 (:a :href "#" :onclick "toggleDiv(\"helpText\"); toggleDiv(\"info\"); toggleDiv(\"nav\"); return false;" "Help"))
 	    (:div :id "helpText"
 		  (:ul
 		  (:li "Keyboard and Mouse:"
 		       (:ul
-			(:li "Zoom in and out by rolling the mouse wheel up and down, or holding the middle mouse button and moving the mouse up and down.")
+			(:li "Zoom by rolling the mouse wheel up and down, or holding the middle mouse button and moving up and down.")
 			(:li "Rotate the view by holding the left mouse button, and moving the mouse left, right, up, and down.")))
 		  (:li "Touchscreen:"
 		       (:ul
