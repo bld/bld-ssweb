@@ -28,32 +28,31 @@
 	    (:h1 :id "intro1" (:a :href "#" :onclick "hideDiv(\"intro\"); showDiv(\"info\"); showDiv(\"help\"); return false;"
 				 "In this lesson, you will learn the parts of a solar sail spacecraft that make it work."))
 	    ;; Skip intro
-	    (:h2 :id "skip" (:a :href "#" :onclick "hideDiv(\"intro\"); showDiv(\"info\"); showDiv(\"help\"); return false;" "Skip intro")))
+	    (:h3 :id "skip" (:a :href "#" :onclick "hideDiv(\"intro\"); showDiv(\"info\"); showDiv(\"help\"); return false;" "Skip intro")))
 
       (:div :id "info"
 	    (:h1 "Parts of a Solar Sail")
-	    (:h2 "Challenges:")
+	    (:h3 "Challenges:")
 	    (:ul
-	     (:li "Click on " (:em "Help") " and learn how the interface works. Click on it again to make it disappear.")
-	     (:li "Try to find the 4 major parts of the sail by clicking on different areas. Read about each one."))
+	     ;;(:li "Click on " (:em "Help") " and learn how the interface works. Click on it again to make it disappear.")
+	     (:li "Click on different areas of the sail to read about the 4 major parts."))
 	    (:div :id "sails" :class "hidden"
-		  (:h2 "Sails")
+		  (:h3 "Sails")
 		  (:ul
 		   (:li "The sails are large, thin, reflective sheets that are pushed by sunlight.")
 		   (:li "Current designs use a thin film of space qualified plastic like Kapton that is coated with a mirrored layer of aluminum.")
 		   (:li "For more information see: " (:a :target "_blank" :href "http://wiki.solarsails.info/index.php/Category:Sail_Film" "Sail Film"))))
 	    (:div :id "booms" :class "hidden"
-		  (:h2 "Booms")
+		  (:h3 "Booms")
 		  (:ul
-		   (:li "Something needs to hold the sails flat so they don't collapse under the gentle pressure of sunlight.")
-		   (:li "Many sail designs use structural booms in a kite-shape to keep the sail flat against the gentle pressure of sunlight.")
+		   (:li "The booms are structural members that hold the sails flat so they can reflect sunlight without collapsing.")
 		   (:li (:a :target "_blank" :href "http://wiki.solarsails.info/index.php/IKAROS" "IKAROS") " spins, using centripetal acceleration to hold the sail flat.")
 		   (:li "For more information see: "
 			(:ul
 			 (:li (:a :target "_blank" :href "http://wiki.solarsails.info/index.php/Three-Axis_Stabilized" "Three-Axis Stabilized"))
 			 (:li (:a :target "_blank" :href "http://wiki.solarsails.info/index.php/Category:Spin_Stabilized" "Spin Stabilized"))))))
 	    (:div :id "bus" :class "hidden"
-		  (:h2 "Spacecraft bus")
+		  (:h3 "Spacecraft bus")
 		  (:p "The spacecraft bus houses all the systems required to operate the sail and carry out the mission. It typically contains:")
 		  (:ul
 		   (:li "Flight computer")
@@ -62,7 +61,7 @@
 		   (:li "Scientific instruments and other payloads")
 		   (:li "Navigation and steering sensors")))
 	    (:div :id "vanes" :class "hidden"
-		  (:h2 "Steering vanes")
+		  (:h3 "Steering vanes")
 		  (:ul
 		   (:li "Steering vanes are small sails at the boom tips that can rotate.")
 		   (:li "They push the main sail to point in the direction you want to go.")
@@ -70,13 +69,13 @@
 		   (:li "For more information see: " (:a :target "_blank" :href "http://wiki.solarsails.info/index.php/Category:Attitude_Control" "Attitude Control")))))
       
       (:div :id "help"
-	    (:h2 (:a :href "#" :onclick "toggleDiv(\"helpText\"); return false;" "Help"))
+	    (:h2 (:a :href "#" :onclick "toggleDiv(\"helpText\"); toggleDiv(\"info\"); toggleDiv(\"nav\"); return false;" "Help"))
 	    (:div :id "helpText"
 		  (:ul
 		   (:li "Click or tap on the parts of the sail for a description.")
 		  (:li "Keyboard and Mouse:"
 		       (:ul
-			(:li "Zoom in and out by rolling the mouse wheel up and down, or holding the middle mouse button and moving the mouse up and down.")
+			(:li "Zoom by rolling the mouse wheel up and down, or holding the middle mouse button and moving up and down.")
 			(:li "Rotate the view by holding the left mouse button, and moving the mouse left, right, up, and down.")))
 		  (:li "Touchscreen:"
 		       (:ul
