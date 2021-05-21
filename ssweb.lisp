@@ -26,7 +26,7 @@
 	       (:table
 		(:tr
 		 (:td "Solar force / gravity")
-		 (:td (:input :type "number" :min "0" :max "2" :step "0.05" :value lightness :name "lightness"))))
+		 (:td (:input :type "number" :min "0" :max "2" :step "0.01" :value lightness :name "lightness"))))
 	       (:h2 "Controls")
 	       (:div :id "controls"
 		     (loop for angle in angles

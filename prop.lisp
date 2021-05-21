@@ -4,7 +4,7 @@
   (make-hash
    :lightness 0.1d0
    :mu 1d0
-   :x0 (list 1d0 0d0 0d0 1d0)
+   :x0 (vector 1d0 0d0 0d0 1d0)
    :t0 0d0
    :controls (list (list (* 0 *deg*) (* 1 *years*))
 		   (list (* 0 *deg*) (* 1 *years*))
@@ -13,15 +13,18 @@
 
 (defun sail-eom (tm x p)
   (lethash (lightness mu u) p
-    (destructuring-bind (r th vr vt) x
-      (let ((co (cos u))
-	    (si (sin u)))
-	(list vr
+    (let ((r (aref x 0))
+	  (th (aref x 1))
+	  (vr (aref x 2))
+	  (vt (aref x 3))
+	  (co (cos u))
+	  (si (sin u)))
+      (vector vr
 	      (/ vt r)
 	      (+ (/ (expt vt 2) r)
 		 (* mu (/ (1- (* lightness (expt co 2) (abs co))) (expt r 2))))
 	      (- (/ (* mu lightness (expt co 2) si) (expt r 2))
-		 (/ (* vr vt) r)))))))
+		 (/ (* vr vt) r))))))
 
 (defun sail-prop (sail &key 
 			 (lightness (gethash :lightness sail))
@@ -42,7 +45,8 @@
 (defun polar-to-xytraj (traj &key (velocity t) key)
   (loop for segment in traj
      collect 
-       (loop for (tm (r th vr vt)) in segment
+       (loop for (tm state) in segment
+	  for (r th vr vt) = (map 'list #'identity state)
 	  for c = (cos th)
 	  for s = (sin th)
 	  for x = (* r c)
